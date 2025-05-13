@@ -88,8 +88,19 @@ const AppMenu = () => {
                             command: handleMenuClick
                         },
                         {
+                            label: 'Account',
+                            url: '/marketing-account',
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('manage_supply_glossary');
+                            },
+                            command: handleMenuClick
+                        },
+                        {
                             label: 'Details',
-                            url: '/supply-glossary',
+                            url: '/marketing-details',
                             check: (user: any) => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
