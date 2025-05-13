@@ -84,7 +84,7 @@ const LoginPage = () => {
             // const encryptedPassword = await encryptPassword(password);
 
             // console.log(encryptedPassword);
-            
+
             const response: any = await PostCall('/sbs/api/auth/sign-in', { email, password });
 
             setLoading(false);
@@ -141,109 +141,100 @@ const LoginPage = () => {
         setChecked(e.checked); // Update checked state
     };
 
-    const containerClassName = classNames('surface-ground flex align-items-center justify-between min-h-screen overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
+    const containerClassName = classNames('surface-ground flex align-items-center justify-content-center min-h-screen  overflow-hidden', { 'p-input-filled': layoutConfig.inputStyle === 'filled' });
 
     return (
         <div className={containerClassName}>
-            <div className="flex align-items-center justify-between w-full h-screen">
+            <div className="flex align-items-center justify-content-center w-60rem">
                 {/* Left side image (hidden on small devices) */}
-                <div className="img-box hidden md:flex justify-content-center align-items-center w-1/2 h-full">
+                {/* <div className="img-box hidden md:flex justify-content-center align-items-center w-1/2 h-full">
                     <img src="/images/login.png" alt="Login" className="w-full h-full object-cover" />
-                </div>
+                </div> */}
 
                 {/* Right side form with huge space between */}
-                <div>
-                    <div
-                        className={`surface-card p-4 shadow-2 border-round ${layoutState.isMobile ? 'w-full h-auto p-5' : 'w-1/2'}`}
-                        style={{
-                            minWidth: layoutState.isMobile ? '100%' : '400px',
-                            margin: layoutState.isMobile ? 'auto' : 'unset',
-                            marginLeft: layoutState.isMobile ? '0' : 'calc(10% + 8rem)' // Dynamic margin based on screen size
-                        }}
-                    >
-                        <div className="logo-login-panel text-center mb-5">
+                <div className="surface-card p-4 shadow-2 border-round w-full" style={{ minWidth: layoutState.isMobile ? 0 : 400 }}>
+                    {/* <div className="logo-login-panel text-center mb-5">
                             <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} />
-                        </div>
+                        </div> */}
 
-                        <div className="text-center mb-3">
-                            <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
-                            <span className="text-600 font-medium line-height-3">Enter your credentials to access your account</span>
-                        </div>
+                    <div className="text-center mb-3">
+                        <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
+                        <span className="text-600 font-medium line-height-3">Enter your credentials to access your account</span>
+                    </div>
 
-                        <div className="mb-3 text-center flex justify-content-center gap-5">
-                            <label className="flex items-center cursor-pointer">
-                                <input type="radio" value="admin" checked={role === 'admin'} onChange={handleRoleChange} className="m-0 mr-2 " />
-                                <p>Reckitt</p>
-                            </label>
-                            <label className="flex items-center cursor-pointer">
-                                <input type="radio" value="user" checked={role === 'user'} onChange={handleRoleChange} className="m-0 mr-2 " />
-                                <p>Supplier</p>
-                            </label>
-                        </div>
-                        <div>
-                            {role === 'user' && (
-                                <div>
-                                    <div className="flex justify-content-between  align-items-center">
-                                        <label htmlFor="email" className="block text-900 font-medium ">
-                                            {isPhoneNumber ? 'Phone Number' : 'Email Address'}
-                                        </label>
-                                        <Button label={isPhoneNumber ? 'Use Email' : 'Use Phone Number'} className="p-button-text text-primary-main" onClick={toggleInputType} />
-                                    </div>
-
-                                    {isPhoneNumber ? (
-                                        <InputText id="phoneNumber" value={phoneNumber} type="text" placeholder="Phone number" className="w-full mb-3" onChange={handlePhoneNumberChange} />
-                                    ) : (
-                                        <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
-                                    )}
-
-                                    {!isOtpSent && <Button label="Get OTP" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={sendOtp} />}
-                                    {isOtpSent && (
-                                        <div>
-                                            <label htmlFor="otp" className="block text-900 font-medium mb-2">
-                                                Enter OTP
-                                            </label>
-                                            <InputText id="otp" value={otp} type="text" placeholder="Enter OTP" className="w-full mb-3" onChange={handleOtpChange} />
-
-                                            <Button label="Login" icon="pi pi-user" className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginOTPClick} />
-                                        </div>
-                                    )}
+                    {/* <div className="mb-3 text-center flex justify-content-center gap-5">
+                        <label className="flex items-center cursor-pointer">
+                            <input type="radio" value="admin" checked={role === 'admin'} onChange={handleRoleChange} className="m-0 mr-2 " />
+                            <p>Reckitt</p>
+                        </label>
+                        <label className="flex items-center cursor-pointer">
+                            <input type="radio" value="user" checked={role === 'user'} onChange={handleRoleChange} className="m-0 mr-2 " />
+                            <p>Supplier</p>
+                        </label>
+                    </div> */}
+                    <div>
+                        {role === 'user' && (
+                            <div>
+                                <div className="flex justify-content-between  align-items-center">
+                                    <label htmlFor="email" className="block text-900 font-medium ">
+                                        {isPhoneNumber ? 'Phone Number' : 'Email Address'}
+                                    </label>
+                                    <Button label={isPhoneNumber ? 'Use Email' : 'Use Phone Number'} className="p-button-text text-primary-main" onClick={toggleInputType} />
                                 </div>
-                            )}
-                            <div className=" align-items-center justify-content-between mb-2">
-                                {role === 'admin' && (
+
+                                {isPhoneNumber ? (
+                                    <InputText id="phoneNumber" value={phoneNumber} type="text" placeholder="Phone number" className="w-full mb-3" onChange={handlePhoneNumberChange} />
+                                ) : (
+                                    <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
+                                )}
+
+                                {!isOtpSent && <Button label="Get OTP" icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={sendOtp} />}
+                                {isOtpSent && (
                                     <div>
-                                        <label htmlFor="email" className="block text-900 font-medium mb-2">
-                                            Email Address
+                                        <label htmlFor="otp" className="block text-900 font-medium mb-2">
+                                            Enter OTP
                                         </label>
-                                        <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
-                                        <div className="flex align-items-center justify-content-between mb-2">
-                                            <div className="flex align-items-center">
-                                                <label htmlFor="password" className="block text-900 font-medium ">
-                                                    Password
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
-                                        <div className="flex flex-wrap justify-content-left gap-3 mb-2">
-                                            <div className="flex align-items-center mb-2">
-                                                <Checkbox
-                                                    inputId="rememberme"
-                                                    name="rememberme"
-                                                    value="rememberme"
-                                                    onChange={handleCheckboxChange}
-                                                    checked={checked} // Make sure `checked` is a boolean
-                                                    className="p-checkbox-checked:bg-primary-main"
-                                                    style={{ width: '25px', height: '20px' }}
-                                                />
-                                                <label htmlFor="ingredient1" className="ml-2">
-                                                    Remember Me
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <Button label={'Login'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginClick} />
+                                        <InputText id="otp" value={otp} type="text" placeholder="Enter OTP" className="w-full mb-3" onChange={handleOtpChange} />
+
+                                        <Button label="Login" icon="pi pi-user" className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginOTPClick} />
                                     </div>
                                 )}
                             </div>
+                        )}
+                        <div className=" align-items-center justify-content-between mb-2">
+                            {role === 'admin' && (
+                                <div>
+                                    <label htmlFor="email" className="block text-900 font-medium mb-2">
+                                        Email Address
+                                    </label>
+                                    <InputText id="email" value={email} type="text" placeholder="Email address" className="w-full mb-3" onChange={handleEmailChange} />
+                                    <div className="flex align-items-center justify-content-between mb-2">
+                                        <div className="flex align-items-center">
+                                            <label htmlFor="password" className="block text-900 font-medium ">
+                                                Password
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <InputText id="password" value={password} type="password" placeholder="Password" className="w-full mb-3" onChange={handlePassword} />
+                                    <div className="flex flex-wrap justify-content-left gap-3 mb-2">
+                                        <div className="flex align-items-center mb-2">
+                                            <Checkbox
+                                                inputId="rememberme"
+                                                name="rememberme"
+                                                value="rememberme"
+                                                onChange={handleCheckboxChange}
+                                                checked={checked} // Make sure `checked` is a boolean
+                                                className="p-checkbox-checked:bg-primary-main"
+                                                style={{ width: '25px', height: '20px' }}
+                                            />
+                                            <label htmlFor="ingredient1" className="ml-2">
+                                                Remember Me
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <Button label={'Login'} icon={isLoading ? 'pi pi-spin pi-spinner' : 'pi pi-user'} className="w-full bg-primary-main border-primary-main mb-2 hover:text-white" onClick={loginClick} />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
