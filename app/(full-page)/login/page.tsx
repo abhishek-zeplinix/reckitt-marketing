@@ -162,7 +162,7 @@ const LoginPage = () => {
                         }}
                     >
                         <div className="logo-login-panel text-center mb-5">
-                            <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} />
+                            {/* <img src="/images/reckitt.webp" alt="Logo" width="120px" height={'50px'} /> */}
                         </div>
 
                         <div className="text-center mb-3">
@@ -173,7 +173,7 @@ const LoginPage = () => {
                         <div className="mb-3 text-center flex justify-content-center gap-5">
                             <label className="flex items-center cursor-pointer">
                                 <input type="radio" value="admin" checked={role === 'admin'} onChange={handleRoleChange} className="m-0 mr-2 " />
-                                <p>Reckitt</p>
+                                <p>Demo</p>
                             </label>
                             <label className="flex items-center cursor-pointer">
                                 <input type="radio" value="user" checked={role === 'user'} onChange={handleRoleChange} className="m-0 mr-2 " />

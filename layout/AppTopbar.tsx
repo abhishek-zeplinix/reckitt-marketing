@@ -130,7 +130,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
 
                 <div className='lg:ml-6 mx-2'>
                     <Link href="/" className="flex align-items-center	">
-                        <img src="/images/reckitt.webp" height="37" alt="logo" />
+                        {/* <img src="/images/reckitt.webp" height="37" alt="logo" /> */}
                     </Link>
                 </div>
 
@@ -143,13 +143,13 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
             </div>
 
 
-            <div className="flex align-items-center gap-2 ml-auto  border-round p-2">
+            {/* <div className="flex align-items-center gap-2 ml-auto  border-round p-2">
                 <div className="hidden md:flex flex-column items-end">
                     <div className="font-semibold">{get(user, 'name', 'User').toUpperCase()}</div>
                     <div className="text-sm text-primary-main">{get(user, 'userRole', 'Role not assigned').toUpperCase()}</div>
                 </div>
 
-            </div>
+            </div> */}
             <div ref={topbarmenuRef} className={classNames('flex', { 'hidden': !layoutState.profileSidebarVisible, 'block': layoutState.profileSidebarVisible })}>
                 <button type="button" className="p-link flex align-items-center	 justify-content-center p-2 border-none bg-transparent">
                     <Menu model={items} popup ref={menu} />
