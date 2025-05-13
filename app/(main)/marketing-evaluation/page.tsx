@@ -7,9 +7,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
-
 const EvaluationPage = () => {
-    const toast = useRef(null);
     const currentYear = new Date().getFullYear();
 
     const yearOptions = Array.from({ length: 11 }, (_, i) => ({
@@ -44,7 +42,7 @@ const EvaluationPage = () => {
     const [selectedReviewTypes, setSelectedReviewTypes] = useState<string[]>([]);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
     const [combinations, setCombinations] = useState<string[]>([]);
-
+    const toast = useRef<Toast>(null);
     const [showDialog, setShowDialog] = useState(false);
     const [savedData, setSavedData] = useState<string[]>([]);
 
