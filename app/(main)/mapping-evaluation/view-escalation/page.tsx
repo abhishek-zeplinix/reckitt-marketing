@@ -24,7 +24,7 @@ const defaultForm: EmptyCreatequestion = {
   buId:null,
   regionId:  null,
   masterCountryId: null,
-  brand:'',
+  brandId:null,
 };
 
 const ManageSupplierAddEditPage = () => {
