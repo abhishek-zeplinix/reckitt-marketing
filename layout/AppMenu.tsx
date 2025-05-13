@@ -28,7 +28,6 @@ const AppMenu = () => {
             originalEvent.preventDefault();
         }
         router.push(item.url);
-
     };
 
     const model: AppMenuItem[] = [
@@ -36,25 +35,25 @@ const AppMenu = () => {
             label: '',
             icon: 'pi pi-fw pi-bookmark',
             items: [
-                // {
-                //     label: 'Dashboard',
-                //     icon: 'pi pi-th-large',
-                //     url: isSupplier()
-                //         ? (() => {
-                //               const supplierId = get(user, 'supplierId');
-                //               const categoryId = get(user, 'categoryId');
-                //               const subCategoryId = get(user, 'subCategoryId');
-    
-                //               if (supplierId && categoryId && subCategoryId) {
-                //                   const params: any = { supId: supplierId, catId: categoryId, subCatId: subCategoryId };
-                //                   const encodedParams = encodeRouteParams(params);
-                //                   return `/supplier-scoreboard-summary/${encodedParams}`;
-                //               }
-                //               return '/';
-                //           })()
-                //         : '/',
-                //     command: handleMenuClick
-                // },
+                {
+                    label: 'Dashboard',
+                    icon: 'pi pi-th-large',
+                    url: isSupplier()
+                        ? (() => {
+                              const supplierId = get(user, 'supplierId');
+                              const categoryId = get(user, 'categoryId');
+                              const subCategoryId = get(user, 'subCategoryId');
+
+                              if (supplierId && categoryId && subCategoryId) {
+                                  const params: any = { supId: supplierId, catId: categoryId, subCatId: subCategoryId };
+                                  const encodedParams = encodeRouteParams(params);
+                                  return `/supplier-scoreboard-summary/${encodedParams}`;
+                              }
+                              return '/';
+                          })()
+                        : '/',
+                    command: handleMenuClick
+                },
                 {
                     label: 'Marketing',
                     icon: 'pi pi-sliders-v',
@@ -66,8 +65,8 @@ const AppMenu = () => {
                     },
                     items: [
                         {
-                            label: 'Vendor',
-                            url: '/faq',
+                            label: 'Manage Vendor',
+                            url: '/vendors-marketing',
                             check: (user: any) => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
@@ -77,8 +76,8 @@ const AppMenu = () => {
                             command: handleMenuClick
                         },
                         {
-                            label: 'Evaluation',
-                            url: '/supply-glossary',
+                            label: 'Marketing Evaluation',
+                            url: '/marketing-evaluation',
                             check: (user: any) => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
@@ -99,556 +98,550 @@ const AppMenu = () => {
                             command: handleMenuClick
                         }
                     ]
-                },
+                }
 
+                //     {
+                //         label: 'Task Management',
+                //         icon: 'pi pi-ticket',
 
-            //     {
-            //         label: 'Task Management',
-            //         icon: 'pi pi-ticket',
+                //         check: (user: any) => {
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
+                //             return hasAnyPermission(['get_approver_evaluator_assigned_suppliers']);
+                //             // return hasPermission('manage_supply_glossary');
+                //         },
 
-            //         check: (user: any) => {
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
-            //             return hasAnyPermission(['get_approver_evaluator_assigned_suppliers']);
-            //             // return hasPermission('manage_supply_glossary');
-            //         },
+                //     items: [
+                //         {
+                //             label: 'Manage Tasks',
+                //             url: '/task-management',
+                //             check: (user: any) => {
+                //                 // Check if the user is a super admin
+                //                 if (get(user, 'isSuperAdmin')) {
+                //                     return true;
+                //                 }
 
-            //     items: [
-            //         {
-            //             label: 'Manage Tasks',
-            //             url: '/task-management',
-            //             check: (user: any) => {
-            //                 // Check if the user is a super admin
-            //                 if (get(user, 'isSuperAdmin')) {
-            //                     return true;
-            //                 }
+                //                 return hasPermission('');
 
-            //                 return hasPermission('');
-                            
-            //             },
-            //             command: handleMenuClick
-            //         },
-            //         {
-            //             label: 'My Tasks',
-            //             url: (() => {
-            //                 if (hasPermission('get_approver_evaluator_assigned_suppliers')) {
-            //                     const userId = get(user, 'id');
-            //                     const role = get(user, 'userRole');
-            //                     const name = get(user, 'name');
-                                
-            //                     if (userId && role && name) {
-            //                         return `/task-management/view-suppliers/${encodeRouteParams({ userId, role, name })}`;
-            //                     }
-            //                 }
-            //                 return '/task-management'; // Default if user doesn't have required fields
-            //             })(),
-            //             check: (user: any) => {
-            //                 if (get(user, 'isSuperAdmin')) {
-            //                     return false;
-            //                 }
-            //                 return hasPermission('get_approver_evaluator_assigned_suppliers');
-            //             },
-            //             command: handleMenuClick
-            //         }
-                    
-            //     ]
-            // },
+                //             },
+                //             command: handleMenuClick
+                //         },
+                //         {
+                //             label: 'My Tasks',
+                //             url: (() => {
+                //                 if (hasPermission('get_approver_evaluator_assigned_suppliers')) {
+                //                     const userId = get(user, 'id');
+                //                     const role = get(user, 'userRole');
+                //                     const name = get(user, 'name');
 
+                //                     if (userId && role && name) {
+                //                         return `/task-management/view-suppliers/${encodeRouteParams({ userId, role, name })}`;
+                //                     }
+                //                 }
+                //                 return '/task-management'; // Default if user doesn't have required fields
+                //             })(),
+                //             check: (user: any) => {
+                //                 if (get(user, 'isSuperAdmin')) {
+                //                     return false;
+                //                 }
+                //                 return hasPermission('get_approver_evaluator_assigned_suppliers');
+                //             },
+                //             command: handleMenuClick
+                //         }
 
-            
+                //     ]
+                // },
 
-            //     {
-            //         label: 'Suppliers',
-            //         icon: 'pi pi-truck',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //     {
+                //         label: 'Suppliers',
+                //         icon: 'pi pi-truck',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Manage Suppliers',
-            //                 url: '/manage-supplier',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Manage Suppliers',
+                //                 url: '/manage-supplier',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         label: 'Supplier Score',
-            //         icon: 'pi pi-wifi',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Supplier Score',
+                //         icon: 'pi pi-wifi',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Manage Supplier Score',
-            //                 url: '/manage-supplier-score',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Manage Supplier Score',
+                //                 url: '/manage-supplier-score',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY_ROLE_MENU, userPermissions).length > 0;
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         label: 'Rules Manager',
-            //         icon: 'pi pi-sitemap',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Rules Manager',
+                //         icon: 'pi pi-sitemap',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Rules',
-            //                 url: '/rules',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Rules',
+                //                 url: '/rules',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-                     
-            //         ]
-            //     },
-            //     {
-            //         label: 'Users Manager',
-            //         icon: 'pi pi-users',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //         ]
+                //     },
+                //     {
+                //         label: 'Users Manager',
+                //         icon: 'pi pi-users',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Manage Users',
-            //                 url: '/manage-users',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Manage Users',
+                //                 url: '/manage-users',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //             // {
-            //             //     label: 'Create New Rules',
-            //             //     url: '/create-new-rules',
-            //             //     check: (user: any) => {
-            //             //         const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
-            //             //         if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
-            //             //             return true;
-            //             //         }
-            //             //         return false;
-            //             //     },
-            //             //     command: handleMenuClick
-            //             // }
-            //         ]
-            //     },
-            //     {
-            //         label: "Api's Management",
-            //         icon: 'pi pi-paperclip',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //             // {
+                //             //     label: 'Create New Rules',
+                //             //     url: '/create-new-rules',
+                //             //     check: (user: any) => {
+                //             //         const checkComm = intersection(ROUTE_MENU, get(user, 'permissions', []));
+                //             //         if (get(user, 'isSuperAdmin') || checkComm.length > 0) {
+                //             //             return true;
+                //             //         }
+                //             //         return false;
+                //             //     },
+                //             //     command: handleMenuClick
+                //             // }
+                //         ]
+                //     },
+                //     {
+                //         label: "Api's Management",
+                //         icon: 'pi pi-paperclip',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: "Manage Api's",
-            //                 url: '/manage-api',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: "Manage Api's",
+                //                 url: '/manage-api',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         label: 'Market Metrics',
-            //         icon: 'pi pi-chart-bar',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Market Metrics',
+                //         icon: 'pi pi-chart-bar',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Vendors',
-            //                 url: '/vendors',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Vendors',
+                //                 url: '/vendors',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'User Groups',
-            //                 url: '/user-groups',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'User Groups',
+                //                 url: '/user-groups',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'Marketing Templates',
-            //                 url: '/marketing-templates',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'Marketing Templates',
+                //                 url: '/marketing-templates',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'Mapping-Marketing',
-            //                 url: '/mapping-marketing',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'Mapping-Marketing',
+                //                 url: '/mapping-marketing',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'Mapping-Evaluation',
-            //                 url: '/mapping-evaluation',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'Mapping-Evaluation',
+                //                 url: '/mapping-evaluation',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         label: 'Evaluation Reports',
-            //         icon: 'pi pi-users',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Evaluation Reports',
+                //         icon: 'pi pi-users',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Trend Summary',
-            //                 url: '/evaluation-summary',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Trend Summary',
+                //                 url: '/evaluation-summary',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'Vendor Score',
-            //                 url: '/vendor-score',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'Vendor Score',
+                //                 url: '/vendor-score',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-                        
-            //         ]
-            //     },
-            //     {
-            //         label: 'Market Master',
-            //         icon: 'pi pi-chart-bar',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 },
+                //                 command: handleMenuClick
+                //             }
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Location Master',
-            //                 icon: 'pi pi-bolt',
-            //                 url: '/master',
-            //                 check: (user: any) => {
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
-            //                     return hasAnyPermission(['generate_request', 'manage_request']);
-            //                 }
-            //             },
-            //             {
-            //                 label: 'Other Master',
-            //                 icon: 'pi pi-bolt',
-            //                 url: '/masterTwo',
-            //                 check: (user: any) => {
-            //                     // Check if the user is a super admin
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Market Master',
+                //         icon: 'pi pi-chart-bar',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-            //                     // Check if the user has the required permissions
-            //                     const userPermissions = get(user, 'permissions.permissions', []);
-            //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //                     // Grant access based on permissions
-            //                     return hasPermission;
-            //                 }
-            //             }
-            //         ]
-            //     },
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Location Master',
+                //                 icon: 'pi pi-bolt',
+                //                 url: '/master',
+                //                 check: (user: any) => {
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
+                //                     return hasAnyPermission(['generate_request', 'manage_request']);
+                //                 }
+                //             },
+                //             {
+                //                 label: 'Other Master',
+                //                 icon: 'pi pi-bolt',
+                //                 url: '/masterTwo',
+                //                 check: (user: any) => {
+                //                     // Check if the user is a super admin
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
 
-            //     {
-            //         label: 'Request Management',
-            //         icon: 'pi pi-bolt',
-            //         check: (user: any) => {
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
-            //             return hasAnyPermission(['generate_request', 'manage_request']);
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Manage Request',
-            //                 url: '/manage-requests',
-            //                 check: (user: any) => {
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
-            //                     return hasPermission('manage_request');
-            //                 },
-            //                 command: handleMenuClick
-            //             },
-            //             {
-            //                 label: 'Generate Request',
-            //                 url: '/generate-requests',
-            //                 check: (user: any) => {
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
-            //                     return hasPermission('generate_request');
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         label: 'Supplier Feedback',
-            //         icon: 'pi pi-gift',
-            //         check: (user: any) => {
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
-            //             return hasAnyPermission(['generate_feedback', 'manage_feedback']);
-            //         },
-            //         items: [
-            //             {
-            //                 label: 'Manage Feedback',
-            //                 url: '/manage-feedback',
-            //                 check: (user: any) => {
-            //                     if (get(user, 'isSuperAdmin')) {
-            //                         return true;
-            //                     }
-            //                     return hasPermission('manage_feedback');
-            //                 },
-            //                 command: handleMenuClick
-            //             }
-            //         ]
-            //     },
+                //                     // Check if the user has the required permissions
+                //                     const userPermissions = get(user, 'permissions.permissions', []);
+                //                     const hasPermission = intersection(COMPANY, userPermissions).length > 0;
 
-            //     {
-            //         label: 'Control Tower',
-            //         icon: 'pi pi-eject',
-            //         url: '/control-tower',
-            //         check: (user: any) => {
-            //             // Check if the user is a super admin
-            //             if (get(user, 'isSuperAdmin')) {
-            //                 return true;
-            //             }
+                //                     // Grant access based on permissions
+                //                     return hasPermission;
+                //                 }
+                //             }
+                //         ]
+                //     },
 
-            //             // Check if the user has the required permissions
-            //             const userPermissions = get(user, 'permissions.permissions', []);
-            //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+                //     {
+                //         label: 'Request Management',
+                //         icon: 'pi pi-bolt',
+                //         check: (user: any) => {
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
+                //             return hasAnyPermission(['generate_request', 'manage_request']);
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Manage Request',
+                //                 url: '/manage-requests',
+                //                 check: (user: any) => {
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
+                //                     return hasPermission('manage_request');
+                //                 },
+                //                 command: handleMenuClick
+                //             },
+                //             {
+                //                 label: 'Generate Request',
+                //                 url: '/generate-requests',
+                //                 check: (user: any) => {
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
+                //                     return hasPermission('generate_request');
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
+                //     {
+                //         label: 'Supplier Feedback',
+                //         icon: 'pi pi-gift',
+                //         check: (user: any) => {
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
+                //             return hasAnyPermission(['generate_feedback', 'manage_feedback']);
+                //         },
+                //         items: [
+                //             {
+                //                 label: 'Manage Feedback',
+                //                 url: '/manage-feedback',
+                //                 check: (user: any) => {
+                //                     if (get(user, 'isSuperAdmin')) {
+                //                         return true;
+                //                     }
+                //                     return hasPermission('manage_feedback');
+                //                 },
+                //                 command: handleMenuClick
+                //             }
+                //         ]
+                //     },
 
-            //             // Grant access based on permissions
-            //             return hasPermission;
-            //         },
-            //         command: handleMenuClick
-            //     }
+                //     {
+                //         label: 'Control Tower',
+                //         icon: 'pi pi-eject',
+                //         url: '/control-tower',
+                //         check: (user: any) => {
+                //             // Check if the user is a super admin
+                //             if (get(user, 'isSuperAdmin')) {
+                //                 return true;
+                //             }
 
-              
+                //             // Check if the user has the required permissions
+                //             const userPermissions = get(user, 'permissions.permissions', []);
+                //             const hasPermission = intersection(COMPANY, userPermissions).length > 0;
+
+                //             // Grant access based on permissions
+                //             return hasPermission;
+                //         },
+                //         command: handleMenuClick
+                //     }
             ]
         }
     ];

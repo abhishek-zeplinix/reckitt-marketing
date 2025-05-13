@@ -53,7 +53,7 @@ const EvaluationPage = () => {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Hold up!',
-                detail: 'Please select all the fields 😅',
+                detail: 'Please select all the fields ',
                 life: 3000
             });
             return;

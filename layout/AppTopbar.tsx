@@ -119,21 +119,18 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
         // </div>
 
         <div className="layout-topbar align-items-center justify-content-between px-4 py-2 bg-white shadow-md w-full">
-
-            <div className='flex align-items-center	justify-content-center'>
-
+            <div className="flex align-items-center	justify-content-center">
                 {layoutState.isMobile && (
                     <button ref={menubuttonRef} type="button" className="p-link flex align-items-center	 justify-content-center p-2 border-none bg-transparent" onClick={onMenuToggle}>
                         <i className="pi pi-bars" />
                     </button>
                 )}
 
-                <div className='lg:ml-6 mx-2'>
+                <div className="lg:ml-6 mx-2">
                     <Link href="/" className="flex align-items-center	">
-                        {/* <img src="/images/reckitt.webp" height="37" alt="logo" /> */}
+                        <img src="/images/reckitt.webp" height="37" alt="logo" />
                     </Link>
                 </div>
-
 
                 {!layoutState.isMobile && (
                     <div className={menuToggleClass} onClick={onMenuToggle}>
@@ -142,7 +139,6 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                 )}
             </div>
 
-
             {/* <div className="flex align-items-center gap-2 ml-auto  border-round p-2">
                 <div className="hidden md:flex flex-column items-end">
                     <div className="font-semibold">{get(user, 'name', 'User').toUpperCase()}</div>
@@ -150,7 +146,7 @@ const AppTopbar = forwardRef<AppTopbarRef>((props, ref) => {
                 </div>
 
             </div> */}
-            <div ref={topbarmenuRef} className={classNames('flex', { 'hidden': !layoutState.profileSidebarVisible, 'block': layoutState.profileSidebarVisible })}>
+            <div ref={topbarmenuRef} className={classNames('flex', { hidden: !layoutState.profileSidebarVisible, block: layoutState.profileSidebarVisible })}>
                 <button type="button" className="p-link flex align-items-center	 justify-content-center p-2 border-none bg-transparent">
                     <Menu model={items} popup ref={menu} />
                     <Avatar label={get(user, 'name') ? get(user, 'name')[0].toUpperCase() : 'U'} className="bg-primary-main text-white" shape="circle" onClick={avatarClick} />
