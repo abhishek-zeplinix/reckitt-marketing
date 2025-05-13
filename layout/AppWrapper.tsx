@@ -14,21 +14,21 @@ import { encodeRouteParams } from '@/utils/base64';
 
 const defaultContext: AppContextType = {
     displayName: '',
-    setDisplayName: () => { },
+    setDisplayName: () => {},
     user: null,
-    setUser: () => { },
+    setUser: () => {},
     company: null,
-    setCompany: () => { },
+    setCompany: () => {},
     isLoading: true,
-    setLoading: () => { },
-    signOut: () => { },
-    setAlert: () => { },
+    setLoading: () => {},
+    signOut: () => {},
+    setAlert: () => {},
     authToken: null,
-    setAuthToken: () => { },
+    setAuthToken: () => {},
     isScroll: true,
-    setScroll: () => { },
+    setScroll: () => {},
     selectedSubLocation: null,
-    setSelectedSubLocation: () => { }
+    setSelectedSubLocation: () => {}
 };
 const AppContext = createContext(defaultContext);
 
@@ -39,9 +39,8 @@ export const userRoles = {
     SUPPLIER: 'Supplier',
     ADMIN: 'Admin',
     APPROVER: 'Approver',
-    EVALUATOR:'Evaluator'
+    EVALUATOR: 'Evaluator'
 } as const;
-
 
 export const AppWrapper = React.memo(({ children }: any) => {
     const pathname = usePathname();
@@ -58,17 +57,14 @@ export const AppWrapper = React.memo(({ children }: any) => {
     // Handle authentication routing
     useEffect(() => {
         const isValid = isTokenValid(authToken);
-        
+
         if (!isValid) {
             if (authRoutes.includes(pathname)) {
                 return;
             }
             router.replace('/login');
-
         } else if (authToken && isValid) {
-
             if (authRoutes.includes(pathname)) {
-
                 const userData = getUserDetails();
 
                 if (userData?.role === userRoles.SUPPLIER) {
@@ -85,8 +81,8 @@ export const AppWrapper = React.memo(({ children }: any) => {
 
     // Handle initial user data loading
     useEffect(() => {
-        setLoading(true);
-        
+        setLoading(false);
+
         const userToken: string = getAuthToken();
         if (userToken) {
             if (!isTokenValid(userToken)) {
@@ -94,24 +90,22 @@ export const AppWrapper = React.memo(({ children }: any) => {
                 setLoading(false);
                 return;
             }
-        }else {
+        } else {
             setLoading(false);
         }
 
         const userData = getUserDetails();
         console.log(userData);
-        
+
         if (userData) {
             try {
                 setUser(userData);
-            } catch (error) { }
+            } catch (error) {}
 
             if (userData && userData.company) {
                 try {
                     setCompany(userData.company);
-                } catch (error) {
-                    
-                }
+                } catch (error) {}
             }
         }
 
@@ -120,8 +114,6 @@ export const AppWrapper = React.memo(({ children }: any) => {
             signOut();
             setAlert('info', 'Session expired');
         });
-
-    
     }, []);
 
     const signOut = async () => {
@@ -130,12 +122,9 @@ export const AppWrapper = React.memo(({ children }: any) => {
         router.replace('/login', undefined);
     };
 
-     
     const removeToast = useCallback((id: number) => {
-
         setToasts((prev) => prev.filter((toast) => toast.id !== id));
-      }, []);
-
+    }, []);
 
     // const setAlert = (type: string, message: string) => {
     //     const id = Date.now();
@@ -145,19 +134,18 @@ export const AppWrapper = React.memo(({ children }: any) => {
     const setAlert = (type: string, message: string) => {
         const id = Date.now();
         setToasts((prev) => {
-          // clear any existing timeout for previous toast
-          prev.forEach(toast => {
-            const existingToast = document.getElementById(`toast-${toast.id}`);
-            if (existingToast) {
-              existingToast.classList.add('fade-out');
-            }
-          });
-          
-          // new array with only the new toast
-          return [{ id, type, message }];
-        });
-      };
+            // clear any existing timeout for previous toast
+            prev.forEach((toast) => {
+                const existingToast = document.getElementById(`toast-${toast.id}`);
+                if (existingToast) {
+                    existingToast.classList.add('fade-out');
+                }
+            });
 
+            // new array with only the new toast
+            return [{ id, type, message }];
+        });
+    };
 
     return (
         <Suspense fallback={<Preloader />}>
@@ -178,15 +166,13 @@ export const AppWrapper = React.memo(({ children }: any) => {
                     isScroll,
                     setScroll,
                     selectedSubLocation,
-                    setSelectedSubLocation,
+                    setSelectedSubLocation
                 }}
             >
                 <AuthProvider user={user}>
                     <ToastContainer toasts={toasts} removeToast={removeToast} />
                     {isLoading && <div className="running-border"></div>}
-                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh'}}>
-                        {children}
-                    </div>
+                    <div style={{ overflow: isScroll ? 'auto' : 'hidden', maxHeight: '100vh' }}>{children}</div>
                 </AuthProvider>
             </AppContext.Provider>
         </Suspense>
