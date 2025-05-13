@@ -360,6 +360,16 @@ type EmptyCreatequestion = {
   masterCountryId?: number | null;
   brandId:number | null;
 };
+type EmptyAccount = {
+  vendorId?: number | null;
+  reviewTypeId?: number | null;
+  templateTypeId?: number | null;
+  userGroupId?: number | null;
+  buId?: number | null;
+  reviewType?: number | null;
+  country?: number | null;
+  brand:number | null;
+};
 type EmptySupplier = {
     supId: number | null;
     supplierName: string;
@@ -459,5 +469,6 @@ export type {
     EmptyFeedback,
     EmptyUsersGroup,
     EmptyMargetingCreatequestion,
-    EmptyQuestion
+    EmptyQuestion,
+    EmptyAccount
 };
