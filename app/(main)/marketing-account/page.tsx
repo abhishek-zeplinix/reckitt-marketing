@@ -56,6 +56,7 @@ const MarketingAccount = () => {
     }, [selectedCountries]);
 
     const handleSubmit = () => {
+        setCombinations([]);
         if (!selectedReviewTypes.length || !selectedCountries.length) {
             toast.current?.show({
                 severity: 'warn',
