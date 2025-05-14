@@ -8,8 +8,7 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 
 const MarketingAccount = () => {
-    const toast = useRef(null);
-
+    const toast = useRef<Toast>(null);
     const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
 
     const countryOptions = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
@@ -44,7 +43,7 @@ const MarketingAccount = () => {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Oops!',
-                detail: 'Select Review Types and Countries before submitting 🚨',
+                detail: 'Select Review Types and Countries before submitting ',
                 life: 3000
             });
             return;
@@ -69,7 +68,7 @@ const MarketingAccount = () => {
         toast.current?.show({
             severity: 'success',
             summary: 'Saved!',
-            detail: 'Review combinations saved locally 💾',
+            detail: 'Review combinations saved locally ',
             life: 3000
         });
     };

@@ -9,8 +9,6 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 
 const MarketingDetails = () => {
-    const toast = useRef(null);
-
     const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
     const buOptions = ['BU 1', 'BU 2', 'BU 3'].map((b) => ({ label: b, value: b }));
     const countries = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
@@ -31,7 +29,7 @@ const MarketingDetails = () => {
     const [savedCombos, setSavedCombos] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [vendors, setVendors] = useState<{ label: string; value: string }[]>([]);
-
+    const toast = useRef<Toast>(null);
     useEffect(() => {
         // Fetch Evaluation Names from localStorage (first page data)
         const evals = JSON.parse(localStorage.getItem('evaluationData') || '[]');
@@ -49,7 +47,7 @@ const MarketingDetails = () => {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Missing!',
-                detail: 'Please fill out all fields ⚠️',
+                detail: 'Please fill out all fields ',
                 life: 3000
             });
             return;
@@ -64,7 +62,7 @@ const MarketingDetails = () => {
         toast.current?.show({
             severity: 'success',
             summary: 'Saved!',
-            detail: 'Combos saved locally 💾',
+            detail: 'Combos saved locally ',
             life: 3000
         });
     };
