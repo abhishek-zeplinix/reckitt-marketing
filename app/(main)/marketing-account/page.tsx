@@ -9,10 +9,12 @@ import { Dialog } from 'primereact/dialog';
 
 const MarketingAccount = () => {
     const toast = useRef<Toast>(null);
-    const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
+    // const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
 
-    const countryOptions = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
+    // const countryOptions = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
 
+    const [reviewTypes, setReviewTypes] = useState<{ label: string, value: string }[]>([]);
+    const [countryOptions, setCountries] = useState<{ label: string, value: string }[]>([]);
     const brandMapping: Record<string, string> = {
         Global: 'Airwick',
         UK: 'Finish',
@@ -27,6 +29,21 @@ const MarketingAccount = () => {
     const [combinations, setCombinations] = useState<string[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [savedData, setSavedData] = useState<string[]>([]);
+
+    useEffect(() => {
+            const getStoredValues = (key: string) => {
+                const data = localStorage.getItem(key);
+                if (!data) return [];
+                try {
+                    return JSON.parse(data).map((item: any) => ({ label: item, value: item }));
+                } catch {
+                    return [];
+                }
+            };
+            setReviewTypes(getStoredValues('Review Type'));
+            setCountries(getStoredValues('Country'));
+        }, []);
+    
     useEffect(() => {
         // Update brands based on selected countries
         const updatedBrands = selectedCountries.map((country) => {

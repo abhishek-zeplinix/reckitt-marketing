@@ -9,9 +9,12 @@ import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 
 const MarketingDetails = () => {
-    const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
-    const buOptions = ['BU 1', 'BU 2', 'BU 3'].map((b) => ({ label: b, value: b }));
-    const countries = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
+    // const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
+    // const buOptions = ['BU 1', 'BU 2', 'BU 3'].map((b) => ({ label: b, value: b }));
+    // const countries = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
+    const [buOptions, setBuOptions] = useState<{ label: string, value: string }[]>([]);
+    const [reviewTypes, setReviewTypes] = useState<{ label: string, value: string }[]>([]);
+    const [countries, setCountries] = useState<{ label: string, value: string }[]>([]);
 
     const [evaluationNames, setEvaluationNames] = useState<{ label: string; value: string }[]>([]);
     const [accounts, setAccounts] = useState<{ label: string; value: string }[]>([]);
@@ -52,6 +55,22 @@ const MarketingDetails = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [vendors, setVendors] = useState<{ label: string; value: string }[]>([]);
     const toast = useRef<Toast>(null);
+
+
+    useEffect(() => {
+            const getStoredValues = (key: string) => {
+                const data = localStorage.getItem(key);
+                if (!data) return [];
+                try {
+                    return JSON.parse(data).map((item: any) => ({ label: item, value: item }));
+                } catch {
+                    return [];
+                }
+            };
+            setBuOptions(getStoredValues('BU'));
+            setReviewTypes(getStoredValues('Review Type'));
+            setCountries(getStoredValues('Country'));
+        }, []);
     useEffect(() => {
         // Fetch Evaluation Names from localStorage (first page data)
         const evals = JSON.parse(localStorage.getItem('evaluationData') || '[]');

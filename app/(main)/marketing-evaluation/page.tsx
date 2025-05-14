@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Dropdown } from 'primereact/dropdown';
 import { MultiSelect } from 'primereact/multiselect';
 import { Button } from 'primereact/button';
@@ -8,12 +8,12 @@ import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Dialog } from 'primereact/dialog';
 const EvaluationPage = () => {
-    const currentYear = new Date().getFullYear();
+//     const currentYear = new Date().getFullYear();
 
-    const yearOptions = Array.from({ length: 11 }, (_, i) => ({
-        label: `${currentYear + i}`,
-        value: `${currentYear + i}`
-    }));
+//     const yearOptions = Array.from({ length: 11 }, (_, i) => ({
+//         label: `${currentYear + i}`,
+//         value: `${currentYear + i}`
+//     }));
 
     const monthOptions = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -21,26 +21,31 @@ const EvaluationPage = () => {
 ].map((m, index) => ({ label: m, value: index + 1 }));
 
 
-    const timeframeOptions = ['H1', 'H2'].map((t) => ({ label: t, value: t }));
+//     const timeframeOptions = ['H1', 'H2'].map((t) => ({ label: t, value: t }));
 
-    const reviewTypes = [
-        'Creative',
-        'Brand Experience',
-        'Content/Energy Studio',
-        'Media',
-        'Digital',
-        'Strategy',
-        'Medical Marketing (UK only)',
-        'USA Procurement (shopper data)',
-        'In-house Digital media',
-        'IT&D',
-        'Briefing & Strategy (Global)',
-        'USA Procurement (local Nielsen)'
-    ].map((r) => ({ label: r, value: r }));
+//     const reviewTypes = [
+//         'Creative',
+//         'Brand Experience',
+//         'Content/Energy Studio',
+//         'Media',
+//         'Digital',
+//         'Strategy',
+//         'Medical Marketing (UK only)',
+//         'USA Procurement (shopper data)',
+//         'In-house Digital media',
+//         'IT&D',
+//         'Briefing & Strategy (Global)',
+//         'USA Procurement (local Nielsen)'
+//     ].map((r) => ({ label: r, value: r }));
 
-    const countries = ['Global', 'UK', 'Germany', 'USA', 'India'].map((c) => ({ label: c, value: c }));
+//     const countries = ['Global', 'UK', 'Germany', 'USA', 'India'].map((c) => ({ label: c, value: c }));
 
-    const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [yearOptions, setYearOptions] = useState<{ label: string, value: string }[]>([]);
+    const [timeframeOptions, setTimeframeOptions] = useState<{ label: string, value: string }[]>([]);
+    const [reviewTypes, setReviewTypes] = useState<{ label: string, value: string }[]>([]);
+    const [countries, setCountries] = useState<{ label: string, value: string }[]>([]);
+
+    const [selectedYear, setSelectedYear] = useState<string[]>([]);
     const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
     const [selectedTimeframes, setSelectedTimeframes] = useState<string[]>([]);
     const [selectedReviewTypes, setSelectedReviewTypes] = useState<string[]>([]);
@@ -50,9 +55,27 @@ const EvaluationPage = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [savedData, setSavedData] = useState<string[]>([]);
 
+
+    useEffect(() => {
+        const getStoredValues = (key: string) => {
+            const data = localStorage.getItem(key);
+            if (!data) return [];
+            try {
+                return JSON.parse(data).map((item: any) => ({ label: item, value: item }));
+            } catch {
+                return [];
+            }
+        };
+
+        setYearOptions(getStoredValues('Year'));
+        setTimeframeOptions(getStoredValues('Time Frame'));
+        setReviewTypes(getStoredValues('Review Type'));
+        setCountries(getStoredValues('Country'));
+    }, []);
+
 const handleSubmit = () => {
     setCombinations([]);
-    if (!selectedYear || !selectedMonths.length || !selectedTimeframes.length || !selectedReviewTypes.length || !selectedCountries.length) {
+    if (!selectedYear.length || !selectedMonths.length || !selectedTimeframes.length || !selectedReviewTypes.length || !selectedCountries.length) {
         toast.current?.show({
             severity: 'warn',
             summary: 'Hold up!',
@@ -64,16 +87,17 @@ const handleSubmit = () => {
 
     const newCombos: string[] = [];
 
-    selectedMonths.forEach((monthNumber) => {
-        selectedTimeframes.forEach((timeframe) => {
-            selectedReviewTypes.forEach((review) => {
-                selectedCountries.forEach((country) => {
-                    newCombos.push(`${selectedYear}-${monthNumber} ${timeframe} ${review},${country}`);
+    selectedYear.forEach((year) => {
+        selectedMonths.forEach((monthNumber) => {
+            selectedTimeframes.forEach((timeframe) => {
+                selectedReviewTypes.forEach((review) => {
+                    selectedCountries.forEach((country) => {
+                        newCombos.push(`${year}-${monthNumber} ${timeframe} ${review},${country}`);
+                    });
                 });
             });
         });
     });
-
     setCombinations((prev) => [...prev, ...newCombos]);
 };
 

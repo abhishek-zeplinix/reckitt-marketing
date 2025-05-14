@@ -109,7 +109,18 @@ const AppMenu = () => {
                             command: handleMenuClick
                         }
                     ]
-                }
+                },
+                {
+                            label: 'Master',
+                            url: '/marketing-master',
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('manage_faq');
+                            },
+                            command: handleMenuClick
+                        },
 
                 //     {
                 //         label: 'Task Management',
