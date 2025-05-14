@@ -25,8 +25,30 @@ const MarketingDetails = () => {
     const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
     const [selectedBU, setSelectedBU] = useState<string | null>(null);
 
-    const [comboList, setComboList] = useState<string[]>([]);
-    const [savedCombos, setSavedCombos] = useState<string[]>([]);
+    const [comboList, setComboList] = useState<
+  {
+    evaluation: string;
+    vendor: string;
+    reviewType: string;
+    administrator: string;
+    account: string;
+    country: string;
+    bu: string;
+  }[]
+>([]);
+
+    const [savedCombos, setSavedCombos] = useState<
+  {
+    evaluation: string;
+    vendor: string;
+    reviewType: string;
+    administrator: string;
+    account: string;
+    country: string;
+    bu: string;
+  }[]
+>([]);
+
     const [showDialog, setShowDialog] = useState(false);
     const [vendors, setVendors] = useState<{ label: string; value: string }[]>([]);
     const toast = useRef<Toast>(null);
@@ -42,36 +64,47 @@ const MarketingDetails = () => {
         setAccounts(accountsData.map((acc: string) => ({ label: acc, value: acc })));
     }, []);
 
-    const handleSubmit = () => {
+        const handleSubmit = () => {
         if (!selectedEval || !selectedVendor || !selectedReviewType || !administrator || !selectedAccount || !selectedCountry || !selectedBU) {
             toast.current?.show({
-                severity: 'warn',
-                summary: 'Missing!',
-                detail: 'Please fill out all fields ',
-                life: 3000
+            severity: 'warn',
+            summary: 'Missing!',
+            detail: 'Please fill out all fields',
+            life: 3000,
             });
             return;
         }
 
-        const combo = `${selectedEval}-${selectedVendor}-${selectedReviewType}-${administrator}-${selectedAccount}-${selectedCountry}-${selectedBU}`;
-        setComboList((prev) => [...prev, combo]);
-    };
+        const newEntry = {
+            evaluation: selectedEval,
+            vendor: selectedVendor,
+            reviewType: selectedReviewType,
+            administrator,
+            account: selectedAccount,
+            country: selectedCountry,
+            bu: selectedBU,
+        };
 
-    const handleSave = () => {
+        setComboList((prev) => [...prev, newEntry]);
+        };
+
+        const handleSave = () => {
         localStorage.setItem('finalReviewData', JSON.stringify(comboList));
         toast.current?.show({
             severity: 'success',
             summary: 'Saved!',
-            detail: 'Combos saved locally ',
-            life: 3000
+            detail: 'Combos saved locally',
+            life: 3000,
         });
-    };
+        };
 
-    const handleViewSaved = () => {
+
+            const handleViewSaved = () => {
         const data = JSON.parse(localStorage.getItem('finalReviewData') || '[]');
         setSavedCombos(data);
         setShowDialog(true);
-    };
+        };
+
 
     return (
         <div className="p-4 card">
@@ -79,10 +112,17 @@ const MarketingDetails = () => {
 
             <Dialog header="Saved Final Combos" visible={showDialog} style={{ width: '60vw' }} onHide={() => setShowDialog(false)}>
                 {savedCombos.length ? (
-                    <DataTable value={savedCombos.map((c, i) => ({ id: i + 1, name: c }))}>
-                        <Column field="id" header="#" style={{ width: '50px' }} />
-                        <Column field="name" header="Combo" />
+                    <DataTable value={savedCombos}>
+                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} style={{ width: '50px' }} />
+                        <Column field="evaluation" header="Evaluation Name" />
+                        <Column field="vendor" header="Vendor" />
+                        <Column field="reviewType" header="Review Type" />
+                        <Column field="administrator" header="Administrator" />
+                        <Column field="account" header="Account" />
+                        <Column field="country" header="Country" />
+                        <Column field="bu" header="BU" />
                     </DataTable>
+
                 ) : (
                     <p>No saved data found.</p>
                 )}
@@ -141,10 +181,17 @@ const MarketingDetails = () => {
             {comboList.length > 0 && (
                 <>
                     <h3 className="text-lg font-medium mb-3">Generated Combos</h3>
-                    <DataTable value={comboList.map((c, i) => ({ id: i + 1, name: c }))} className="mb-4">
-                        <Column field="id" header="#" style={{ width: '50px' }} />
-                        <Column field="name" header="Combo" />
+                    <DataTable value={comboList} className="mb-4">
+                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} style={{ width: '50px' }} />
+                        <Column field="evaluation" header="Evaluation Name" />
+                        <Column field="vendor" header="Vendor" />
+                        <Column field="reviewType" header="Review Type" />
+                        <Column field="administrator" header="Administrator" />
+                        <Column field="account" header="Account" />
+                        <Column field="country" header="Country" />
+                        <Column field="bu" header="BU" />
                     </DataTable>
+
                     <div className="flex justify-end">
                         <Button label="Save" icon="pi pi-save" className="p-button-success" onClick={handleSave} />
                     </div>
