@@ -1,286 +1,159 @@
 'use client';
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from 'primereact/button';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dropdown } from 'primereact/dropdown';
-import { useAppContext } from '@/layout/AppWrapper';
-import { GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
-import { CustomResponse } from '@/types';
-import { validateFormCreateQuestion } from '@/utils/utils';
 import { InputText } from 'primereact/inputtext';
-import { get, set } from 'lodash';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { Checkbox } from 'primereact/checkbox';
-import { EmptyAccount } from '@/types/forms';
-import Stepper from '@/components/Stepper';
-import { Country, State, City } from 'country-state-city';
-import TableSkeletonSimple from '@/components/skeleton/TableSkeletonSimple';
-import CustomDataTable, { CustomDataTableRef } from '@/components/CustomDataTable';
-import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
-import { MultiSelect } from 'primereact/multiselect';
-import { Label } from '@mui/icons-material';
-const defaultForm: EmptyAccount = {
-    vendorId: null,
-    reviewTypeId: null,
-    templateTypeId: null,
-    userGroupId: null,
-    buId: null,
-    brand: null,
-    country: null,
-    reviewType: null,
-};
+import { Button } from 'primereact/button';
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Toast } from 'primereact/toast';
+import { Dialog } from 'primereact/dialog';
 
-const ManageAccountPage = () => {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const supId = searchParams.get('supId');
-    const isEditMode = searchParams.get('edit') === 'true';
-    const { isLoading, setAlert, setLoading } = useAppContext();
-    const [form, setForm] = useState<EmptyAccount>(defaultForm);
-    const [reviewTypes, setReviewTypes] = useState<any>([{label:"Creative"},{label:"Brand Experience"},{label:"Media"}]);
-    const [brand, setBrand] = useState<any>([{label:"Airwick"},{label:"Finish"},{label:"Gaviscon"}]);
-    const [country, setCountry] = useState<any>([{label:"Global"},{label:"UK"},{label:"Germany"}]);
-    const [mappedValues, setMappedValues] = useState<string | null>(() => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("mappedValues");
-  }
-  return null;
-});
+const MarketingDetails = () => {
+    const toast = useRef(null);
 
-    const [questionData, setQuestionData] = useState<any[]>([]);
-    const dataTableRef = useRef<CustomDataTableRef>(null);
-    const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
-    const dataTableHeaderStyle = { fontSize: '12px' };
-    const [page, setPage] = useState<number>(1);
-    const [totalRecords, setTotalRecords] = useState();
-    const [checkedRows, setCheckedRows] = useState<{ [key: string]: boolean }>({});
+    const reviewTypes = ['Creative', 'Brand Experience', 'Content/Energy Studio', 'Media', 'Digital', 'Strategy'].map((r) => ({ label: r, value: r }));
+    const buOptions = ['BU 1', 'BU 2', 'BU 3'].map((b) => ({ label: b, value: b }));
+    const countries = ['Global', 'UK', 'Germany'].map((c) => ({ label: c, value: c }));
 
+    const [evaluationNames, setEvaluationNames] = useState<{ label: string; value: string }[]>([]);
+    const [accounts, setAccounts] = useState<{ label: string; value: string }[]>([]);
 
+    // form state
+    const [selectedEval, setSelectedEval] = useState<string | null>(null);
+    const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
+    const [selectedReviewType, setSelectedReviewType] = useState<string | null>(null);
+    const [administrator, setAdministrator] = useState<string>('');
+    const [selectedAccount, setSelectedAccount] = useState<string | null>(null);
+    const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
+    const [selectedBU, setSelectedBU] = useState<string | null>(null);
+
+    const [comboList, setComboList] = useState<string[]>([]);
+    const [savedCombos, setSavedCombos] = useState<string[]>([]);
+    const [showDialog, setShowDialog] = useState(false);
+    const [vendors, setVendors] = useState<{ label: string; value: string }[]>([]);
 
     useEffect(() => {
-        setLoading(false);
+        // Fetch Evaluation Names from localStorage (first page data)
+        const evals = JSON.parse(localStorage.getItem('evaluationData') || '[]');
+        setEvaluationNames(evals.map((e: string) => ({ label: e, value: e })));
+
+        const vendorsData = JSON.parse(localStorage.getItem('vendors') || '[]');
+        setVendors(vendorsData.map((v: any) => ({ label: v.name, value: v.name })));
+        // Fetch Accounts from previous mapping (review-country-brand combos)
+        const accountsData = JSON.parse(localStorage.getItem('reviewBrandData') || '[]');
+        setAccounts(accountsData.map((acc: string) => ({ label: acc, value: acc })));
     }, []);
 
-    useEffect(() => {
-  if (mappedValues !== null) {
-    localStorage.setItem("mappedValues", mappedValues);
-  }
-}, [mappedValues]);
-
-
-
     const handleSubmit = () => {
-    if (form.reviewType && form.country && form.brand) {
-        const mapped = `${form.reviewType}, ${form.country}, ${form.brand}`;
-        
-        setMappedValues(mapped);
-    } else {
-        setAlert('warn', 'Please select all fields.' );
-    }
-};
-console.log(mappedValues);
-
-    const onInputChange = (name: string | { [key: string]: any }, val?: any) => {
-        setForm((prevForm) => {
-            let updatedForm = {
-                ...prevForm,
-                ...(typeof name === 'string' ? { [name]: val } : name),
-            };
-            return updatedForm;
-        });
-    };
-    const shouldShowMarketingQuestions = (form: any) => {
-        return !!(form?.reviewTypes || form?.brand || form?.country);
-      };
-      const handleCheckboxChange = (id: string | number, isChecked: boolean) => {
-        setCheckedRows((prev) => ({
-          ...prev,
-          [id]: isChecked,
-        }));
-      };
-      const handleSave = async () => {
-    if (!form.reviewType || !form.country || !form.brand) {
-        setAlert('warn', 'Please select all fields before saving.' );
-        return;
-    }
-
-    try {
-        setLoading(true);
-        const response = await PostCall('/your-api-endpoint', {
-            reviewType: form.reviewType,
-            country: form.country,
-            brand: form.brand,
-        });
-
-        if (response.success) {
-            setAlert('success','Saved successfully.' );
-        } else {
-            throw new Error('Save failed');
+        if (!selectedEval || !selectedVendor || !selectedReviewType || !administrator || !selectedAccount || !selectedCountry || !selectedBU) {
+            toast.current?.show({
+                severity: 'warn',
+                summary: 'Missing!',
+                detail: 'Please fill out all fields ⚠️',
+                life: 3000
+            });
+            return;
         }
-    } catch (err) {
-        setAlert('error','An error occurred while saving.' );
-    } finally {
-        setLoading(false);
-    }
-};
 
-    const renderStepContent = () => {
-        return (
-            <div>
-                <div className="flex flex-column gap-2 pt-2">
-                    <h2 className="text-center font-bold ">Details</h2>
-                    <div className="field">
-                            <label htmlFor="Label" className="font-semibold">
-                                Evaluation Name
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('reviewType', e.value)}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                                showClear={!!form.reviewType}
-                            />
-                        </div>
-                    <div className="p-fluid grid mx-1 pt-2">
-                        <div className="field col-4">
-                            <label htmlFor="Label" className="font-semibold">
-                                vendor
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('reviewType', e.value)}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                                showClear={!!form.reviewType}
-                            />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="Label" className="font-semibold">
-                                Review Type
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('reviewType', e.value)}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                                showClear={!!form.reviewType}
-                            />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="Label" className="font-semibold">
-                                administer
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('reviewType', e.value)}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                                showClear={!!form.reviewType}
-                            />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="Label" className="font-semibold">
-                                account
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('reviewType', e.value)}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                                showClear={!!form.reviewType}
-                            />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="label" className="font-semibold">
-                                Country
-                            </label>
-                            <Dropdown
-                                id="country"
-                                value={form.country}
-                                options={country}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('country', e.value)}
-                                placeholder="Select Country"
-                                className="w-full mb-1"
-                                showClear={!!form.country}
-                            />
-                        </div>
-                        <div className="field col-4">
-                            <label htmlFor="brand" className="font-semibold">
-                                BU
-                            </label>
-                            <Dropdown
-                                id="brand"
-                                value={form.brand}
-                                options={brand}
-                                optionLabel="label"
-                                optionValue="label"
-                                onChange={(e) => onInputChange('brand', e.value)}
-                                placeholder="Select Brand Name"
-                                className="w-full mb-1"
-                                showClear={!!form.brand}
-                            />
-                        </div>
-                    </div>
-                    <div className="p-card-footer flex justify-content-end px-1 gap-1 py-0 bg-slate-300 shadow-slate-400">
-                    <Button label= 'Submit' icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSubmit} />
-                </div>
-                </div>
-            </div>
-        );
+        const combo = `${selectedEval}-${selectedVendor}-${selectedReviewType}-${administrator}-${selectedAccount}-${selectedCountry}-${selectedBU}`;
+        setComboList((prev) => [...prev, combo]);
     };
+
+    const handleSave = () => {
+        localStorage.setItem('finalReviewData', JSON.stringify(comboList));
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Saved!',
+            detail: 'Combos saved locally 💾',
+            life: 3000
+        });
+    };
+
+    const handleViewSaved = () => {
+        const data = JSON.parse(localStorage.getItem('finalReviewData') || '[]');
+        setSavedCombos(data);
+        setShowDialog(true);
+    };
+
     return (
-        <div className="">
-            <div className="p-card">
-                <hr />
-                <div className="p-card-body">{renderStepContent()}</div>
-                <hr />
-                {shouldShowMarketingQuestions(form) && (
-                    <div className='m-4'>
-                        <div>
-                            <h3>Maketing Map Account</h3>
-                        </div>
-                        <hr />
-                       {isLoading ? (
-                            <TableSkeletonSimple columns={3} rows={limit} />
-                        ) : mappedValues ? (
-                            <div className="p-4 bg-gray-100 rounded-md">
-                                <strong>1. </strong> {mappedValues}
-                            </div>
-                        ) : (
-                            <div className="p-4 text-gray-500 italic">No data submitted yet.</div>
-                        )}
+        <div className="p-4 card">
+            <Toast ref={toast} />
 
-
-                    </div>
+            <Dialog header="Saved Final Combos" visible={showDialog} style={{ width: '60vw' }} onHide={() => setShowDialog(false)}>
+                {savedCombos.length ? (
+                    <DataTable value={savedCombos.map((c, i) => ({ id: i + 1, name: c }))}>
+                        <Column field="id" header="#" style={{ width: '50px' }} />
+                        <Column field="name" header="Combo" />
+                    </DataTable>
+                ) : (
+                    <p>No saved data found.</p>
                 )}
-                <div className="p-card-footer flex justify-content-end px-4 gap-3 py-0 bg-slate-300 shadow-slate-400">
-                    <Button label="Save" icon="pi pi-check" className="bg-primary-main border-primary-main hover:text-white mb-3" onClick={handleSave} />
+            </Dialog>
+
+            <div className="flex justify-content-between items-center mb-4">
+                <div>
+                    <h2 className="text-xl font-semibold">Final Review Data</h2>
+                </div>
+                <div>
+                    <Button label="View Saved Combos" icon="pi pi-eye" onClick={handleViewSaved} />
                 </div>
             </div>
+
+            <div className="grid formgrid gap-3 mb-4">
+                <div className="flex row col-12">
+                    <div className=" col-4 ">
+                        <label>Evaluation Name</label>
+                        <Dropdown value={selectedEval} options={evaluationNames} onChange={(e) => setSelectedEval(e.value)} className="w-full mt-2" placeholder="Select Evaluation" />
+                    </div>
+                    <div className=" col-4 ">
+                        <label>Vendor</label>
+                        <Dropdown value={selectedVendor} options={vendors} onChange={(e) => setSelectedVendor(e.value)} className="w-full mt-2" placeholder="Select Vendor" />
+                    </div>
+                    <div className=" col-4 ">
+                        <label>Review Type</label>
+                        <Dropdown value={selectedReviewType} options={reviewTypes} onChange={(e) => setSelectedReviewType(e.value)} className="w-full mt-2" placeholder="Select Review Type" />
+                    </div>
+                </div>
+                <div className="flex row col-12">
+                    <div className="col-4">
+                        <label>Administrator</label>
+                        <InputText value={administrator} onChange={(e) => setAdministrator(e.target.value)} className="w-full mt-2" placeholder="Enter Administrator" />
+                    </div>
+                    <div className="col-4">
+                        <label>Account</label>
+                        <Dropdown value={selectedAccount} options={accounts} onChange={(e) => setSelectedAccount(e.value)} className="w-full mt-2" placeholder="Select Account" />
+                    </div>
+                    <div className="col-4">
+                        <label>Country</label>
+                        <Dropdown value={selectedCountry} options={countries} onChange={(e) => setSelectedCountry(e.value)} className="w-full mt-2" placeholder="Select Country" />
+                    </div>
+                </div>
+                <div className="flex row col-12">
+                    <div className="col-4">
+                        <label>BU</label>
+                        <Dropdown value={selectedBU} options={buOptions} onChange={(e) => setSelectedBU(e.value)} className="w-full mt-2" placeholder="Select BU" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex justify-content-end gap-2 mb-4">
+                <Button label="Submit" icon="pi pi-check" onClick={handleSubmit} />
+            </div>
+
+            {comboList.length > 0 && (
+                <>
+                    <h3 className="text-lg font-medium mb-3">Generated Combos</h3>
+                    <DataTable value={comboList.map((c, i) => ({ id: i + 1, name: c }))} className="mb-4">
+                        <Column field="id" header="#" style={{ width: '50px' }} />
+                        <Column field="name" header="Combo" />
+                    </DataTable>
+                    <div className="flex justify-end">
+                        <Button label="Save" icon="pi pi-save" className="p-button-success" onClick={handleSave} />
+                    </div>
+                </>
+            )}
         </div>
     );
 };
 
-export default ManageAccountPage;
+export default MarketingDetails;

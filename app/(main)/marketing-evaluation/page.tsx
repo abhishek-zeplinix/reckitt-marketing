@@ -89,7 +89,7 @@ const EvaluationPage = () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 card">
             <Toast ref={toast} />
 
             <Dialog header="Saved Evaluations" visible={showDialog} style={{ width: '50vw' }} onHide={() => setShowDialog(false)}>
@@ -112,7 +112,7 @@ const EvaluationPage = () => {
                 <div className="flex row col-12">
                     <div className="md:col-4">
                         <label>Year</label>
-                        <Dropdown value={selectedYear} options={yearOptions} onChange={(e) => setSelectedYear(e.value)} className="w-full mt-2" placeholder="Select Year" />
+                        <MultiSelect value={selectedYear} options={yearOptions} onChange={(e) => setSelectedYear(e.value)} className="w-full mt-2 " placeholder="Select Year" />
                     </div>
                     <div className="md:col-4">
                         <label>Months</label>

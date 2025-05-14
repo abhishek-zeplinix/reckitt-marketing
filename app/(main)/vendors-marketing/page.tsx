@@ -32,7 +32,6 @@ export default function VendorsPage() {
         address: '',
         poc: ''
     });
-
     const [editId, setEditId] = useState<string | null>(null);
     const [visible, setVisible] = useState(false);
 
@@ -96,8 +95,10 @@ export default function VendorsPage() {
     );
 
     return (
-        <div className="p-4">
-            <h2 className="text-xl font-semibold mb-4">Vendor Onboarding</h2>
+        <div className="p-4 card">
+            <div className="">
+                <h2 className="text-xl font-semibold mb-4">Vendor Onboarding</h2>
+            </div>
 
             <div className="grid formgrid gap-3 mb-4">
                 <div className="col-12 flex">
