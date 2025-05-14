@@ -55,7 +55,7 @@ const MarketingAccount = () => {
             selectedCountries.forEach((country) => {
                 const brand = brandMapping[country]; // get mapped brand
                 if (brand) {
-                    newCombos.push(`${review}-${country}-${brand}`);
+                    newCombos.push(`${review},${country},${brand}`);
                 }
             });
         });
@@ -95,7 +95,7 @@ const MarketingAccount = () => {
             </Dialog>
 
             <div className="flex justify-content-between mb-3">
-                <h2 className="text-xl font-semibold">Review Type - Country - Brand</h2>
+                <h2 className="text-xl font-semibold">Account</h2>
                 <Button label="View Saved Combos" icon="pi pi-eye" onClick={handleViewSaved} />
             </div>
 

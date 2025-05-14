@@ -15,7 +15,11 @@ const EvaluationPage = () => {
         value: `${currentYear + i}`
     }));
 
-    const monthOptions = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((m) => ({ label: m, value: m }));
+    const monthOptions = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+].map((m, index) => ({ label: m, value: index + 1 }));
+
 
     const timeframeOptions = ['H1', 'H2'].map((t) => ({ label: t, value: t }));
 
@@ -46,31 +50,33 @@ const EvaluationPage = () => {
     const [showDialog, setShowDialog] = useState(false);
     const [savedData, setSavedData] = useState<string[]>([]);
 
-    const handleSubmit = () => {
-        if (!selectedYear || !selectedMonths.length || !selectedTimeframes.length || !selectedReviewTypes.length || !selectedCountries.length) {
-            toast.current?.show({
-                severity: 'warn',
-                summary: 'Hold up!',
-                detail: 'Please select all the fields ',
-                life: 3000
-            });
-            return;
-        }
+const handleSubmit = () => {
+    setCombinations([]);
+    if (!selectedYear || !selectedMonths.length || !selectedTimeframes.length || !selectedReviewTypes.length || !selectedCountries.length) {
+        toast.current?.show({
+            severity: 'warn',
+            summary: 'Hold up!',
+            detail: 'Please select all the fields ',
+            life: 3000
+        });
+        return;
+    }
 
-        const newCombos: string[] = [];
+    const newCombos: string[] = [];
 
-        selectedMonths.forEach((month) => {
-            selectedTimeframes.forEach((timeframe) => {
-                selectedReviewTypes.forEach((review) => {
-                    selectedCountries.forEach((country) => {
-                        newCombos.push(`${selectedYear}-${month}-${timeframe}-${review}-${country}`);
-                    });
+    selectedMonths.forEach((monthNumber) => {
+        selectedTimeframes.forEach((timeframe) => {
+            selectedReviewTypes.forEach((review) => {
+                selectedCountries.forEach((country) => {
+                    newCombos.push(`${selectedYear}-${monthNumber} ${timeframe} ${review},${country}`);
                 });
             });
         });
+    });
 
-        setCombinations((prev) => [...prev, ...newCombos]);
-    };
+    setCombinations((prev) => [...prev, ...newCombos]);
+};
+
 
     const handleSave = () => {
         localStorage.setItem('evaluationData', JSON.stringify(combinations));
