@@ -19,7 +19,6 @@ interface Vendor {
     phone: string;
     companyName: string;
     address: string;
-    poc: string;
 }
 
 export default function VendorsPage() {
@@ -29,8 +28,7 @@ export default function VendorsPage() {
         email: '',
         phone: '',
         companyName: '',
-        address: '',
-        poc: ''
+        address: ''
     });
     const [editId, setEditId] = useState<string | null>(null);
     const [visible, setVisible] = useState(false);
@@ -63,7 +61,7 @@ export default function VendorsPage() {
     };
 
     const resetForm = () => {
-        setForm({ name: '', email: '', phone: '', companyName: '', address: '', poc: '' });
+        setForm({ name: '', email: '', phone: '', companyName: '', address: '' });
         setEditId(null);
         setVisible(false);
     };
@@ -74,8 +72,7 @@ export default function VendorsPage() {
             email: vendor.email,
             phone: vendor.phone,
             companyName: vendor.companyName,
-            address: vendor.address,
-            poc: vendor.poc
+            address: vendor.address
         });
         setEditId(vendor.id);
         setVisible(true);
@@ -124,10 +121,6 @@ export default function VendorsPage() {
                         <label htmlFor="address">Address</label>
                         <InputText id="address" value={form.address} onChange={(e) => handleChange('address', e.target.value)} className="w-full mt-2" />
                     </div>
-                    <div className="md:col-4">
-                        <label htmlFor="poc">POC</label>
-                        <InputText id="poc" value={form.poc} onChange={(e) => handleChange('poc', e.target.value)} className="w-full mt-2" />
-                    </div>
                 </div>
             </div>
 
@@ -145,7 +138,6 @@ export default function VendorsPage() {
                     <Column field="phone" header="Phone" />
                     <Column field="companyName" header="Company" />
                     <Column field="address" header="Address" />
-                    <Column field="poc" header="POC" />
                     <Column body={actionBodyTemplate} header="Actions" style={{ width: '120px' }} />
                 </DataTable>
             )}
@@ -157,7 +149,6 @@ export default function VendorsPage() {
                     <InputText placeholder="Phone" value={form.phone} onChange={(e) => handleChange('phone', e.target.value)} />
                     <InputText placeholder="Company Name" value={form.companyName} onChange={(e) => handleChange('companyName', e.target.value)} />
                     <InputText placeholder="Address" value={form.address} onChange={(e) => handleChange('address', e.target.value)} />
-                    <InputText placeholder="POC Name" value={form.poc} onChange={(e) => handleChange('poc', e.target.value)} />
                     <Button label={editId ? 'Update' : 'Save'} onClick={handleSubmit} />
                 </div>
             </Dialog>

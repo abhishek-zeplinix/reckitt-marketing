@@ -65,6 +65,28 @@ const AppMenu = () => {
                     },
                     items: [
                         {
+                            label: 'Master',
+                            url: '/marketing-master',
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('manage_faq');
+                            },
+                            command: handleMenuClick
+                        },
+                        {
+                            label: 'Marketing Questions',
+                            url: '/marketing-questions',
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('manage_supply_glossary');
+                            },
+                            command: handleMenuClick
+                        },
+                        {
                             label: 'Manage Vendor',
                             url: '/vendors-marketing',
                             check: (user: any) => {
@@ -86,17 +108,17 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         },
-                        {
-                            label: 'Account',
-                            url: '/marketing-account',
-                            check: (user: any) => {
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
-                                return hasPermission('manage_supply_glossary');
-                            },
-                            command: handleMenuClick
-                        },
+                        // {
+                        //     label: 'Account',
+                        //     url: '/marketing-account',
+                        //     check: (user: any) => {
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
+                        //         return hasPermission('manage_supply_glossary');
+                        //     },
+                        //     command: handleMenuClick
+                        // },
                         {
                             label: 'Details',
                             url: '/marketing-details',
@@ -107,20 +129,31 @@ const AppMenu = () => {
                                 return hasPermission('manage_supply_glossary');
                             },
                             command: handleMenuClick
-                        }
-                    ]
-                },
-                {
-                            label: 'Master',
-                            url: '/marketing-master',
+                        },
+                        {
+                            label: 'Evaluation Setup',
+                            url: '/evaluation-setup',
                             check: (user: any) => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
                                 }
-                                return hasPermission('manage_faq');
+                                return hasPermission('manage_supply_glossary');
                             },
                             command: handleMenuClick
                         },
+                        {
+                            label: 'Evaluation Progress',
+                            url: '/evaluation-progress',
+                            check: (user: any) => {
+                                if (get(user, 'isSuperAdmin')) {
+                                    return true;
+                                }
+                                return hasPermission('manage_supply_glossary');
+                            },
+                            command: handleMenuClick
+                        }
+                    ]
+                }
 
                 //     {
                 //         label: 'Task Management',
