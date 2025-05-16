@@ -29,25 +29,25 @@ export default function VendorTable() {
     ];
 
     const setupTemplate = (rowData: any) => (
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-3">
             {/* First set */}
             <div className="flex flex-column align-items-center gap-1">
                 <span className="text-xs text-gray-600 font-medium">1</span>
-                <i className="pi pi-check text-white bg-green-600 p-2 border-circle text-sm" />
+                <i className="pi pi-check text-white bg-green-600 p-1 border-circle text-sm" />
             </div>
             <div className="flex flex-column align-items-center gap-1">
                 <span className="text-xs text-gray-600 font-medium">2</span>
-                <i className="pi pi-check text-white bg-green-600 p-2 border-circle text-sm" />
+                <span className="text-black text-xs font-bold">__</span>
             </div>
 
             {/* Second set */}
             <div className="flex flex-column align-items-center gap-1">
                 <span className="text-xs text-gray-600 font-medium">3</span>
-                <i className="pi pi-check text-white bg-green-600 p-2 border-circle text-sm" />
+                <i className="pi pi-check text-white bg-green-600 p-1 border-circle text-sm" />
             </div>
             <div className="flex flex-column align-items-center gap-1">
                 <span className="text-xs text-gray-600 font-medium">4</span>
-                <i className="pi pi-check text-white bg-green-600 p-2 border-circle text-sm" />
+                <span className="text-black text-xs font-bold">__</span>
             </div>
         </div>
     );

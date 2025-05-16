@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-const Tabs = ['Year', 'Evaluation TimeFrame', 'Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group'];
+const Tabs = ['Year','Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group'];
 
 const toDropdownOptions = (arr: any) => (Array.isArray(arr) ? arr.map((item) => ({ label: item, value: item })) : []);
 
@@ -31,7 +31,6 @@ const MarketingMaster = () => {
         localStorage.setItem(key, JSON.stringify(value));
         setData((prev) => ({ ...prev, [key]: value }));
     };
-    console.log('data', data);
     const handleSave = () => {
         if (!inputValue.trim()) return;
 

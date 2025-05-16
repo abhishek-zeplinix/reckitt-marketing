@@ -9,33 +9,52 @@ const TablePage = () => {
     const [selectedRows, setSelectedRows] = useState<any[]>([]);
 
     const data = [
-        {
-            agency: 'Dentsu',
-            account: 'Digital, France, Health (Digital)',
-            openComplete: [false, false, false, false], // lock icons
-            clientSubmission: '0 of 3',
-            agencySelf: 'N/A',
-            agencySubmission: '0 of 3',
-            clientSelf: 'N/A'
-        },
-        {
-            agency: 'Dentsu',
-            account: 'Digital, France, Hygiene (Digital)',
-            openComplete: [false, false, false, false],
-            clientSubmission: '0 of 2',
-            agencySelf: 'N/A',
-            agencySubmission: '0 of 3',
-            clientSelf: 'N/A'
-        }
-    ];
+    {
+        agency: 'Dentsu',
+        account: 'Digital, France, Health (Digital)',
+        openComplete: [true, false, true, false],
+        clientSubmission: '0 of 3',
+        agencySelf: 'N/A',
+        agencySubmission: '0 of 3',
+        clientSelf: 'N/A'
+    },
+    {
+        agency: 'Dentsu',
+        account: 'Digital, France, Hygiene (Digital)',
+        openComplete: [true, false, true, false],
+        clientSubmission: '0 of 2',
+        agencySelf: 'N/A',
+        agencySubmission: '0 of 3',
+        clientSelf: 'N/A'
+    }
+];
 
-    const lockTemplate = () => (
-        <div className="flex gap-3">
-            {[1, 2, 3, 4].map((_, i) => (
-                <i key={i} className="pi pi-lock text-yellow-600 text-sm" />
-            ))}
+
+  const lockTemplate = (rowData: any) => (
+        <div className="flex flex-wrap gap-3">
+            {/* First set */}
+            <div className="flex flex-column align-items-center gap-1">
+                <span className="text-xs text-gray-600 font-medium">1</span>
+                <i className="pi pi-lock text-yellow-600 text-sm" />
+            </div>
+            <div className="flex flex-column align-items-center gap-1">
+                <span className="text-xs text-gray-600 font-medium">2</span>
+                <span className="text-black text-xs font-bold">__</span>
+            </div>
+
+            {/* Second set */}
+            <div className="flex flex-column align-items-center gap-1">
+                <span className="text-xs text-gray-600 font-medium">3</span>
+                <i className="pi pi-lock text-yellow-600 text-sm" />
+            </div>
+            <div className="flex flex-column align-items-center gap-1">
+                <span className="text-xs text-gray-600 font-medium">4</span>
+                <span className="text-black text-xs font-bold">__</span>
+            </div>
         </div>
     );
+
+
 
     return (
         <div className="p-4">

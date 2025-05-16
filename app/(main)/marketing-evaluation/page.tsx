@@ -232,6 +232,7 @@ const EvaluationPage = () => {
         'Briefing & Strategy (Global)',
         'USA Procurement (local Nielsen)'
     ].map((r) => ({ label: r, value: r }));
+    
 
     const countries = ['Global', 'UK', 'Germany', 'USA', 'India'].map((c) => ({ label: c, value: c }));
 
@@ -270,7 +271,6 @@ const EvaluationPage = () => {
 
         setCombinations((prev) => [...prev, ...newCombos]);
     };
-
     const handleSave = () => {
         localStorage.setItem('evaluationData', JSON.stringify(combinations));
         toast.current?.show({

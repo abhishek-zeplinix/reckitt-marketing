@@ -31,21 +31,20 @@ const TemplateQuestionPage = () => {
 
     // Sample data instead of API calls
     const [reviewTypes, setReviewTypes] = useState([
-        { reviewTypeName: 'Performance Review', reviewTypeId: 1 },
-        { reviewTypeName: 'Quality Review', reviewTypeId: 2 },
-        { reviewTypeName: 'Process Review', reviewTypeId: 3 }
+        { reviewTypeName: 'Creative', reviewTypeId: 1 },
+        { reviewTypeName: 'Brand Experience', reviewTypeId: 2 },
+        { reviewTypeName: 'Content/Energy Studio', reviewTypeId: 3 }
     ]);
 
     const [assessorGroups, setAssessorGroups] = useState([
-        { assessorGroupName: 'Management', assessorGroupId: 1 },
-        { assessorGroupName: 'Team Leaders', assessorGroupId: 2 },
-        { assessorGroupName: 'Peers', assessorGroupId: 3 }
+        { assessorGroupName: 'Global Marketing', assessorGroupId: 1 },
+        { assessorGroupName: 'Local Marketing', assessorGroupId: 2 },
+        { assessorGroupName: 'Procurement', assessorGroupId: 3 }
     ]);
 
     const [templateTypes, setTemplateTypes] = useState([
-        { templateTypeName: 'Annual Review', templateTypeId: 1 },
-        { templateTypeName: 'Quarterly Review', templateTypeId: 2 },
-        { templateTypeName: 'Project Review', templateTypeId: 3 }
+        { templateTypeName: 'Agency to Reckitt', templateTypeId: 1 },
+        { templateTypeName: 'Reckitt to Agency', templateTypeId: 2 },
     ]);
 
     const [compulsoryOptions] = useState([{ isCompulsary: 'yes' }, { isCompulsary: 'no' }]);
@@ -110,6 +109,23 @@ const TemplateQuestionPage = () => {
                     <h2 className="text-center font-bold ">{pageTitle}</h2>
                     <div className="p-fluid grid mx-1 pt-2">
                         <div className="field col-3">
+                            <label htmlFor="reviewType" className="font-semibold">
+                                Review Type
+                            </label>
+                            <Dropdown
+                                id="reviewType"
+                                value={form.reviewType}
+                                options={reviewTypes}
+                                optionLabel="reviewTypeName"
+                                onChange={(e) => {
+                                    // Store the whole object instead of just the ID
+                                    onInputChange('reviewType', e.value);
+                                }}
+                                placeholder="Select Review Type"
+                                className="w-full mb-1"
+                            />
+                        </div>
+                        <div className="field col-3">
                             <label htmlFor="templateType" className="font-semibold">
                                 Template Type
                             </label>
@@ -143,23 +159,7 @@ const TemplateQuestionPage = () => {
                                 className="w-full mb-1"
                             />
                         </div>
-                        <div className="field col-3">
-                            <label htmlFor="reviewType" className="font-semibold">
-                                Review Type
-                            </label>
-                            <Dropdown
-                                id="reviewType"
-                                value={form.reviewType}
-                                options={reviewTypes}
-                                optionLabel="reviewTypeName"
-                                onChange={(e) => {
-                                    // Store the whole object instead of just the ID
-                                    onInputChange('reviewType', e.value);
-                                }}
-                                placeholder="Select Review Type"
-                                className="w-full mb-1"
-                            />
-                        </div>
+                        
                         <div className="field col-3">
                             <label htmlFor="questionTitle" className="font-semibold">
                                 Question Title
