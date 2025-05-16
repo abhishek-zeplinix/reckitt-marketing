@@ -85,7 +85,7 @@ const LoginPage = () => {
 
             // console.log(encryptedPassword);
 
-            const response: any = await PostCall('/sbs/api/auth/sign-in', { email, password });
+            const response: any = await PostCall('auth/sign-in', { email, password });
 
             setLoading(false);
             if (response.code == 'SUCCESS') {
