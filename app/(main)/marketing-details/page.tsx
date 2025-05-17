@@ -16,24 +16,34 @@ const STORAGE_KEYS = {
     FINAL_REVIEW_DATA: 'finalReviewData'
 };
 
+interface Question {
+    id: number;
+    segment?: string;
+    questionTitle: string;
+    minRating: number;
+    maxRating: number;
+    isCompulsary?: { isCompulsary: boolean };
+    // other fields...
+}
+
 const MarketingDetails = () => {
     const toast = useRef<Toast>(null);
     const [showDialog, setShowDialog] = useState(false);
     const [expandedRows, setExpandedRows] = useState<DataTableExpandedRows>({});
 
     // Dynamic options from localStorage
-    const [evaluationOptions, setEvaluationOptions] = useState<{label: string, value: string}[]>([]);
-    const [vendorOptions, setVendorOptions] = useState<{label: string, value: string}[]>([]);
-    const [childVendorOptions, setChildVendorOptions] = useState<{label: string, value: string}[]>([]);
-    const [countryOptions, setCountryOptions] = useState<{label: string, value: string}[]>([]);
-    const [buOptions, setBuOptions] = useState<{label: string, value: string}[]>([]);
-    const [brandOptions, setBrandOptions] = useState<{label: string, value: string}[]>([]);
+    const [evaluationOptions, setEvaluationOptions] = useState<{ label: string; value: string }[]>([]);
+    const [vendorOptions, setVendorOptions] = useState<{ label: string; value: string }[]>([]);
+    const [childVendorOptions, setChildVendorOptions] = useState<{ label: string; value: string }[]>([]);
+    const [countryOptions, setCountryOptions] = useState<{ label: string; value: string }[]>([]);
+    const [buOptions, setBuOptions] = useState<{ label: string; value: string }[]>([]);
+    const [brandOptions, setBrandOptions] = useState<{ label: string; value: string }[]>([]);
     const [statusOptions] = useState([
         { label: 'Active', value: 'Active' },
         { label: 'Inactive', value: 'Inactive' }
     ]);
-    const [templateTypeOptions, setTemplateTypeOptions] = useState<{label: string, value: string}[]>([]);
-    const [reviewTypeOptions, setReviewTypeOptions] = useState<{label: string, value: string}[]>([]);
+    const [templateTypeOptions, setTemplateTypeOptions] = useState<{ label: string; value: string }[]>([]);
+    const [reviewTypeOptions, setReviewTypeOptions] = useState<{ label: string; value: string }[]>([]);
 
     // Form state
     const [selectedEval, setSelectedEval] = useState<string | null>(null);
@@ -54,25 +64,34 @@ const MarketingDetails = () => {
     const [comboList, setComboList] = useState<any[]>([]);
     const [savedCombos, setSavedCombos] = useState<any[]>([]);
 
-      const [questionsByTemplateType, setQuestionsByTemplateType] = useState<Record<string, any[]>>({});
+    const [questionsByTemplateType, setQuestionsByTemplateType] = useState<Record<string, any[]>>({});
 
+    useEffect(() => {
+        // Flatten all questions from all template types
+        const allQuestions = Object.values(questionsByTemplateType).flat();
 
+        setSelectedQuestions(allQuestions);
+    }, [questionsByTemplateType]);
     // Load all initial data from localStorage
     useEffect(() => {
         // Load evaluation data
         const evaluations = JSON.parse(localStorage.getItem('evaluationData') || '[]');
 
-        setEvaluationOptions(evaluations.map((e: string) => ({ 
-            label: e, 
-            value: e 
-        })));
+        setEvaluationOptions(
+            evaluations.map((e: string) => ({
+                label: e,
+                value: e
+            }))
+        );
 
         // Load vendors and child vendors
         const vendorsData = JSON.parse(localStorage.getItem('vendors') || '[]');
-        setVendorOptions(vendorsData.map((v: any) => ({ 
-            label: v.name, 
-            value: v.name 
-        })));
+        setVendorOptions(
+            vendorsData.map((v: any) => ({
+                label: v.name,
+                value: v.name
+            }))
+        );
 
         // Load other options
         setCountryOptions(getStoredOptions('Country'));
@@ -87,7 +106,7 @@ const MarketingDetails = () => {
         // Load saved combos
         const savedCombos = JSON.parse(localStorage.getItem(STORAGE_KEYS.FINAL_REVIEW_DATA) || '[]');
         console.log(savedCombos);
-        
+
         setComboList(savedCombos);
     }, []);
 
@@ -96,9 +115,9 @@ const MarketingDetails = () => {
         const data = localStorage.getItem(key);
         if (!data) return [];
         try {
-            return JSON.parse(data).map((item: string) => ({ 
-                label: item, 
-                value: item 
+            return JSON.parse(data).map((item: string) => ({
+                label: item,
+                value: item
             }));
         } catch {
             return [];
@@ -114,12 +133,14 @@ const MarketingDetails = () => {
 
         const vendorsData = JSON.parse(localStorage.getItem('vendors') || '[]');
         const selectedVendorData = vendorsData.find((v: any) => v.name === selectedVendor);
-        
+
         if (selectedVendorData?.children) {
-            setChildVendorOptions(selectedVendorData.children.map((child: any) => ({
-                label: child.name,
-                value: child.name
-            })));
+            setChildVendorOptions(
+                selectedVendorData.children.map((child: any) => ({
+                    label: child.name,
+                    value: child.name
+                }))
+            );
         } else {
             setChildVendorOptions([]);
         }
@@ -142,11 +163,13 @@ const MarketingDetails = () => {
         // Get template types for this review type
         const templateTypesData = JSON.parse(localStorage.getItem('Template Type') || '{}');
         const templatesForReviewType = templateTypesData[reviewType] || [];
-        
-        setTemplateTypeOptions(templatesForReviewType.map((t: string) => ({
-            label: t,
-            value: t
-        })));
+
+        setTemplateTypeOptions(
+            templatesForReviewType.map((t: string) => ({
+                label: t,
+                value: t
+            }))
+        );
 
         // Select all template types by default
         setSelectedTemplateTypes(templatesForReviewType);
@@ -159,38 +182,48 @@ const MarketingDetails = () => {
             return;
         }
 
-        const filtered = questions.filter(q => 
-            selectedTemplateTypes.includes(q.templateType?.templateTypeName)
-        );
+        const filtered = questions.filter((q) => selectedTemplateTypes.includes(q.templateType?.templateTypeName));
         setFilteredQuestions(filtered);
     }, [selectedTemplateTypes, questions]);
 
     const handleQuestionToggle = (question: any) => {
-        const updated = selectedQuestions.some(q => q.id === question.id)
-            ? selectedQuestions.filter(q => q.id !== question.id)
-            : [...selectedQuestions, question];
-        
+        const updated = selectedQuestions.some((q) => q.id === question.id) ? selectedQuestions.filter((q) => q.id !== question.id) : [...selectedQuestions, question];
+
         setSelectedQuestions(updated);
     };
 
-    const handleSegmentToggle = (segment: string) => {
-        const segmentQuestions = filteredQuestions.filter(q => q.segment === segment);
-        const allSelected = segmentQuestions.every(q => 
-            selectedQuestions.some(sq => sq.id === q.id)
-        );
+    const handleSegmentToggle = (templateType: string, segment: string) => {
+        const segmentQuestions = questionsByTemplateType[templateType].filter((q) => q.segment === segment);
+        const allSelected = segmentQuestions.every((q) => selectedQuestions.some((sq) => sq.id === q.id));
 
         const updated = allSelected
-            ? selectedQuestions.filter(q => q.segment !== segment)
-            : [...selectedQuestions, ...segmentQuestions.filter(
-                q => !selectedQuestions.some(sq => sq.id === q.id)
-              )];
+            ? selectedQuestions.filter((q) => !(q.templateType?.templateTypeName === templateType && q.segment === segment))
+            : [...selectedQuestions, ...segmentQuestions.filter((q) => !selectedQuestions.some((sq) => sq.id === q.id))];
+
+        setSelectedQuestions(updated);
+    };
+    const handleTemplateTypeToggle = (templateType: string) => {
+        const templateQuestions = questionsByTemplateType[templateType] || [];
+        const allSelected = templateQuestions.every((q) => selectedQuestions.some((sq) => sq.id === q.id));
+
+        const updated = allSelected ? selectedQuestions.filter((q) => q.templateType?.templateTypeName !== templateType) : [...selectedQuestions, ...templateQuestions.filter((q) => !selectedQuestions.some((sq) => sq.id === q.id))];
 
         setSelectedQuestions(updated);
     };
 
+    const handleSelectAllQuestions = () => {
+        const allQuestions = Object.values(questionsByTemplateType).flat();
+
+        if (selectedQuestions.length === allQuestions.length) {
+            // If all are selected, deselect all
+            setSelectedQuestions([]);
+        } else {
+            // Otherwise, select all questions
+            setSelectedQuestions(allQuestions);
+        }
+    };
     const handleFinalSave = () => {
-        if (!selectedEval || !selectedVendor || !administrator || !selectedCountry ||
-            !selectedBU || !selectedStatus || !selectedBrand || !selectedTemplateTypes.length) {
+        if (!selectedEval || !selectedVendor || !administrator || !selectedCountry || !selectedBU || !selectedStatus || !selectedBrand || !selectedTemplateTypes.length) {
             toast.current?.show({
                 severity: 'warn',
                 summary: 'Missing!',
@@ -254,28 +287,28 @@ const MarketingDetails = () => {
     //     setShowDialog(true);
     // };
 
-  const handleViewSaved = () => {
-    try {
-        const savedData = localStorage.getItem(STORAGE_KEYS.FINAL_REVIEW_DATA);
-        console.log('Saved data:', savedData);
-        
-        const parsedData = savedData ? JSON.parse(savedData) : [];
-        setSavedCombos(Array.isArray(parsedData) ? parsedData : []);
-        // Reset expanded rows state completely
-        // setExpandedRows(null);
-        setShowDialog(true);
-    } catch (error) {
-        console.error('Error loading saved reviews:', error);
-        toast.current?.show({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Failed to load saved reviews',
-            life: 3000
-        });
-        setSavedCombos([]);
-        setShowDialog(true);
-    }
-};
+    const handleViewSaved = () => {
+        try {
+            const savedData = localStorage.getItem(STORAGE_KEYS.FINAL_REVIEW_DATA);
+            console.log('Saved data:', savedData);
+
+            const parsedData = savedData ? JSON.parse(savedData) : [];
+            setSavedCombos(Array.isArray(parsedData) ? parsedData : []);
+            // Reset expanded rows state completely
+            // setExpandedRows(null);
+            setShowDialog(true);
+        } catch (error) {
+            console.error('Error loading saved reviews:', error);
+            toast.current?.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load saved reviews',
+                life: 3000
+            });
+            setSavedCombos([]);
+            setShowDialog(true);
+        }
+    };
     const rowExpansionTemplate = (data: any) => {
         return (
             <div className="p-4">
@@ -299,13 +332,9 @@ const MarketingDetails = () => {
         );
     };
 
-
-
     // Group questions by segment for display
     const groupedQuestions: any[] = [];
-    const sortedQuestions = [...filteredQuestions].sort((a, b) => 
-        (a.segment || '').localeCompare(b.segment || '')
-    );
+    const sortedQuestions = [...filteredQuestions].sort((a, b) => (a.segment || '').localeCompare(b.segment || ''));
 
     let lastSegment: string | null = null;
     sortedQuestions.forEach((q) => {
@@ -316,7 +345,7 @@ const MarketingDetails = () => {
         groupedQuestions.push(q);
     });
 
-      // Filter questions based on both review type and template types
+    // Filter questions based on both review type and template types
     useEffect(() => {
         if (!selectedReviewType || !selectedTemplateTypes.length) {
             setQuestionsByTemplateType({});
@@ -324,46 +353,91 @@ const MarketingDetails = () => {
         }
 
         const filtered: Record<string, any[]> = {};
-        
+
         // Get questions from localStorage
         const allQuestions = JSON.parse(localStorage.getItem(STORAGE_KEYS.MARKETING_TEMPLATE_QUESTIONS) || '[]');
 
-        selectedTemplateTypes.forEach(templateType => {
-            filtered[templateType] = allQuestions.filter((q:any) => 
-                q.reviewType?.reviewTypeName === selectedReviewType && 
-                q.templateType?.templateTypeName === templateType
-            );
+        selectedTemplateTypes.forEach((templateType) => {
+            filtered[templateType] = allQuestions.filter((q: any) => q.reviewType?.reviewTypeName === selectedReviewType && q.templateType?.templateTypeName === templateType);
         });
 
         setQuestionsByTemplateType(filtered);
     }, [selectedReviewType, selectedTemplateTypes]);
 
-
     const renderQuestionsTables = () => {
         return Object.entries(questionsByTemplateType).map(([templateType, questions]) => {
             if (questions.length === 0) return null;
 
+            // Group questions by segment
+            const questionsBySegment: Record<string, Question[]> = {};
+
+            questions.forEach((q) => {
+                const segment = q.segment || 'Uncategorized';
+                if (!questionsBySegment[segment]) {
+                    questionsBySegment[segment] = [];
+                }
+                questionsBySegment[segment].push(q);
+            });
+
+            // Check if all questions in this template type are selected
+            const allTemplateQuestionsSelected = questions.every((q) => selectedQuestions.some((sq) => sq.id === q.id));
+
             return (
-                <Panel header={`${templateType} Questions (${questions.length})`} toggleable key={templateType} className="mb-4">
-                    <DataTable 
-                        value={questions}
-                        selection={selectedQuestions}
-                        onSelectionChange={(e) => setSelectedQuestions(e.value)}
-                        dataKey="id"
-                        paginator
-                        rows={5}
-                    >
-                        <Column selectionMode="multiple" headerStyle={{ width: '3em' }} />
-                        <Column field="questionTitle" header="Title" sortable />
-                        <Column field="segment" header="Segment" sortable />
-                        <Column field="minRating" header="Min Rating" />
-                        <Column field="maxRating" header="Max Rating" />
-                        <Column 
-                            field="isCompulsary.isCompulsary" 
-                            header="Compulsory" 
-                            body={(rowData) => rowData.isCompulsary?.isCompulsary || 'No'} 
-                        />
-                    </DataTable>
+                <Panel
+                    header={
+                        <div className="flex align-items-center">
+                            <div className="mr-2">
+                                <input type="checkbox" checked={allTemplateQuestionsSelected} onChange={() => handleTemplateTypeToggle(templateType)} />
+                            </div>
+                            <span>
+                                {templateType} Questions ({questions.length})
+                            </span>
+                        </div>
+                    }
+                    toggleable
+                    key={templateType}
+                    className="mb-4"
+                >
+                    {Object.entries(questionsBySegment).map(([segment, segmentQuestions]) => (
+                        <div key={`${templateType}-${segment}`} className="mb-3">
+                            <div className="flex align-items-center p-2 bg-gray-100">
+                                <div className="mr-2">
+                                    <input type="checkbox" checked={segmentQuestions.every((q) => selectedQuestions.some((sq) => sq.id === q.id))} onChange={() => handleSegmentToggle(templateType, segment)} />
+                                </div>
+                                <h5 className="m-0 font-bold">
+                                    {segment} ({segmentQuestions.length})
+                                </h5>
+                            </div>
+
+                            <table className="w-full border border-gray-300 text-sm mt-2">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        {/* Remove checkbox from header */}
+                                        <th className="border px-2 py-1 text-left "></th>
+                                        <th className="border px-2 py-1 text-left">#</th>
+                                        <th className="border px-2 py-1 text-left">Title</th>
+                                        <th className="border px-2 py-1 text-left">Min Rating</th>
+                                        <th className="border px-2 py-1 text-left">Max Rating</th>
+                                        <th className="border px-2 py-1 text-left">Compulsory</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {segmentQuestions.map((question, index) => (
+                                        <tr key={question.id}>
+                                            <td className="border px-2 py-1">
+                                                <input type="checkbox" checked={selectedQuestions.some((q) => q.id === question.id)} onChange={() => handleQuestionToggle(question)} />
+                                            </td>
+                                            <td className="border px-2 py-1">{index + 1}</td>
+                                            <td className="border px-2 py-1">{question.questionTitle}</td>
+                                            <td className="border px-2 py-1">{question.minRating}</td>
+                                            <td className="border px-2 py-1">{question.maxRating}</td>
+                                            <td className="border px-2 py-1">{question.isCompulsary?.isCompulsary ? 'Yes' : 'No'}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ))}
                 </Panel>
             );
         });
@@ -373,22 +447,9 @@ const MarketingDetails = () => {
         <div className="p-4 card">
             <Toast ref={toast} />
 
-            <Dialog
-                header="Saved Final Reviews"
-                visible={showDialog}
-                style={{ width: '70vw' }}
-                onHide={() => setShowDialog(false)}
-            >
+            <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '70vw' }} onHide={() => setShowDialog(false)}>
                 {savedCombos.length > 0 ? (
-                    <DataTable
-                        value={savedCombos}
-                        expandedRows={expandedRows}
-                        onRowToggle={(e: any) => setExpandedRows(e.data)}
-                        rowExpansionTemplate={rowExpansionTemplate}
-                        paginator
-                        dataKey="accountName"
-                        rows={10}
-                    >
+                    <DataTable value={savedCombos} expandedRows={expandedRows} onRowToggle={(e: any) => setExpandedRows(e.data)} rowExpansionTemplate={rowExpansionTemplate} paginator dataKey="accountName" rows={10}>
                         <Column expander style={{ width: '3em' }} />
                         <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
                         <Column field="accountName" header="Account Name" />
@@ -405,45 +466,26 @@ const MarketingDetails = () => {
 
             <div className="flex justify-content-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Final Review Configuration</h2>
-                <Button 
-                    label="View Saved Reviews" 
-                    icon="pi pi-eye" 
-                    onClick={handleViewSaved} 
-                    className="p-button-secondary"
-                />
+                <Button label="View Saved Reviews" icon="pi pi-eye" onClick={handleViewSaved} className="p-button-secondary" />
             </div>
 
             <div className="grid formgrid gap-3 mb-4">
                 <div className="flex row col-12">
                     <div className="col-4">
                         <label>Evaluation Name</label>
-                        <Dropdown 
-                            value={selectedEval} 
-                            options={evaluationOptions} 
-                            onChange={(e) => setSelectedEval(e.value)} 
-                            placeholder="Select Evaluation" 
-                            className="w-full mt-2"
-                            filter
-                        />
+                        <Dropdown value={selectedEval} options={evaluationOptions} onChange={(e) => setSelectedEval(e.value)} placeholder="Select Evaluation" className="w-full mt-2" filter />
                     </div>
                     <div className="col-4">
                         <label>Vendor</label>
-                        <Dropdown 
-                            value={selectedVendor} 
-                            options={vendorOptions} 
-                            onChange={(e) => setSelectedVendor(e.value)} 
-                            placeholder="Select Vendor" 
-                            className="w-full mt-2"
-                            filter
-                        />
+                        <Dropdown value={selectedVendor} options={vendorOptions} onChange={(e) => setSelectedVendor(e.value)} placeholder="Select Vendor" className="w-full mt-2" filter />
                     </div>
                     <div className="col-4">
                         <label>Child Vendor (Optional)</label>
-                        <Dropdown 
-                            value={selectedChildVendor} 
-                            options={childVendorOptions} 
-                            onChange={(e) => setSelectedChildVendor(e.value)} 
-                            placeholder="Select Child Vendor" 
+                        <Dropdown
+                            value={selectedChildVendor}
+                            options={childVendorOptions}
+                            onChange={(e) => setSelectedChildVendor(e.value)}
+                            placeholder="Select Child Vendor"
                             className="w-full mt-2"
                             disabled={!selectedVendor || childVendorOptions.length === 0}
                             filter
@@ -454,66 +496,30 @@ const MarketingDetails = () => {
                 <div className="flex row col-12">
                     <div className="col-4">
                         <label>Administrator</label>
-                        <InputText 
-                            value={administrator} 
-                            onChange={(e) => setAdministrator(e.target.value)} 
-                            placeholder="Enter Administrator" 
-                            className="w-full mt-2" 
-                        />
+                        <InputText value={administrator} onChange={(e) => setAdministrator(e.target.value)} placeholder="Enter Administrator" className="w-full mt-2" />
                     </div>
                     <div className="col-4">
                         <label>Country</label>
-                        <Dropdown 
-                            value={selectedCountry} 
-                            options={countryOptions} 
-                            onChange={(e) => setSelectedCountry(e.value)} 
-                            placeholder="Select Country" 
-                            className="w-full mt-2"
-                            filter
-                        />
+                        <Dropdown value={selectedCountry} options={countryOptions} onChange={(e) => setSelectedCountry(e.value)} placeholder="Select Country" className="w-full mt-2" filter />
                     </div>
                     <div className="col-4">
                         <label>BU</label>
-                        <Dropdown 
-                            value={selectedBU} 
-                            options={buOptions} 
-                            onChange={(e) => setSelectedBU(e.value)} 
-                            placeholder="Select BU" 
-                            className="w-full mt-2"
-                            filter
-                        />
+                        <Dropdown value={selectedBU} options={buOptions} onChange={(e) => setSelectedBU(e.value)} placeholder="Select BU" className="w-full mt-2" filter />
                     </div>
                 </div>
 
                 <div className="flex row col-12">
                     <div className="col-4">
                         <label>Brand</label>
-                        <Dropdown 
-                            value={selectedBrand} 
-                            options={brandOptions} 
-                            onChange={(e) => setSelectedBrand(e.value)} 
-                            placeholder="Select Brand" 
-                            className="w-full mt-2"
-                            filter
-                        />
+                        <Dropdown value={selectedBrand} options={brandOptions} onChange={(e) => setSelectedBrand(e.value)} placeholder="Select Brand" className="w-full mt-2" filter />
                     </div>
                     <div className="col-4">
                         <label>Status</label>
-                        <Dropdown 
-                            value={selectedStatus} 
-                            options={statusOptions} 
-                            onChange={(e) => setSelectedStatus(e.value)} 
-                            placeholder="Select Status" 
-                            className="w-full mt-2"
-                        />
+                        <Dropdown value={selectedStatus} options={statusOptions} onChange={(e) => setSelectedStatus(e.value)} placeholder="Select Status" className="w-full mt-2" />
                     </div>
                     <div className="col-4">
                         <label>Review Type</label>
-                        <InputText 
-                            value={selectedReviewType || ''} 
-                            readOnly 
-                            className="w-full mt-2" 
-                        />
+                        <InputText value={selectedReviewType || ''} readOnly className="w-full mt-2" />
                     </div>
                 </div>
 
@@ -521,14 +527,7 @@ const MarketingDetails = () => {
                     <div className="flex row col-12">
                         <div className="col-12">
                             <label>Template Types</label>
-                            <MultiSelect
-                                value={selectedTemplateTypes}
-                                options={templateTypeOptions}
-                                onChange={(e) => setSelectedTemplateTypes(e.value)}
-                                placeholder="Select Template Types"
-                                className="w-full mt-2"
-                                display="chip"
-                            />
+                            <MultiSelect value={selectedTemplateTypes} options={templateTypeOptions} onChange={(e) => setSelectedTemplateTypes(e.value)} placeholder="Select Template Types" className="w-full mt-2" display="chip" />
                         </div>
                     </div>
                 )}
@@ -605,26 +604,16 @@ const MarketingDetails = () => {
                 </div>
             )} */}
 
-              {selectedReviewType && selectedTemplateTypes.length > 0 && (
+            {selectedReviewType && selectedTemplateTypes.length > 0 && (
                 <div className="mt-4">
                     <h3>Available Questions</h3>
                     <p className="mb-3">
                         Showing questions for <strong>{selectedReviewType}</strong> review type and selected template types
                     </p>
-                    
-                    {Object.keys(questionsByTemplateType).length > 0 ? (
-                        renderQuestionsTables()
-                    ) : (
-                        <p>No questions found for the selected criteria.</p>
-                    )}
 
-                    <Button
-                        label="Save Final Review"
-                        icon="pi pi-save"
-                        className="mt-4"
-                        onClick={handleFinalSave}
-                        disabled={selectedQuestions.length === 0}
-                    />
+                    {Object.keys(questionsByTemplateType).length > 0 ? renderQuestionsTables() : <p>No questions found for the selected criteria.</p>}
+
+                    <Button label="Save Final Review" icon="pi pi-save" className="mt-4" onClick={handleFinalSave} disabled={selectedQuestions.length === 0} />
                 </div>
             )}
         </div>
