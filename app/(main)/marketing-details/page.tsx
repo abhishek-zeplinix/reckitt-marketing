@@ -466,7 +466,7 @@ const MarketingDetails = () => {
 
             <div className="flex justify-content-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Final Review Configuration</h2>
-                <Button label="View Saved Reviews" icon="pi pi-eye" onClick={handleViewSaved} className="p-button-secondary" />
+                <Button label="View Saved Reviews" icon="pi pi-eye" onClick={handleViewSaved} className="" />
             </div>
 
             <div className="grid formgrid gap-3 mb-4">

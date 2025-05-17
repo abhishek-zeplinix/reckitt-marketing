@@ -9,8 +9,8 @@ const TablePage = () => {
 
     const data = [
         {
-            agency: 'Dentsu',
-            account: 'Digital, France, Health (Digital)',
+            agency: 'Agency 1',
+            account: 'Creative , Global ,Airwick',
             openComplete: [true, false, true, false],
             clientSubmission: '0 of 3',
             agencySelf: 'N/A',
@@ -18,8 +18,8 @@ const TablePage = () => {
             clientSelf: 'N/A'
         },
         {
-            agency: 'Dentsu',
-            account: 'Digital, France, Hygiene (Digital)',
+            agency: 'Agency 2',
+            account: 'Creative , Global ,Airwick',
             openComplete: [true, false, true, false],
             clientSubmission: '0 of 2',
             agencySelf: 'N/A',
@@ -42,7 +42,7 @@ const TablePage = () => {
             <div className="border-1 border-300 p-4 border-round-xl bg-white card text-sm font-medium flex flex-wrap gap-4">
                 <div className="flex-1 min-w-[150px]">
                     <div className="text-500">Evaluation</div>
-                    <div className="text-900 font-semibold">2025-5, H1 Media, Global</div>
+                    <div className="text-900 font-semibold">2025-1-H1, Creative Global</div>
                 </div>
                 <div className="flex-1 min-w-[150px]">
                     <div className="text-500">Evaluation Type</div>

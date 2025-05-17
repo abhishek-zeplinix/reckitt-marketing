@@ -4,7 +4,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-const Tabs = ['Year', 'Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'User'];
+const Tabs = ['Year', 'Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'Users'];
 
 const toDropdownOptions = (arr: any) => (Array.isArray(arr) ? arr.map((item) => ({ label: item, value: item })) : []);
 

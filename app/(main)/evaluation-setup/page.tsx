@@ -9,18 +9,18 @@ import 'primeflex/primeflex.css';
 export default function EvaluationSetup() {
     const vendors = [
         {
-            agency: 'Dentsu',
-            account: 'Digital, France, Health (Digital) - updated question set',
-            questionSet: ['Dig (IAegis) FR/BE/NL | 5 Sections', 'Media AG | 4 Sections'],
-            clientParticipants: ['0: Owners', '3: Assessors'],
-            agencyParticipants: ['0: Owners', '3: Assessors']
+            agency: 'Agency 1',
+            account: 'Creative , Global ,Airwick',
+            questionSet: ['Agency To Reckitt Template version 1'],
+            clientParticipants: ['0: Owners', '2: Assessors'],
+            agencyParticipants: ['0: Owners', '2: Assessors']
         },
         {
-            agency: 'Dentsu',
-            account: 'Digital, France, Hygiene (Digital) - updated question set',
-            questionSet: ['Dig (IAegis) FR/BE/NL | 5 Sections', 'Media AG | 4 Sections'],
+            agency: 'Agency 2',
+            account: 'Creative , Global ,Airwick',
+            questionSet: ['Agency To Reckitt Template version 2'],
             clientParticipants: ['0: Owners', '2: Assessors'],
-            agencyParticipants: ['0: Owners', '3: Assessors']
+            agencyParticipants: ['0: Owners', '2: Assessors']
         }
     ];
 
@@ -30,7 +30,7 @@ export default function EvaluationSetup() {
             <div className="border-1 border-300 p-4 border-round-xl bg-white card text-sm font-medium flex flex-column md:flex-row gap-4 ">
                 <div className="flex-1">
                     <div className="text-500 mb-1">Evaluation Name</div>
-                    <div className="text-900 font-semibold">2025-5, H1 Media, Global</div>
+                    <div className="text-900 font-semibold">2025-1-H1, Creative Global</div>
                 </div>
                 <div className="flex-1">
                     <div className="text-500 mb-1">Evaluation Type</div>
