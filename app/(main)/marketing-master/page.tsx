@@ -4,9 +4,16 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-const Tabs = ['Year','Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group'];
+const Tabs = ['Year','Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group','User'];
 
 const toDropdownOptions = (arr: any) => (Array.isArray(arr) ? arr.map((item) => ({ label: item, value: item })) : []);
+
+interface UserData {
+  assessorGroup: string;
+  username: string;
+  role: string;
+  email: string;
+}
 
 const MarketingMaster = () => {
     const [activeTab, setActiveTab] = useState('Year');
@@ -14,6 +21,10 @@ const MarketingMaster = () => {
     const [selectedReviewType, setSelectedReviewType] = useState('');
     const [selectedTemplateType, setSelectedTemplateType] = useState('');
     const [selectedUserGroups, setSelectedUserGroups] = useState('');
+    const [selectedAssessorGroup, setSelectedAssessorGroup] = useState('');
+    const [username, setUsername] = useState('');
+    const [role, setRole] = useState('');
+    const [email, setEmail] = useState('');
     const [data, setData] = useState<Record<string, any>>({});
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
@@ -24,6 +35,7 @@ const MarketingMaster = () => {
             storedData[tab] = values ? JSON.parse(values) : ['Review Type', 'Template Type', 'User Group'].includes(tab) ? {} : [];
         });
         storedData['Assessor Group'] = localStorage.getItem('Assessor Group') ? JSON.parse(localStorage.getItem('Assessor Group')!) : {};
+        storedData['User'] = localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User')!) : [];
         setData(storedData);
     }, []);
 
@@ -31,7 +43,36 @@ const MarketingMaster = () => {
         localStorage.setItem(key, JSON.stringify(value));
         setData((prev) => ({ ...prev, [key]: value }));
     };
+
     const handleSave = () => {
+        if (activeTab === 'User') {
+            if (!selectedAssessorGroup || !username || !role || !email) {
+                return alert('Please fill all fields');
+            }
+            
+            const userData: UserData = {
+                assessorGroup: selectedAssessorGroup,
+                username: username.trim(),
+                role: role.trim(),
+                email: email.trim()
+            };
+            
+            const users = [...(data['User'] || [])];
+            if (editIndex !== null) {
+                users[editIndex] = userData;
+            } else {
+                users.push(userData);
+            }
+            
+            saveToLocal('User', users);
+            setSelectedAssessorGroup('');
+            setUsername('');
+            setRole('');
+            setEmail('');
+            setEditIndex(null);
+            return;
+        }
+
         if (!inputValue.trim()) return;
 
         let updated: any;
@@ -74,23 +115,34 @@ const MarketingMaster = () => {
         setEditIndex(null);
     };
 
-    const handleEdit = (index: number, item: string) => {
-        setInputValue(item);
-        setEditIndex(index);
+    const handleEdit = (index: number, item: any) => {
+        if (activeTab === 'User') {
+            setSelectedAssessorGroup(item.assessorGroup);
+            setUsername(item.username);
+            setRole(item.role);
+            setEmail(item.email);
+            setEditIndex(index);
+        } else {
+            setInputValue(item);
+            setEditIndex(index);
+        }
     };
 
     const handleDelete = (index: number) => {
-        let updated;
-        if (activeTab === 'Template Type') {
-            updated = { ...data['Template Type'] };
+        if (activeTab === 'User') {
+            const users = [...(data['User'] || [])];
+            users.splice(index, 1);
+            saveToLocal('User', users);
+        } else if (activeTab === 'Template Type') {
+            const updated = { ...data['Template Type'] };
             updated[selectedReviewType] = updated[selectedReviewType].filter((_: string, i: number) => i !== index);
             saveToLocal('Template Type', updated);
         } else if (activeTab === 'User Group') {
-            updated = { ...data['User Group'] };
+            const updated = { ...data['User Group'] };
             updated[selectedReviewType][selectedTemplateType] = updated[selectedReviewType][selectedTemplateType].filter((_: string, i: number) => i !== index);
             saveToLocal('User Group', updated);
         } else if (activeTab === 'Assessor Group') {
-            updated = { ...data['Assessor Group'] };
+            const updated = { ...data['Assessor Group'] };
             updated[selectedReviewType][selectedTemplateType][selectedUserGroups] = updated[selectedReviewType][selectedTemplateType][selectedUserGroups].filter((_: string, i: number) => i !== index);
             saveToLocal('Assessor Group', updated);
         } else {
@@ -103,48 +155,101 @@ const MarketingMaster = () => {
         setEditIndex(null);
     };
 
-    const renderNestedForm = () => (
-        <>
-            <Dropdown
-                value={selectedReviewType}
-                options={toDropdownOptions(data['Review Type'])}
-                onChange={(e) => {
-                    setSelectedReviewType(e.value);
-                    setSelectedTemplateType('');
-                    setSelectedUserGroups('');
-                }}
-                placeholder="Select Review Type"
-                className="w-1/4 border-round-lg"
-            />
-            {activeTab !== 'Template Type' && ['Template Type', 'User Group', 'Assessor Group'].includes(activeTab) && (
+    console.log(data);
+    const renderNestedForm = () => {
+        if (activeTab === 'User') {
+            // Get all assessor groups from all nested structures
+            const assessorGroups: string[] = [];
+            const assessorGroupData = data['Assessor Group'] || {};
+            
+            for (const reviewType in assessorGroupData) {
+                for (const templateType in assessorGroupData[reviewType]) {
+                    for (const userGroup in assessorGroupData[reviewType][templateType]) {
+                        assessorGroups.push(...assessorGroupData[reviewType][templateType][userGroup]);
+                    }
+                }
+            }
+            
+            return (
+                <>
+                    <Dropdown
+                        value={selectedAssessorGroup}
+                        options={toDropdownOptions(assessorGroups)}
+                        onChange={(e) => setSelectedAssessorGroup(e.value)}
+                        placeholder="Select Assessor Group"
+                        className="w-1/4 border-round-lg"
+                    />
+                    <InputText 
+                        type="text" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Username" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                    />
+                    <InputText 
+                        type="text" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Role" 
+                        value={role} 
+                        onChange={(e) => setRole(e.target.value)} 
+                    />
+                    <InputText 
+                        type="email" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                    />
+                </>
+            );
+        }
+        
+        return (
+            <>
                 <Dropdown
-                    value={selectedTemplateType}
-                    options={toDropdownOptions(data['Template Type']?.[selectedReviewType] || [])}
+                    value={selectedReviewType}
+                    options={toDropdownOptions(data['Review Type'])}
                     onChange={(e) => {
-                        setSelectedTemplateType(e.value);
+                        setSelectedReviewType(e.value);
+                        setSelectedTemplateType('');
                         setSelectedUserGroups('');
                     }}
-                    placeholder="Select Template Type"
-                    className="w-1/4 ml-2 border-round-lg"
+                    placeholder="Select Review Type"
+                    className="w-1/4 border-round-lg"
                 />
-            )}
+                {activeTab !== 'Template Type' && ['Template Type', 'User Group', 'Assessor Group'].includes(activeTab) && (
+                    <Dropdown
+                        value={selectedTemplateType}
+                        options={toDropdownOptions(data['Template Type']?.[selectedReviewType] || [])}
+                        onChange={(e) => {
+                            setSelectedTemplateType(e.value);
+                            setSelectedUserGroups('');
+                        }}
+                        placeholder="Select Template Type"
+                        className="w-1/4 ml-2 border-round-lg"
+                    />
+                )}
 
-            {activeTab === 'Assessor Group' && (
-                <Dropdown
-                    value={selectedUserGroups}
-                    options={toDropdownOptions(data['User Group']?.[selectedReviewType]?.[selectedTemplateType] || [])}
-                    onChange={(e) => setSelectedUserGroups(e.value)}
-                    placeholder="Select User Group"
-                    className="w-1/4 ml-2 border-round-lg"
-                />
-            )}
-            <InputText type="text" className="p-2 border rounded w-1/4 ml-2 border-round-lg" placeholder={`Enter ${activeTab}`} value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
-        </>
-    );
+                {activeTab === 'Assessor Group' && (
+                    <Dropdown
+                        value={selectedUserGroups}
+                        options={toDropdownOptions(data['User Group']?.[selectedReviewType]?.[selectedTemplateType] || [])}
+                        onChange={(e) => setSelectedUserGroups(e.value)}
+                        placeholder="Select User Group"
+                        className="w-1/4 ml-2 border-round-lg"
+                    />
+                )}
+                <InputText type="text" className="p-2 border rounded w-1/4 ml-2 border-round-lg" placeholder={`Enter ${activeTab}`} value={inputValue} onChange={(e) => setInputValue(e.target.value)} />
+            </>
+        );
+    };
 
     const renderTable = () => {
         const getItems = () => {
             try {
+                if (activeTab === 'User') {
+                    return data['User'] || [];
+                }
                 if (activeTab === 'Assessor Group') {
                     return data['Assessor Group']?.[selectedReviewType]?.[selectedTemplateType]?.[selectedUserGroups] || [];
                 }
@@ -162,6 +267,38 @@ const MarketingMaster = () => {
 
         const items = getItems();
         if (!items?.length) return null;
+
+        if (activeTab === 'User') {
+            return (
+                <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
+                    <thead>
+                        <tr className="bg-gray-100">
+                            <th className="border p-2 text-left border-round-lg">S.No</th>
+                            <th className="border p-2 text-left border-round-lg">Assessor Group</th>
+                            <th className="border p-2 text-left border-round-lg">Username</th>
+                            <th className="border p-2 text-left border-round-lg">Role</th>
+                            <th className="border p-2 text-left border-round-lg">Email</th>
+                            <th className="border p-2 text-left border-round-lg">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.map((item: UserData, index: number) => (
+                            <tr key={index}>
+                                <td className="border p-2 border-round-lg">{index + 1}</td>
+                                <td className="border p-2 border-round-lg">{item.assessorGroup}</td>
+                                <td className="border p-2 border-round-lg">{item.username}</td>
+                                <td className="border p-2 border-round-lg">{item.role}</td>
+                                <td className="border p-2 border-round-lg">{item.email}</td>
+                                <td className="border p-2 space-x-2 border-round-lg">
+                                    <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
+                                    <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            );
+        }
 
         return (
             <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
@@ -206,6 +343,10 @@ const MarketingMaster = () => {
                                     setSelectedReviewType('');
                                     setSelectedTemplateType('');
                                     setSelectedUserGroups('');
+                                    setSelectedAssessorGroup('');
+                                    setUsername('');
+                                    setRole('');
+                                    setEmail('');
                                 }}
                             >
                                 {tab}
@@ -217,7 +358,7 @@ const MarketingMaster = () => {
                 <div className="card px-5 py-4 border-round-lg">
                     <h4 className="mb-2">Add {activeTab}</h4>
                     <div className="flex items-center gap-2 mb-4">
-                        {['Template Type', 'User Group', 'Assessor Group'].includes(activeTab) ? (
+                        {['Template Type', 'User Group', 'Assessor Group', 'User'].includes(activeTab) ? (
                             renderNestedForm()
                         ) : (
                             <InputText type="text" className="p-2 border rounded w-1/2 border-round-lg" placeholder={`Enter ${activeTab}`} value={inputValue} onChange={(e) => setInputValue(e.target.value)} />

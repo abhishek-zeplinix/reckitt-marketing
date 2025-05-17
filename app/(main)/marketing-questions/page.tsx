@@ -1,4 +1,3 @@
-// export default TemplateQuestionPage;
 'use client';
 import React, { useEffect, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
@@ -14,6 +13,9 @@ const STORAGE_KEYS = {
 const MarketingQuestionsTable = () => {
     const [questions, setQuestions] = useState<any[]>([]);
     const router = useRouter();
+
+    console.log(questions);
+    
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEYS.MARKETING_TEMPLATE_QUESTIONS);
         if (saved) {
@@ -33,7 +35,7 @@ const MarketingQuestionsTable = () => {
                 <Column field="questionTitle" header="Question Title" />
                 <Column field="questionDescription" header="Description" />
                 <Column field="templateType.templateTypeName" header="Template Type ID" />
-                <Column field="assessorGroup.assessorGroupName" header="Assessor Group ID" />
+                <Column field="assessorGroup.userGroupName" header="User Group" />
                 <Column field="reviewType.reviewTypeName" header="Review Type ID" />
                 <Column field="minRating" header="Min Rating" />
                 <Column field="maxRating" header="Max Rating" />

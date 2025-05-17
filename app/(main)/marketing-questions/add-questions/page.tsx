@@ -27,43 +27,102 @@ const TemplateQuestionPage = () => {
     const marketingTemplateQuestionId = searchParams.get('marketingTemplateQuestionId');
     const isEditMode = searchParams.get('edit') === 'true';
     const { setAlert, setLoading } = useAppContext();
-    const [form, setForm] = useState(defaultForm);
+    const [form, setForm] = useState<any>(defaultForm);
 
-    // Sample data instead of API calls
-    const [reviewTypes, setReviewTypes] = useState([
-        { reviewTypeName: 'Creative', reviewTypeId: 1 },
-        { reviewTypeName: 'Brand Experience', reviewTypeId: 2 },
-        { reviewTypeName: 'Content/Energy Studio', reviewTypeId: 3 }
-    ]);
-
-    const [assessorGroups, setAssessorGroups] = useState([
-        { assessorGroupName: 'Global Marketing', assessorGroupId: 1 },
-        { assessorGroupName: 'Local Marketing', assessorGroupId: 2 },
-        { assessorGroupName: 'Procurement', assessorGroupId: 3 }
-    ]);
-
-    const [templateTypes, setTemplateTypes] = useState([
-        { templateTypeName: 'Agency to Reckitt', templateTypeId: 1 },
-        { templateTypeName: 'Reckitt to Agency', templateTypeId: 2 },
-    ]);
+    const [reviewTypes, setReviewTypes] = useState<{ reviewTypeName: string, reviewTypeId: string }[]>([]);
+    const [templateTypes, setTemplateTypes] = useState<{ templateTypeName: string, templateTypeId: string }[]>([]);
+    const [assessorGroups, setAssessorGroups] = useState<{ assessorGroupName: string, assessorGroupId: string }[]>([]);
 
     const [compulsoryOptions] = useState([{ isCompulsary: 'yes' }, { isCompulsary: 'no' }]);
 
     useEffect(() => {
         setLoading(false);
 
-        // Load saved template questions from localStorage
-        const savedTemplateQuestions = JSON.parse(localStorage.getItem('marketingTemplateQuestions') || '[]');
+        const loadData = () => {
+            try {
+                const storedReviewTypes = JSON.parse(localStorage.getItem('Review Type') || '[]');
+                const reviewTypeOptions = storedReviewTypes.map((type: string, index: number) => ({
+                    reviewTypeName: type,
+                    reviewTypeId: index.toString()
+                }));
+                setReviewTypes(reviewTypeOptions);
 
-        // If in edit mode, find the specific question to edit
-        if (isEditMode && marketingTemplateQuestionId) {
-            const questionToEdit = savedTemplateQuestions.find((question: { id: string; }) => question.id === marketingTemplateQuestionId);
+                // If in edit mode, load the question to edit
+                if (isEditMode && marketingTemplateQuestionId) {
+                    const savedTemplateQuestions = JSON.parse(localStorage.getItem('marketingTemplateQuestions') || '[]');
+                    const questionToEdit = savedTemplateQuestions.find(
+                        (question: { id: string }) => question.id === marketingTemplateQuestionId
+                    );
 
-            if (questionToEdit) {
-                setForm(questionToEdit);
+                    if (questionToEdit) {
+                        setForm(questionToEdit);
+                        // If review type is set, load corresponding template types
+                        if (questionToEdit.reviewType) {
+                            handleReviewTypeChange(questionToEdit.reviewType);
+                        }
+                        // If template type is set, load corresponding assessor groups
+                        if (questionToEdit.reviewType && questionToEdit.templateType) {
+                            handleTemplateTypeChange(questionToEdit.reviewType, questionToEdit.templateType);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data from localStorage:', error);
+                setAlert('error', 'Failed to load form data');
             }
+        };
+
+        loadData();
+    }, [isEditMode, marketingTemplateQuestionId]);
+
+    const handleReviewTypeChange = (selectedReviewType: string) => {
+        // Get template types for the selected review type from localStorage
+        const storedTemplateTypes = JSON.parse(localStorage.getItem('Template Type') || '{}');
+        const templateTypeOptions = storedTemplateTypes[selectedReviewType] || [];
+
+        const formattedOptions = templateTypeOptions.map((type: string, index: number) => ({
+            templateTypeName: type,
+            templateTypeId: index.toString()
+        }));
+
+        setTemplateTypes(formattedOptions);
+        // Reset dependent fields when review type changes
+        setForm((prev: any) => ({
+            ...prev,
+            templateType: null,
+            assessorGroup: null
+        }));
+        setAssessorGroups([]);
+    };
+
+
+    const handleTemplateTypeChange = (reviewType: string, templateType: string) => {
+        // Get user groups for the selected review type and template type from localStorage
+        const userGroups = JSON.parse(localStorage.getItem('User Group') || '{}');
+
+        let userGroupOptions: { userGroupName: string, userGroupId: string }[] = [];
+
+        try {
+            // Get user groups for this review type and template type
+            const userGroupNames = userGroups[reviewType]?.[templateType] || [];
+
+            userGroupNames.forEach((group: string, index: number) => {
+                userGroupOptions.push({
+                    userGroupName: group,
+                    userGroupId: `${group}-${index}`
+                });
+            });
+        } catch (error) {
+            console.error('Error parsing user groups:', error);
         }
-    }, []);
+
+        setAssessorGroups(userGroupOptions as any); // Still using assessorGroups state but now storing user groups
+        // Reset selection when template type changes
+        setForm((prev: any) => ({
+            ...prev,
+            assessorGroup: null
+        }));
+    };
 
     const handleSubmit = () => {
         setLoading(true);
@@ -73,7 +132,9 @@ const TemplateQuestionPage = () => {
 
             if (isEditMode) {
                 // Update existing question
-                const updatedQuestions = existingQuestions.map((question: { id: string | null; }) => (question.id === marketingTemplateQuestionId ? { ...form, id: marketingTemplateQuestionId } : question));
+                const updatedQuestions = existingQuestions.map((question: { id: string | null; }) =>
+                    question.id === marketingTemplateQuestionId ? { ...form, id: marketingTemplateQuestionId } : question
+                );
                 localStorage.setItem('marketingTemplateQuestions', JSON.stringify(updatedQuestions));
             } else {
                 // Add new question with a unique ID
@@ -92,8 +153,14 @@ const TemplateQuestionPage = () => {
         }
     };
 
-    const onInputChange = (name: string, val: string) => {
-        setForm((prevForm) => ({
+    const onInputChange = (name: string, val: any) => {
+        if (name === 'reviewType') {
+            handleReviewTypeChange(val.reviewTypeName);
+        } else if (name === 'templateType' && form.reviewType) {
+            handleTemplateTypeChange(form.reviewType.reviewTypeName, val.templateTypeName);
+        }
+
+        setForm((prevForm: any) => ({
             ...prevForm,
             [name]: val
         }));
@@ -117,10 +184,7 @@ const TemplateQuestionPage = () => {
                                 value={form.reviewType}
                                 options={reviewTypes}
                                 optionLabel="reviewTypeName"
-                                onChange={(e) => {
-                                    // Store the whole object instead of just the ID
-                                    onInputChange('reviewType', e.value);
-                                }}
+                                onChange={(e) => onInputChange('reviewType', e.value)}
                                 placeholder="Select Review Type"
                                 className="w-full mb-1"
                             />
@@ -134,12 +198,10 @@ const TemplateQuestionPage = () => {
                                 value={form.templateType}
                                 options={templateTypes}
                                 optionLabel="templateTypeName"
-                                onChange={(e) => {
-                                    // Store the whole object instead of just the ID
-                                    onInputChange('templateType', e.value);
-                                }}
+                                onChange={(e) => onInputChange('templateType', e.value)}
                                 placeholder="Select Template Type"
                                 className="w-full mb-1"
+                                disabled={!form.reviewType}
                             />
                         </div>
                         <div className="field col-3">
@@ -150,16 +212,15 @@ const TemplateQuestionPage = () => {
                                 id="assessorGroup"
                                 value={form.assessorGroup}
                                 options={assessorGroups}
-                                optionLabel="assessorGroupName"
-                                onChange={(e) => {
-                                    // Store the whole object instead of just the ID
-                                    onInputChange('assessorGroup', e.value);
-                                }}
-                                placeholder="Select Assessor Groups"
+                                optionLabel="userGroupName" 
+                                onChange={(e) => onInputChange('assessorGroup', e.value)}
+                                placeholder="Select User Groups"
                                 className="w-full mb-1"
+                                disabled={!form.templateType}
                             />
                         </div>
-                        
+
+                        {/* Rest of your form fields remain the same */}
                         <div className="field col-3">
                             <label htmlFor="questionTitle" className="font-semibold">
                                 Question Title
