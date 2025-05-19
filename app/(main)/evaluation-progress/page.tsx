@@ -305,9 +305,9 @@ const TablePage = () => {
             agency: 'Agency 1',
             account: 'Creative , Global ,Airwick',
             openComplete: [true, false, true, false],
-            clientSubmission: '0 of 3',
+            clientSubmission: '0 of 2',
             agencySelf: 'N/A',
-            agencySubmission: '0 of 3',
+            agencySubmission: '0 of 2',
             clientSelf: 'N/A'
         },
         // {
@@ -366,9 +366,9 @@ const TablePage = () => {
                 <Column field="agency" header="AGENCY" />
                 <Column field="account" header="ACCOUNT" />
                 <Column header="OPEN/COMPLETE" body={lockTemplate} />
-                <Column field="clientSubmission" header="CLIENT SUBMISSION (1)" />
+                <Column field="clientSubmission" header="CLIENT SUBMISSION (2)" />
                 <Column field="agencySelf" header="AGENCY SELF (2)" />
-                <Column field="agencySubmission" header="AGENCY SUBMISSION (3)" />
+                <Column field="agencySubmission" header="AGENCY SUBMISSION (2)" />
                 <Column field="clientSelf" header="CLIENT SELF" />
             </DataTable>
         </div>
