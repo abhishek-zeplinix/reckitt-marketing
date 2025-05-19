@@ -8,7 +8,7 @@ import { Dialog } from 'primereact/dialog';
 import { ProgressBar } from 'primereact/progressbar';
 import { Toast } from 'primereact/toast';
 import { usePathname, useRouter } from 'next/navigation';
-
+ 
 interface Question {
     question: string;
     ratings: string;
@@ -19,12 +19,12 @@ interface Question {
         assetProduction: string;
     };
 }
-
+ 
 interface SegmentData {
     segment: string;
     questions: Question[];
 }
-
+ 
 // Your hardcoded JSON data - this represents the template data that would come from Excel
 const TEMPLATE_DATA: SegmentData[] = [
     {
@@ -223,12 +223,19 @@ const TEMPLATE_DATA: SegmentData[] = [
         ]
     }
 ];
-
+ 
 const STORAGE_KEYS = {
     MARKETING_TEMPLATE_QUESTIONS: 'marketingTemplateQuestions',
     UPLOADED_TEMPLATE_DATA: 'uploadedTemplateData'
 };
-
+ 
+const TEMPLATE_TYPE_OPTIONS = [
+    { label: 'Reckitt to Agency', value: 'Reckitt to Agency' },
+    { label: 'Agency to Reckitt', value: 'Agency to Reckitt' },
+    { label: 'Reckitt self to Agency', value: 'Reckitt self to Agency' },
+    { label: 'Agency self to Reckitt', value: 'Agency self to Reckitt' }
+];
+ 
 const MarketingQuestionsTable = () => {
     const [questions, setQuestions] = useState([]);
     const [templateTypeFilter, setTemplateTypeFilter] = useState(null);
@@ -240,18 +247,19 @@ const MarketingQuestionsTable = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedTemplateType, setSelectedTemplateType] = useState('Agency to Reckitt');
     const fileInputRef = useRef(null);
     const toast = useRef<Toast>(null);
-
+ 
     const router = useRouter();
-
+ 
     useEffect(() => {
         // Load questions from localStorage if they exist
         const saved = localStorage.getItem(STORAGE_KEYS.MARKETING_TEMPLATE_QUESTIONS);
         if (saved) {
             setQuestions(JSON.parse(saved));
         }
-
+ 
         // Check if there's previously uploaded template data
         const savedTemplateData = localStorage.getItem(STORAGE_KEYS.UPLOADED_TEMPLATE_DATA);
         if (savedTemplateData) {
@@ -259,28 +267,28 @@ const MarketingQuestionsTable = () => {
             setShowUploadedData(false); // Changed from true to false
         }
     }, []);
-
+ 
     const handleCreateNavigation = () => {
         router.push('/marketing-questions/add-questions');
     };
-
+ 
     const openUploadDialog = () => {
         setIsUploadDialogVisible(true);
     };
-
+ 
     const closeUploadDialog = () => {
         setIsUploadDialogVisible(false);
         setSelectedFile(null);
         setUploadProgress(0);
         setIsUploading(false);
     };
-
+ 
     const handleFileChange = (e: any) => {
         if (e.target.files && e.target.files.length > 0) {
             setSelectedFile(e.target.files[0]);
         }
     };
-
+ 
     const simulateUpload = () => {
         if (!selectedFile) {
             toast.current?.show({
@@ -291,10 +299,10 @@ const MarketingQuestionsTable = () => {
             });
             return;
         }
-
+ 
         setIsUploading(true);
         setUploadProgress(0);
-
+ 
         // Simulate progress
         const interval = setInterval(() => {
             setUploadProgress((prev) => {
@@ -302,22 +310,22 @@ const MarketingQuestionsTable = () => {
                 return newProgress >= 100 ? 100 : newProgress;
             });
         }, 300);
-
+ 
         // After "completion"
         setTimeout(() => {
             clearInterval(interval);
             setUploadProgress(100);
-
+ 
             // Save template data to localStorage
             localStorage.setItem(STORAGE_KEYS.UPLOADED_TEMPLATE_DATA, JSON.stringify(TEMPLATE_DATA));
             setUploadedTemplateData(TEMPLATE_DATA);
-
+ 
             // Finish upload process
             setTimeout(() => {
                 setIsUploading(false);
                 setShowUploadedData(true); // Changed from setShowUploadedTable
                 closeUploadDialog();
-
+ 
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Success',
@@ -327,28 +335,28 @@ const MarketingQuestionsTable = () => {
             }, 500);
         }, 2000);
     };
-
+ 
     const templateTypeOptions = useMemo(() => {
         const set = new Set((questions as any[]).map((q) => q.templateType?.templateTypeName));
         return Array.from(set)
             .filter(Boolean)
             .map((name) => ({ label: name, value: name }));
     }, [questions]);
-
+ 
     const userGroupOptions = useMemo(() => {
         const set = new Set((questions as any[]).map((q) => q.assessorGroup?.userGroupName));
         return Array.from(set)
             .filter(Boolean)
             .map((name) => ({ label: name, value: name }));
     }, [questions]);
-
+ 
     const reviewTypeOptions = useMemo(() => {
         const set = new Set((questions as any[]).map((q) => q.reviewType?.reviewTypeName));
         return Array.from(set)
             .filter(Boolean)
             .map((name) => ({ label: name, value: name }));
     }, [questions]);
-
+ 
     const filteredQuestions = useMemo(() => {
         return (questions as any[]).filter((q) => {
             const matchesTemplate = !templateTypeFilter || q.templateType?.templateTypeName === templateTypeFilter;
@@ -357,18 +365,18 @@ const MarketingQuestionsTable = () => {
             return matchesTemplate && matchesUserGroup && matchesReviewType;
         });
     }, [questions, templateTypeFilter, userGroupFilter, reviewTypeFilter]);
-
+ 
     const uploadDialogFooter = (
         <div className="mt-2 mb-2">
             <Button label="Cancel" className="p-button-text" onClick={closeUploadDialog} disabled={isUploading} />
             <Button label="Upload" icon="pi pi-upload" className="p-button-success" onClick={simulateUpload} disabled={!selectedFile || isUploading} />
         </div>
     );
-
+ 
     return (
         <div className="card">
             <Toast ref={toast} />
-
+ 
             <div className="flex justify-content-between items-center mb-4">
                 <h3>Marketing Template Questions</h3>
                 <div className="flex gap-2">
@@ -383,7 +391,7 @@ const MarketingQuestionsTable = () => {
                     <Button label="Upload Template" className="" onClick={openUploadDialog} />
                 </div>
             </div>
-
+ 
             {/* Regular Questions Table - Only shown when uploaded table is not visible */}
             {!showUploadedData && (
                 <>
@@ -392,7 +400,7 @@ const MarketingQuestionsTable = () => {
                         <Dropdown value={userGroupFilter} options={userGroupOptions} onChange={(e) => setUserGroupFilter(e.value)} placeholder="Filter by User Group" showClear />
                         <Dropdown value={reviewTypeFilter} options={reviewTypeOptions} onChange={(e) => setReviewTypeFilter(e.value)} placeholder="Filter by Review Type" showClear />
                     </div>
-
+ 
                     <DataTable value={filteredQuestions} paginator rows={10} emptyMessage="No questions found">
                         <Column field="questionTitle" header="Question Title" />
                         <Column field="questionDescription" header="Description" />
@@ -408,17 +416,30 @@ const MarketingQuestionsTable = () => {
                     </DataTable>
                 </>
             )}
-
+ 
             {/* Upload Dialog */}
             <Dialog header="Upload Template" visible={isUploadDialogVisible} style={{ width: '500px' }} footer={uploadDialogFooter} onHide={closeUploadDialog} closable={!isUploading}>
                 <div className=" gap-4">
+                    <label htmlFor="fileUpload" className="font-medium">
+                            Template Type
+                        </label>
+                    <div className="flex justify-content-between align-items-center mb-4 mt-2">
+                        <Dropdown
+                            value={selectedTemplateType}
+                            options={TEMPLATE_TYPE_OPTIONS}
+                            onChange={(e) => setSelectedTemplateType(e.value)}
+                            placeholder="Select Template Type"
+                            className="w-full md:w-14rem"
+                        />
+                    </div>
+ 
                     <div className=" gap-2">
                         <label htmlFor="fileUpload" className="font-medium">
                             Select Excel Template
                         </label>
                         <input ref={fileInputRef} type="file" id="fileUpload" accept=".xlsx, .xls" onChange={handleFileChange} disabled={isUploading} className="border p-2 rounded" />
                     </div>
-
+ 
                     {isUploading && (
                         <div className="flex flex-col gap-2">
                             <label className="font-medium">Upload Progress</label>
@@ -428,12 +449,12 @@ const MarketingQuestionsTable = () => {
                     )}
                 </div>
             </Dialog>
-
+ 
             {/* Uploaded Template Data Table - Only shown when showUploadedData is true */}
             {showUploadedData && (
                 <div>
-                    <h1 className="text-xl font-semibold mb-2  p-2 rounded">Agency to  Reckitt</h1>
-
+                    <h1 className="text-xl font-semibold mb-2  p-2 rounded">{selectedTemplateType}</h1>
+ 
                     {uploadedTemplateData.map((segmentData, idx) => (
                         <div key={idx} className="mb-6 border rounded  bg-gray-50">
                             <h5 className="text-lg font-semibold  px-2 rounded">{segmentData.segment}</h5>
@@ -452,5 +473,7 @@ const MarketingQuestionsTable = () => {
         </div>
     );
 };
-
+ 
 export default MarketingQuestionsTable;
+ 
+ 
