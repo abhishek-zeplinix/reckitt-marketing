@@ -30,7 +30,8 @@ const MarketingMaster = () => {
     // Static default values
     const staticDefaults = {
         'Evaluation Period': ['H1'],
-        'Brand': ['Airwick']
+        'Brand': ['Airwick'],
+        'Review Type':['Brand Experience','Content/Energy Studio','Digital','Media','Strategy','Medical Marketing (UK only)'],
     };
 
 
