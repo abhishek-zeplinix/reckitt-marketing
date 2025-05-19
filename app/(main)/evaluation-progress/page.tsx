@@ -10,23 +10,23 @@ const TablePage = () => {
 
     const data = [
     {
-        agency: 'Dentsu',
-        account: 'Digital, France, Health (Digital)',
-        openComplete: [true, false, true, false],
-        clientSubmission: '0 of 3',
-        agencySelf: 'N/A',
-        agencySubmission: '0 of 3',
-        clientSelf: 'N/A'
-    },
-    {
-        agency: 'Dentsu',
-        account: 'Digital, France, Hygiene (Digital)',
-        openComplete: [true, false, true, false],
-        clientSubmission: '0 of 2',
-        agencySelf: 'N/A',
-        agencySubmission: '0 of 3',
-        clientSelf: 'N/A'
-    }
+            agency: 'Agency 1',
+            account: 'Creative , Global ,Airwick',
+            openComplete: [true, false, true, false],
+            clientSubmission: '0 of 3',
+            agencySelf: 'N/A',
+            agencySubmission: '0 of 3',
+            clientSelf: 'N/A'
+        },
+        {
+            agency: 'Agency 2',
+            account: 'Creative , Global ,Airwick',
+            openComplete: [true, false, true, false],
+            clientSubmission: '0 of 2',
+            agencySelf: 'N/A',
+            agencySubmission: '0 of 3',
+            clientSelf: 'N/A'
+        }
 ];
 
 
@@ -61,7 +61,7 @@ const TablePage = () => {
             {/* Header Info */}
             <div className="text-sm text-gray-700 mb-3">
                 <div className="mb-1">
-                    <strong>Evaluation:</strong> 2025-5, H1 Media, Global &nbsp;&nbsp;
+                    <strong>Evaluation:</strong> 2025-5, H1 Creative Global &nbsp;&nbsp;
                     <strong>Evaluation Type:</strong> Annual &nbsp;&nbsp;
                     <strong>Reporting Year:</strong> 2025 &nbsp;&nbsp;
                     <strong>Reporting Month:</strong> 5
