@@ -34,16 +34,54 @@ const MarketingMaster = () => {
     };
 
 
+    // useEffect(() => {
+    //     const storedData: Record<string, any> = {};
+    //     Tabs.forEach((tab) => {
+    //         const values = localStorage.getItem(tab);
+    //         storedData[tab] = values ? JSON.parse(values) : ['Review Type', 'Template Type', 'User Group'].includes(tab) ? {} : [];
+    //     });
+    //     storedData['Assessor Group'] = localStorage.getItem('Assessor Group') ? JSON.parse(localStorage.getItem('Assessor Group')!) : {};
+    //     storedData['User'] = localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User')!) : [];
+    //     setData(storedData);
+    // }, []);
     useEffect(() => {
-        const storedData: Record<string, any> = {};
-        Tabs.forEach((tab) => {
-            const values = localStorage.getItem(tab);
-            storedData[tab] = values ? JSON.parse(values) : ['Review Type', 'Template Type', 'User Group'].includes(tab) ? {} : [];
-        });
-        storedData['Assessor Group'] = localStorage.getItem('Assessor Group') ? JSON.parse(localStorage.getItem('Assessor Group')!) : {};
-        storedData['User'] = localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User')!) : [];
-        setData(storedData);
-    }, []);
+    const storedData: Record<string, any> = {};
+    
+    // First initialize with static defaults
+    Tabs.forEach((tab) => {
+        if (staticDefaults[tab as keyof typeof staticDefaults]) {
+            storedData[tab] = staticDefaults[tab as keyof typeof staticDefaults];
+        } else {
+            storedData[tab] = ['Review Type', 'Template Type', 'User Group'].includes(tab) ? {} : [];
+        }
+    });
+
+    // Then load from localStorage, preserving static defaults
+    Tabs.forEach((tab) => {
+        const values = localStorage.getItem(tab);
+        if (values) {
+            if (staticDefaults[tab as keyof typeof staticDefaults]) {
+                // For tabs with static defaults, merge with localStorage
+                const staticValues = staticDefaults[tab as keyof typeof staticDefaults];
+                const storedValues = JSON.parse(values);
+                // Filter out any duplicates of static values
+                const filteredStored = storedValues.filter((val: string) => !staticValues.includes(val));
+                storedData[tab] = [...staticValues, ...filteredStored];
+            } else {
+                storedData[tab] = JSON.parse(values);
+            }
+        }
+    });
+
+    storedData['Assessor Group'] = localStorage.getItem('Assessor Group') 
+        ? JSON.parse(localStorage.getItem('Assessor Group')!) 
+        : {};
+    storedData['User'] = localStorage.getItem('User') 
+        ? JSON.parse(localStorage.getItem('User')!) 
+        : [];
+    
+    setData(storedData);
+}, []);
 
     const saveToLocal = (key: string, value: any) => {
         // For static default tabs, ensure we don't delete the default values
@@ -373,9 +411,9 @@ const MarketingMaster = () => {
                 <thead>
                     <tr className="bg-gray-100">
                         <th className="border p-2 text-left border-round-lg">S.No</th>
-                        <th className="border p-2 text-left border-round-lg">Review Type</th>
+                        {/* <th className="border p-2 text-left border-round-lg">Review Type</th>
                         <th className="border p-2 text-left border-round-lg">Template Type</th>
-                        <th className="border p-2 text-left border-round-lg">User Group</th>
+                        <th className="border p-2 text-left border-round-lg">User Group</th> */}
                         <th className="border p-2 text-left border-round-lg">Assessor Group</th>
                         <th className="border p-2 text-left border-round-lg">Username</th>
                         <th className="border p-2 text-left border-round-lg">Role</th>
