@@ -4,21 +4,18 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 
-const Tabs = ['Year', 'Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'Users'];
+const Tabs = ['Year','Evaluation Period', 'Review Type', 'Template Type', 'Region', 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group','User'];
 
 const toDropdownOptions = (arr: any) => (Array.isArray(arr) ? arr.map((item) => ({ label: item, value: item })) : []);
 
 interface UserData {
-    assessorGroup: string;
-    username: string;
-    role: string;
-    email: string;
-    userType: string;
+  assessorGroup: string;
+  username: string;
+  role: string;
+  email: string;
 }
 
 const MarketingMaster = () => {
-    const UserTypes = ['Agency', 'Reckitt'];
-
     const [activeTab, setActiveTab] = useState('Year');
     const [inputValue, setInputValue] = useState('');
     const [selectedReviewType, setSelectedReviewType] = useState('');
@@ -30,7 +27,13 @@ const MarketingMaster = () => {
     const [email, setEmail] = useState('');
     const [data, setData] = useState<Record<string, any>>({});
     const [editIndex, setEditIndex] = useState<number | null>(null);
-    const [selectedUserType, setSelectedUserType] = useState('');
+    // Static default values
+    const staticDefaults = {
+        'Evaluation Period': ['H1'],
+        'Brand': ['Airwick']
+    };
+
+
     useEffect(() => {
         const storedData: Record<string, any> = {};
         Tabs.forEach((tab) => {
@@ -43,31 +46,40 @@ const MarketingMaster = () => {
     }, []);
 
     const saveToLocal = (key: string, value: any) => {
-        localStorage.setItem(key, JSON.stringify(value));
-        setData((prev) => ({ ...prev, [key]: value }));
+        // For static default tabs, ensure we don't delete the default values
+        if (staticDefaults[key as keyof typeof staticDefaults]) {
+            const staticValues = staticDefaults[key as keyof typeof staticDefaults];
+            const filteredValue = Array.isArray(value) 
+                ? [...staticValues, ...value.filter((item: string) => !staticValues.includes(item))]
+                : value;
+            localStorage.setItem(key, JSON.stringify(filteredValue));
+            setData((prev) => ({ ...prev, [key]: filteredValue }));
+        } else {
+            localStorage.setItem(key, JSON.stringify(value));
+            setData((prev) => ({ ...prev, [key]: value }));
+        }
     };
 
     const handleSave = () => {
         if (activeTab === 'User') {
-            if (!selectedAssessorGroup || !selectedUserType || !username || !role || !email) {
+            if (!selectedAssessorGroup || !username || !role || !email) {
                 return alert('Please fill all fields');
             }
-
+            
             const userData: UserData = {
                 assessorGroup: selectedAssessorGroup,
-                userType: selectedUserType,
                 username: username.trim(),
                 role: role.trim(),
                 email: email.trim()
             };
-
+            
             const users = [...(data['User'] || [])];
             if (editIndex !== null) {
                 users[editIndex] = userData;
             } else {
                 users.push(userData);
             }
-
+            
             saveToLocal('User', users);
             setSelectedAssessorGroup('');
             setUsername('');
@@ -122,7 +134,6 @@ const MarketingMaster = () => {
     const handleEdit = (index: number, item: any) => {
         if (activeTab === 'User') {
             setSelectedAssessorGroup(item.assessorGroup);
-            setSelectedUserType(item.userType);
             setUsername(item.username);
             setRole(item.role);
             setEmail(item.email);
@@ -166,7 +177,7 @@ const MarketingMaster = () => {
             // Get all assessor groups from all nested structures
             const assessorGroups: string[] = [];
             const assessorGroupData = data['Assessor Group'] || {};
-
+            
             for (const reviewType in assessorGroupData) {
                 for (const templateType in assessorGroupData[reviewType]) {
                     for (const userGroup in assessorGroupData[reviewType][templateType]) {
@@ -174,18 +185,41 @@ const MarketingMaster = () => {
                     }
                 }
             }
-
+            
             return (
                 <>
-                    <Dropdown value={selectedAssessorGroup} options={toDropdownOptions(assessorGroups)} onChange={(e) => setSelectedAssessorGroup(e.value)} placeholder="Select Assessor Group" className="w-1/4 border-round-lg" />
-                    <Dropdown value={selectedUserType} options={toDropdownOptions(UserTypes)} onChange={(e) => setSelectedUserType(e.value)} placeholder="Select User Type" className="w-1/5 ml-2 border-round-lg" />
-                    <InputText type="text" className="p-2 border rounded w-1/4 ml-2 border-round-lg" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                    <InputText type="text" className="p-2 border rounded w-1/4 ml-2 border-round-lg" placeholder="Role" value={role} onChange={(e) => setRole(e.target.value)} />
-                    <InputText type="email" className="p-2 border rounded w-1/4 ml-2 border-round-lg" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <Dropdown
+                        value={selectedAssessorGroup}
+                        options={toDropdownOptions(assessorGroups)}
+                        onChange={(e) => setSelectedAssessorGroup(e.value)}
+                        placeholder="Select Assessor Group"
+                        className="w-1/4 border-round-lg"
+                    />
+                    <InputText 
+                        type="text" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Username" 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                    />
+                    <InputText 
+                        type="text" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Role" 
+                        value={role} 
+                        onChange={(e) => setRole(e.target.value)} 
+                    />
+                    <InputText 
+                        type="email" 
+                        className="p-2 border rounded w-1/4 ml-2 border-round-lg" 
+                        placeholder="Email" 
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)} 
+                    />
                 </>
             );
         }
-
+        
         return (
             <>
                 <Dropdown
@@ -227,76 +261,38 @@ const MarketingMaster = () => {
     };
 
     const renderTable = () => {
-        const getItems = () => {
-            try {
-                if (activeTab === 'User') {
-                    return data['User'] || [];
-                }
-                if (activeTab === 'Assessor Group') {
-                    return data['Assessor Group']?.[selectedReviewType]?.[selectedTemplateType]?.[selectedUserGroups] || [];
-                }
-                if (activeTab === 'User Group') {
-                    return data['User Group']?.[selectedReviewType]?.[selectedTemplateType] || [];
-                }
-                if (activeTab === 'Template Type') {
-                    return data['Template Type']?.[selectedReviewType] || [];
-                }
-                return Array.isArray(data[activeTab]) ? data[activeTab] : [];
-            } catch {
-                return [];
-            }
-        };
-
-        const items = getItems();
-        if (!items?.length) return null;
-
-        if (activeTab === 'User') {
-            return (
-                <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
-                    <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border p-2 text-left border-round-lg">S.No</th>
-                            <th className="border p-2 text-left border-round-lg">Assessor Group</th>
-                            <th className="border p-2 text-left border-round-lg">User Type</th>
-                            <th className="border p-2 text-left border-round-lg">Username</th>
-                            <th className="border p-2 text-left border-round-lg">Role</th>
-                            <th className="border p-2 text-left border-round-lg">Email</th>
-                            <th className="border p-2 text-left border-round-lg">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item: UserData, index: number) => (
-                            <tr key={index}>
-                                <td className="border p-2 border-round-lg">{index + 1}</td>
-                                <td className="border p-2 border-round-lg">{item.assessorGroup}</td>
-                                <td className="border p-2 border-round-lg">{item.userType || '-'}</td>
-                                <td className="border p-2 border-round-lg">{item.username}</td>
-                                <td className="border p-2 border-round-lg">{item.role}</td>
-                                <td className="border p-2 border-round-lg">{item.email}</td>
-                                <td className="border p-2 space-x-2 border-round-lg">
-                                    <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
-                                    <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            );
+    const getItems = () => {
+        try {
+            if (activeTab === 'User') return data['User'] || [];
+            if (activeTab === 'Assessor Group') return data['Assessor Group']?.[selectedReviewType]?.[selectedTemplateType]?.[selectedUserGroups] || [];
+            if (activeTab === 'User Group') return data['User Group']?.[selectedReviewType]?.[selectedTemplateType] || [];
+            if (activeTab === 'Template Type') return data['Template Type']?.[selectedReviewType] || [];
+            return Array.isArray(data[activeTab]) ? data[activeTab] : [];
+        } catch {
+            return [];
         }
+    };
 
+    const items = getItems();
+    if (!items?.length) return null;
+
+    // Handle nested tabs with parent info
+    if (activeTab === 'Template Type') {
         return (
             <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
                 <thead>
                     <tr className="bg-gray-100">
                         <th className="border p-2 text-left border-round-lg">S.No</th>
-                        <th className="border p-2 text-left border-round-lg">{activeTab}</th>
+                        <th className="border p-2 text-left border-round-lg">Review Type</th>
+                        <th className="border p-2 text-left border-round-lg">Template Type</th>
                         <th className="border p-2 text-left border-round-lg">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {items.map((item: string, index: number) => (
+                    {(data['Template Type']?.[selectedReviewType] || []).map((item: string, index: number) => (
                         <tr key={index}>
                             <td className="border p-2 border-round-lg">{index + 1}</td>
+                            <td className="border p-2 border-round-lg">{selectedReviewType}</td>
                             <td className="border p-2 border-round-lg">{item}</td>
                             <td className="border p-2 space-x-2 border-round-lg">
                                 <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
@@ -307,7 +303,155 @@ const MarketingMaster = () => {
                 </tbody>
             </table>
         );
-    };
+    }
+
+    if (activeTab === 'User Group') {
+        return (
+            <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
+                <thead>
+                    <tr className="bg-gray-100">
+                        <th className="border p-2 text-left border-round-lg">S.No</th>
+                        <th className="border p-2 text-left border-round-lg">Review Type</th>
+                        <th className="border p-2 text-left border-round-lg">Template Type</th>
+                        <th className="border p-2 text-left border-round-lg">User Group</th>
+                        <th className="border p-2 text-left border-round-lg">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(data['User Group']?.[selectedReviewType]?.[selectedTemplateType] || []).map((item: string, index: number) => (
+                        <tr key={index}>
+                            <td className="border p-2 border-round-lg">{index + 1}</td>
+                            <td className="border p-2 border-round-lg">{selectedReviewType}</td>
+                            <td className="border p-2 border-round-lg">{selectedTemplateType}</td>
+                            <td className="border p-2 border-round-lg">{item}</td>
+                            <td className="border p-2 space-x-2 border-round-lg">
+                                <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
+                                <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
+    if (activeTab === 'Assessor Group') {
+        return (
+            <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
+                <thead>
+                    <tr className="bg-gray-100">
+                        <th className="border p-2 text-left border-round-lg">S.No</th>
+                        <th className="border p-2 text-left border-round-lg">Review Type</th>
+                        <th className="border p-2 text-left border-round-lg">Template Type</th>
+                        <th className="border p-2 text-left border-round-lg">User Group</th>
+                        <th className="border p-2 text-left border-round-lg">Assessor Group</th>
+                        <th className="border p-2 text-left border-round-lg">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(data['Assessor Group']?.[selectedReviewType]?.[selectedTemplateType]?.[selectedUserGroups] || []).map((item: string, index: number) => (
+                        <tr key={index}>
+                            <td className="border p-2 border-round-lg">{index + 1}</td>
+                            <td className="border p-2 border-round-lg">{selectedReviewType}</td>
+                            <td className="border p-2 border-round-lg">{selectedTemplateType}</td>
+                            <td className="border p-2 border-round-lg">{selectedUserGroups}</td>
+                            <td className="border p-2 border-round-lg">{item}</td>
+                            <td className="border p-2 space-x-2 border-round-lg">
+                                <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
+                                <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
+
+    if (activeTab === 'User') {
+        return (
+            <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
+                <thead>
+                    <tr className="bg-gray-100">
+                        <th className="border p-2 text-left border-round-lg">S.No</th>
+                        <th className="border p-2 text-left border-round-lg">Review Type</th>
+                        <th className="border p-2 text-left border-round-lg">Template Type</th>
+                        <th className="border p-2 text-left border-round-lg">User Group</th>
+                        <th className="border p-2 text-left border-round-lg">Assessor Group</th>
+                        <th className="border p-2 text-left border-round-lg">Username</th>
+                        <th className="border p-2 text-left border-round-lg">Role</th>
+                        <th className="border p-2 text-left border-round-lg">Email</th>
+                        <th className="border p-2 text-left border-round-lg">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {(data['User'] || []).map((item: UserData, index: number) => {
+                        // Find parent info
+                        let found = false;
+                        let r = '', t = '', u = '';
+                        for (const reviewType in data['Assessor Group']) {
+                            for (const templateType in data['Assessor Group'][reviewType]) {
+                                for (const userGroup in data['Assessor Group'][reviewType][templateType]) {
+                                    if (data['Assessor Group'][reviewType][templateType][userGroup].includes(item.assessorGroup)) {
+                                        r = reviewType;
+                                        t = templateType;
+                                        u = userGroup;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (found) break;
+                            }
+                            if (found) break;
+                        }
+
+                        return (
+                            <tr key={index}>
+                                <td className="border p-2 border-round-lg">{index + 1}</td>
+                                {/* <td className="border p-2 border-round-lg">{r}</td>
+                                <td className="border p-2 border-round-lg">{t}</td>
+                                <td className="border p-2 border-round-lg">{u}</td> */}
+                                <td className="border p-2 border-round-lg">{item.assessorGroup}</td>
+                                <td className="border p-2 border-round-lg">{item.username}</td>
+                                <td className="border p-2 border-round-lg">{item.role}</td>
+                                <td className="border p-2 border-round-lg">{item.email}</td>
+                                <td className="border p-2 space-x-2 border-round-lg">
+                                    <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
+                                    <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
+                                </td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
+        );
+    }
+
+    // Default fallback for simple tabs
+    return (
+        <table className="w-full border-collapse border border-gray-300 mt-4 border-round-lg">
+            <thead>
+                <tr className="bg-gray-100">
+                    <th className="border p-2 text-left border-round-lg">S.No</th>
+                    <th className="border p-2 text-left border-round-lg">{activeTab}</th>
+                    <th className="border p-2 text-left border-round-lg">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {items.map((item: string, index: number) => (
+                    <tr key={index}>
+                        <td className="border p-2 border-round-lg">{index + 1}</td>
+                        <td className="border p-2 border-round-lg">{item}</td>
+                        <td className="border p-2 space-x-2 border-round-lg">
+                            <Button icon="pi pi-pencil" className="p-button-text p-button-sm" onClick={() => handleEdit(index, item)} />
+                            <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" onClick={() => handleDelete(index)} />
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+};
+
 
     return (
         <div className="grid">
@@ -328,7 +472,6 @@ const MarketingMaster = () => {
                                     setSelectedTemplateType('');
                                     setSelectedUserGroups('');
                                     setSelectedAssessorGroup('');
-                                    setSelectedUserType('');
                                     setUsername('');
                                     setRole('');
                                     setEmail('');
