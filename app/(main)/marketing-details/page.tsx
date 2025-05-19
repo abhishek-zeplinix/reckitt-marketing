@@ -517,10 +517,10 @@ const MarketingDetails = () => {
                         <label>Status</label>
                         <Dropdown value={selectedStatus} options={statusOptions} onChange={(e) => setSelectedStatus(e.value)} placeholder="Select Status" className="w-full mt-2" />
                     </div>
-                    <div className="col-4">
+                    {/* <div className="col-4">
                         <label>Review Type</label>
                         <InputText value={selectedReviewType || ''} readOnly className="w-full mt-2" />
-                    </div>
+                    </div> */}
                 </div>
 
                 {selectedReviewType && (
