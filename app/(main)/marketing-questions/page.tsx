@@ -432,9 +432,11 @@ const MarketingQuestionsTable = () => {
             {/* Uploaded Template Data Table - Only shown when showUploadedData is true */}
             {showUploadedData && (
                 <div>
+                    <h1 className="text-xl font-semibold mb-2  p-2 rounded">Agency to  Reckitt</h1>
+
                     {uploadedTemplateData.map((segmentData, idx) => (
                         <div key={idx} className="mb-6 border rounded  bg-gray-50">
-                            <h5 className="text-lg font-semibold mb-2  p-2 rounded">{segmentData.segment}</h5>
+                            <h5 className="text-lg font-semibold  px-2 rounded">{segmentData.segment}</h5>
                             <DataTable value={segmentData.questions} className="mb-4">
                                 <Column field="question" header="Question" style={{ width: '40%' }} />
                                 <Column field="ratings" header="Ratings" style={{ width: '10%' }} />

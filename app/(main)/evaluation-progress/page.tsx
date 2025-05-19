@@ -310,15 +310,15 @@ const TablePage = () => {
             agencySubmission: '0 of 3',
             clientSelf: 'N/A'
         },
-        {
-            agency: 'Agency 2',
-            account: 'Creative , Global ,Airwick',
-            openComplete: [true, false, true, false],
-            clientSubmission: '0 of 2',
-            agencySelf: 'N/A',
-            agencySubmission: '0 of 3',
-            clientSelf: 'N/A'
-        }
+        // {
+        //     agency: 'Agency 2',
+        //     account: 'Creative , Global ,Airwick',
+        //     openComplete: [true, false, true, false],
+        //     clientSubmission: '0 of 2',
+        //     agencySelf: 'N/A',
+        //     agencySubmission: '0 of 3',
+        //     clientSelf: 'N/A'
+        // }
 ];
 
 

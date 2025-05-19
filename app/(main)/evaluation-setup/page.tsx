@@ -164,13 +164,13 @@ export default function VendorTable() {
             clientParticipants: ['0: Owners', '2: Assessors'],
             agencyParticipants: ['0: Owners', '2: Assessors']
         },
-        {
-            agency: 'Agency 2',
-            account: 'Creative , Global ,Airwick',
-            questionSet: ['Agency To Reckitt Template version 2'],
-            clientParticipants: ['0: Owners', '2: Assessors'],
-            agencyParticipants: ['0: Owners', '2: Assessors']
-        }
+        // {
+        //     agency: 'Agency 2',
+        //     account: 'Creative , Global ,Airwick',
+        //     questionSet: ['Agency To Reckitt Template version 2'],
+        //     clientParticipants: ['0: Owners', '2: Assessors'],
+        //     agencyParticipants: ['0: Owners', '2: Assessors']
+        // }
     ];
 
     const setupTemplate = (rowData: any) => (
