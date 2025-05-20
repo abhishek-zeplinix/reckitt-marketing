@@ -39,7 +39,7 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/brand');
+            const response = await GetCall('/mrkt/api/mrkt/brand');
             setBrandList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -55,7 +55,7 @@ const AddBrandsControl = () => {
         if (isEditMode) {
             try {
                 const payload = { brandName: brand };
-                const response = await PutCall(`/company/brand/${selectedBrandId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/brand/${selectedBrandId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Brand successfully updated!');
@@ -70,7 +70,7 @@ const AddBrandsControl = () => {
         } else {
             try {
                 const payload = { brandName: brand };
-                const response = await PostCall('/company/brand', payload);
+                const response = await PostCall('/mrkt/api/mrkt/brand', payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Brand successfully added!');
@@ -90,7 +90,7 @@ const AddBrandsControl = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/brand/${selectedBrandId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/brand/${selectedBrandId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setRolesList((prevRoles: any) => prevRoles.filter((brand: any) => brand.brandId !== selectedBrandId));
@@ -144,7 +144,7 @@ const AddBrandsControl = () => {
                 <small>
                     <i>Enter a brand you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Brand' : 'Add Brands'} />
             </div>
 
             <div className="mt-4">

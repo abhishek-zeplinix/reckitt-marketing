@@ -199,7 +199,7 @@ const PermissionManagement = () => {
                     <small>
                         <i>Enter a permission module you want to add.</i>
                     </small>
-                    <SubmitResetButtons onSubmit={handlePermissionSubmit} onReset={resetInput} label="Add Permission" />
+                    <SubmitResetButtons onSubmit={handlePermissionSubmit}  label="Add Permission" />
                 </div>
                 <div className="mt-4">
                     {isLoading ? (

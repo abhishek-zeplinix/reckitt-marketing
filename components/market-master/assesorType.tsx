@@ -142,7 +142,7 @@ const AddAssesorType = () => {
                 <small>
                     <i>Enter a Assesor Type you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Assesor Type' : 'Add Assesor Type'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Assesor Type' : 'Add Assesor Type'} />
             </div>
 
             <div className="mt-4">

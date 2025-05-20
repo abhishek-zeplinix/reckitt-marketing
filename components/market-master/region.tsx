@@ -38,7 +38,7 @@ const AddRegionControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/region');
+            const response = await GetCall('/mrkt/api/mrkt/region');
             setRegionList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -53,7 +53,7 @@ const AddRegionControl = () => {
         if (isEditMode) {
             try {
                 const payload = { regionName: region };
-                const response = await PutCall(`/company/region/${selectedRegionId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/region/${selectedRegionId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Region successfully updated!');
@@ -68,7 +68,7 @@ const AddRegionControl = () => {
         } else {
             try {
                 const payload = { regionName: region };
-                const response = await PostCall('/company/region', payload);
+                const response = await PostCall('/mrkt/api/mrkt/region', payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Region successfully added!');
@@ -88,7 +88,7 @@ const AddRegionControl = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/region/${selectedRegionId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/region/${selectedRegionId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setRegionList((prevRoles: any) => prevRoles.filter((region: any) => region.regionId !== selectedRegionId));
@@ -141,7 +141,7 @@ const AddRegionControl = () => {
                 <small>
                     <i>Enter a region you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Region' : 'Add Region'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Region' : 'Add Region'} />
             </div>
 
             <div className="mt-4">
