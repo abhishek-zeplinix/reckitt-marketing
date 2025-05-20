@@ -483,11 +483,11 @@ $spacing-sizes: (
 
 .custom-menu-item {
   i {
-    color: var(--text-white) ;
+    color: var(--text-white);
   }
 
   span {
-    color:#6c757d;
+    color: #6c757d;
   }
 }
 
@@ -549,9 +549,10 @@ $spacing-sizes: (
     padding: 0.5rem 1rem !important;
   }
 
-  .p-paginator{
+  .p-paginator {
     background-color: #f9fafb !important;
   }
+
   .p-datatable-thead {
     background-color: #000000 !important;
   }
@@ -566,7 +567,7 @@ $spacing-sizes: (
 // add-field-btn
 
 .custom-add-field-button .p-button-label {
-  color: #64748B; 
+  color: #64748B;
 }
 
 .custom-add-field-button .p-button-icon {
@@ -577,7 +578,7 @@ $spacing-sizes: (
   border-radius: 4px;
 }
 
-.custom-add-field-button:hover{
+.custom-add-field-button:hover {
   background-color: #ffff;
 }
 
@@ -602,6 +603,7 @@ $spacing-sizes: (
     transform: translateY(0);
     opacity: 0;
   }
+
   to {
     transform: translateY(100%);
     opacity: 1;
@@ -610,9 +612,10 @@ $spacing-sizes: (
 
 //mulitinput
 
-.p-multiselect:not(.p-disabled):hover{
+.p-multiselect:not(.p-disabled):hover {
   border-color: var(--primary-color);
 }
+
 .mx-collapsed {
   margin-left: 0.45rem !important;
   margin-right: 0.25rem !important;
@@ -624,58 +627,65 @@ $spacing-sizes: (
 }
 
 .p-datatable-wrapper {
-    scrollbar-width: thin; 
+  scrollbar-width: thin;
 
-    &::-webkit-scrollbar {
-        width: 2px; 
-        height: 2px; 
-    }
+  &::-webkit-scrollbar {
+    width: 2px;
+    height: 2px;
+  }
 
-    &::-webkit-scrollbar-thumb {
-        background-color: #aaa;
-        border-radius: 2px; 
-    }
+  &::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 2px;
+  }
 
-    &::-webkit-scrollbar-thumb:hover {
-        background-color: #888; 
-    }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #888;
+  }
 
-    &::-webkit-scrollbar-track {
-        background-color: transparent; 
-    }
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
 }
 
 .dashboardButton {
   background: var(--primary-color);
 
 }
-.border-round-5xl{
+
+.border-round-5xl {
   border-radius: 2.5rem;
 }
 
-.score-bg{
+.score-bg {
   background-color: #F8FAFC;
 }
-.bgActiveBtn{
+
+.bgActiveBtn {
   background: linear-gradient(89.58deg, #333333 0.36%, #666666 104.39%);
 
 }
 
-.graphColorRed{
-background-color: #FD837A;
+.graphColorRed {
+  background-color: #FD837A;
 }
-.graphColorGreen{
-background-color: #78C47B;
+
+.graphColorGreen {
+  background-color: #78C47B;
 }
-.graphColorYelloow{
-background-color: #FFE434;
+
+.graphColorYelloow {
+  background-color: #FFE434;
 }
-.graphColorBlue{
-background-color: #3A60F8;
+
+.graphColorBlue {
+  background-color: #3A60F8;
 }
-.bgActiveBtnText{
-  color:white !important;
+
+.bgActiveBtnText {
+  color: white !important;
 }
+
 // .h-31rem{
 //   height: 31.5rem;
 // }
@@ -686,10 +696,14 @@ background-color: #3A60F8;
 }
 
 .custom-div {
-  width: 300px; /* Set width */
-  height: 300px; /* Set height */
-  background-color: #2196f3; /* Blue color */
-  border-radius: 20px; /* Rounded corners */
+  width: 300px;
+  /* Set width */
+  height: 300px;
+  /* Set height */
+  background-color: #2196f3;
+  /* Blue color */
+  border-radius: 20px;
+  /* Rounded corners */
   position: relative;
   clip-path: (50% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 20%, 50% 20%);
   color: white;
@@ -698,6 +712,7 @@ background-color: #3A60F8;
   align-items: center;
   justify-content: center;
 }
+
 .custom-div::before {
   content: '';
   position: absolute;
@@ -709,47 +724,61 @@ background-color: #3A60F8;
   left: 0px;
 }
 
-.good-text{
+.good-text {
   color: #4CAF50;
 }
-.completed{
+
+.completed {
   background-color: #2196F3;
 }
-.pending{
+
+.pending {
   background-color: #FFA600;
 }
-.inProgress{
+
+.inProgress {
   background-color: #4CAF50;
 }
-.critical{
+
+.critical {
   background-color: #F44336;
 }
-.improvement{
+
+.improvement {
   background-color: #FF9800;
 }
-.good{
+
+.good {
   background-color: #4CAF50;
 }
-.excellent{
+
+.excellent {
   background-color: #2196F3;
 }
-.bg-primary-main{
+
+.bg-primary-main {
   background-color: var(--primary-color) !important;
 }
-.border-primary-main{
+
+.border-primary-main {
   border-color: var(--primary-color) !important;
 }
-.text-primary-main{
-  color: var(--primary-color) !important;;
+
+.text-primary-main {
+  color: var(--primary-color) !important;
+  ;
 }
-.text-active{
+
+.text-active {
   color: #15B097;
 }
+
 .no-background-tooltip::before {
   background: none !important;
   border: none !important;
   box-shadow: none !important;
-  color: black; /* Adjust text color */
+  color: black;
+  /* Adjust text color */
 }
 
 //task mapping fitler 
@@ -768,8 +797,15 @@ background-color: #3A60F8;
 //fade in fade out transition
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-20px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 
 .fade-out {
@@ -778,12 +814,13 @@ background-color: #3A60F8;
 
 @keyframes fadeIn {
   from {
-      opacity: 0;
-      transform: translateY(-20px);
+    opacity: 0;
+    transform: translateY(-20px);
   }
+
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -796,11 +833,31 @@ background-color: #3A60F8;
 }
 
 //checkbox - checked row colgroup
-.p-datatable .p-datatable-tbody > tr.p-highlight {
-  background-color: #ffe2e2; 
-  color: #000; 
+.p-datatable .p-datatable-tbody>tr.p-highlight {
+  background-color: #ffe2e2;
+  color: #000;
 }
 
-.bg-primary-light-main{
-  background-color: #ffe2e2 !important; 
+.bg-primary-light-main {
+  background-color: #ffe2e2 !important;
 }
+
+
+
+// div::-webkit-scrollbar {
+//   height: 3px;
+// }
+
+// div::-webkit-scrollbar-track {
+//   background: #f1f5f9;
+//   border-radius: 3px;
+// }
+
+// div::-webkit-scrollbar-thumb {
+//   background: #cbd5e1;
+//   border-radius: 3px;
+// }
+
+// div::-webkit-scrollbar-thumb:hover {
+//   background: #94a3b8;
+// }
