@@ -144,7 +144,7 @@ const AddWhitelistedDomain = () => {
                 <small>
                     <i>Enter a Whitelisted Domain you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Whitelisted Domain' : 'Add Whitelisted Domain'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Whitelisted Domain' : 'Add Whitelisted Domain'} />
             </div>
             <div className="mt-4">
             {isLoading ?(

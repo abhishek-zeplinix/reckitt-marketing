@@ -39,7 +39,8 @@ const AddReviewType = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/reviewTypes');
+            const response = await GetCall('/mrkt/api/mrkt/reviewTypes');
+            console.log(response.data);
             setReviewTypesList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -55,7 +56,7 @@ const AddReviewType = () => {
         if (isEditMode) {
             try {
                 const payload = { reviewTypeName: reviewTypes };
-                const response = await PutCall(`/company/reviewTypes/${selectedReviewTypesId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/reviewTypes/${selectedReviewTypesId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Review Types successfully updated!');
@@ -70,7 +71,7 @@ const AddReviewType = () => {
         } else {
             try {
                 const payload = { reviewTypeName: reviewTypes };
-                const response = await PostCall('/company/reviewTypes', payload);
+                const response = await PostCall('/mrkt/api/mrkt/reviewTypes', payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Review Types successfully added!');
@@ -90,7 +91,7 @@ const AddReviewType = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/reviewTypes/${selectedReviewTypesId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/reviewTypes/${selectedReviewTypesId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setRolesList((prevRoles: any) => prevRoles.filter((reviewTypes: any) => reviewTypes.reviewTypeId !== selectedReviewTypesId));
@@ -144,7 +145,7 @@ const AddReviewType = () => {
                 <small>
                     <i>Enter a Review Type you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} />
+                {/* <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} /> */}
             </div>
 
             <div className="mt-4">
@@ -195,6 +196,7 @@ const AddReviewType = () => {
                     onEdit={(item: any) => onRowSelect(item, 'edit')}
                 />
                 )}
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} />
             </div>
 
             <Dialog

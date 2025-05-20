@@ -18,15 +18,15 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const AddAssesorRole = () => {
+const AddUserGroup = () => {
     const [rolesList, setRolesList] = useState<any>([]);
-    const [addAssesorrole, setAddAssesorrole] = useState<any>('');
-    const [assesorrole, setAssesorrole] = useState<any>([]);
+    const [userGroup, setUserGroup] = useState<any>('');
+    const [userGroupList, setUserGroupList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedAssesorroleId, setSelectedAssesorroleId] = useState<any>();
+    const [selectedUserGroupId, setSelecteduserGroupId] = useState<any>();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
@@ -39,8 +39,8 @@ const AddAssesorRole = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/assesorrole');
-            setAssesorrole(response.data);
+            const response = await GetCall('/mrkt/api/mrkt/userGroup');
+            setUserGroupList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
             setAlert('error', 'Something went wrong!');
@@ -54,10 +54,11 @@ const AddAssesorRole = () => {
 
         if (isEditMode) {
             try {
-                const payload = { assesorRoleName: addAssesorrole };
-                const response = await PutCall(`/company/assesorrole/${selectedAssesorroleId}`, payload);
+                const payload = { userGroupName: userGroup };
+                const response = await PutCall(`/mrkt/api/mrkt/userGroup/${selectedUserGroupId}`, payload);
+
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Assesor Role successfully updated!');
+                    setAlert('success', 'User Group successfully updated!');
                     resetInput();
                     fetchData();
                 }
@@ -68,11 +69,11 @@ const AddAssesorRole = () => {
             }
         } else {
             try {
-                const payload = { assesorRoleName: addAssesorrole };
-                const response = await PostCall('/company/assesorrole', payload);
+                const payload = { userGroupName: userGroup };
+                const response = await PostCall('/mrkt/api/mrkt/userGroup', payload);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Assesor Role successfully added!');
+                    setAlert('success', 'User Group successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -89,13 +90,13 @@ const AddAssesorRole = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/assesorrole/${selectedAssesorroleId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/userGroup/${selectedUserGroupId}`);
 
             if (response.code.toLowerCase() === 'success') {
-                setRolesList((prevRoles: any) => prevRoles.filter((addAssesorrole: any) => addAssesorrole.assesorRoleId !== selectedAssesorroleId));
+                setRolesList((prevRoles: any) => prevRoles.filter((userGroup: any) => userGroup.userGroupId !== selectedUserGroupId));
                 fetchData();
                 closeDeleteDialog();
-                setAlert('success', 'Assesor Role successfully deleted!');
+                setAlert('success', 'User Group successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -108,7 +109,7 @@ const AddAssesorRole = () => {
     };
 
     const resetInput = () => {
-        setAddAssesorrole('');
+        setUserGroup('');
         setIsEditMode(false);
     };
 
@@ -125,12 +126,12 @@ const AddAssesorRole = () => {
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
-            setSelectedAssesorroleId(perm.assesorRoleId);
+            setSelecteduserGroupId(perm.userGroupId);
         }
 
         if (action === ACTIONS.EDIT) {
-            setAddAssesorrole(perm.assesorRoleName);
-            setSelectedAssesorroleId(perm.assesorRoleId);
+            setUserGroup(perm.userGroupName);
+            setSelecteduserGroupId(perm.userGroupId);
             setIsEditMode(true);
         }
     };
@@ -138,12 +139,12 @@ const AddAssesorRole = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="addAssesorrole">Assesor Role</label>
-                <InputText aria-label="Add Assesor Role" value={addAssesorrole} onChange={(e) => setAddAssesorrole(e.target.value)} style={{ width: '50%' }} />
+                <label htmlFor="userGroup">User Group</label>
+                <InputText aria-label="Add User Group" value={userGroup} onChange={(e) => setUserGroup(e.target.value)} style={{ width: '50%' }} />
                 <small>
-                    <i>Enter a Assesor Role you want to add.</i>
+                    <i>Enter a User Group you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Assesor Role' : 'Add Assesor Role'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update User Group' : 'Add User Group'} />
             </div>
 
             <div className="mt-4">
@@ -151,16 +152,16 @@ const AddAssesorRole = () => {
                     <TableSkeletonSimple columns={2} rows={limit} />
                 ) : (
                 <CustomDataTable
-                    ref={assesorrole}
+                    ref={userGroupList}
                     page={page}
                     limit={limit} // no of items per page
                     totalRecords={totalRecords} // total records from api response
                     isView={false}
                     isEdit={true} // show edit button
                     isDelete={true} // show delete button
-                    data={assesorrole?.map((item: any) => ({
-                        assesorRoleId: item?.assesorRoleId,
-                        assesorRoleName: item?.assesorRoleName
+                    data={userGroupList?.map((item: any) => ({
+                        userGroupId: item?.userGroupId,
+                        userGroupName: item?.userGroupName
                     }))}
                     columns={[
                         // {
@@ -182,8 +183,8 @@ const AddAssesorRole = () => {
                             bodyStyle: { minWidth: 50, maxWidth: 50 }
                         },
                         {
-                            header: 'Assesor Role Name',
-                            field: 'assesorRoleName',
+                            header: 'User Group Name',
+                            field: 'userGroupName',
                             filter: true,
                             bodyStyle: { minWidth: 150, maxWidth: 150 },
                             filterPlaceholder: 'Role'
@@ -218,7 +219,7 @@ const AddAssesorRole = () => {
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to delete this Assesor Role? </span>
+                        <span>Are you sure you want to delete this User Group? </span>
                         <span>This action cannot be undone. </span>
                     </div>
                 </div>
@@ -227,4 +228,4 @@ const AddAssesorRole = () => {
     );
 };
 
-export default AddAssesorRole;
+export default AddUserGroup;

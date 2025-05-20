@@ -138,7 +138,7 @@ const AddRoleControl = () => {
                 <small>
                     <i>Enter a role you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label="Add Role" />
+                <SubmitResetButtons onSubmit={handleSubmit} label="Add Role" />
             </div>
 
             <div className="mt-4">

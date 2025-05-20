@@ -39,7 +39,7 @@ const AddTemplateType = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/templateType');
+            const response = await GetCall('/mrkt/api/mrkt/templateType');
             setTemplateTypeList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -55,7 +55,7 @@ const AddTemplateType = () => {
         if (isEditMode) {
             try {
                 const payload = { templateTypeName: templateType };
-                const response = await PutCall(`/company/templateType/${selectedTemplateTypeId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/templateType/${selectedTemplateTypeId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Template Type successfully updated!');
@@ -70,7 +70,7 @@ const AddTemplateType = () => {
         } else {
             try {
                 const payload = { templateTypeName: templateType };
-                const response = await PostCall('/company/templateType', payload);
+                const response = await PostCall('/mrkt/api/mrkt/templateType', payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'Template Type successfully added!');
@@ -90,7 +90,7 @@ const AddTemplateType = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/templateType/${selectedTemplateTypeId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/templateType/${selectedTemplateTypeId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setRolesList((prevRoles: any) => prevRoles.filter((templateType: any) => templateType.templateTypeId !== selectedTemplateTypeId));
@@ -144,7 +144,7 @@ const AddTemplateType = () => {
                 <small>
                     <i>Enter a Template Type you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Template Type' : 'Add Template Type'} />
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Template Type' : 'Add Template Type'} />
             </div>
 
             <div className="mt-4">

@@ -144,7 +144,7 @@ const AddPosition = () => {
                 <small>
                     <i>Enter a Position you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Position' : 'Add Position'} />
+                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Position' : 'Add Position'} />
             </div>
 
             <div className="mt-4">

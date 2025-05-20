@@ -178,7 +178,7 @@ const Routes = () => {
                     disabled={!selectedPermissions || selectedPermissions.length === 0}
                 /> */}
 
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={() => setSelectedPermissions([])} label="Assign" />
+                <SubmitResetButtons onSubmit={handleSubmit}  label="Assign" />
             </div>
         );
     };

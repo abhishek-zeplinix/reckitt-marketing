@@ -56,6 +56,10 @@ const MasterTower = () => {
                 return <AddCountriesControl />;
             case 'Region':
                 return <AddRegionControl />;
+            case 'Review Type':
+                return <AddReviewType />;
+            case 'Templete Type':
+                return <AddTemplateType />;
             default:
                 return <div className="p-4 text-center text-500">Content for {activeTab} will be implemented here</div>;
         }

@@ -38,7 +38,7 @@ const AddCountriesControl = () => {
         setLoading(true);
 
         try {
-            const response = await GetCall('/company/country');
+            const response = await GetCall('/mrkt/api/mrkt/country');
             setCountryList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
@@ -53,7 +53,7 @@ const AddCountriesControl = () => {
         if (isEditMode) {
             try {
                 const payload = { countryName: country };
-                const response = await PutCall(`/company/country/${selectedCountryId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/country/${selectedCountryId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'country successfully updated!');
@@ -68,7 +68,7 @@ const AddCountriesControl = () => {
         } else {
             try {
                 const payload = { countryName: country };
-                const response = await PostCall('/company/country', payload);
+                const response = await PostCall('/mrkt/api/mrkt/country', payload);
 
                 if (response.code.toLowerCase() === 'success') {
                     setAlert('success', 'country successfully added!');
@@ -88,7 +88,7 @@ const AddCountriesControl = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/country/${selectedCountryId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/country/${selectedCountryId}`);
 
             if (response.code.toLowerCase() === 'success') {
                 setCountryList((prevRoles: any) => prevRoles.filter((country: any) => country.masterCountryId !== selectedCountryId));
@@ -141,7 +141,7 @@ const AddCountriesControl = () => {
                 <small>
                     <i>Enter a countries you want to add.</i>
                 </small>
-                <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Country' : 'Add Country'} />
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Country' : 'Add Country'} />
             </div>
 
             <div className="mt-4">
