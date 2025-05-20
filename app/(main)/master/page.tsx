@@ -1,19 +1,51 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import AddBrandsControl from '@/components/market-master/brands';
 import AddCountriesControl from '@/components/market-master/countries';
 import AddRegionControl from '@/components/market-master/region';
+import AddReviewType from '@/components/market-master/reviewType';
+import AddTemplateType from '@/components/market-master/templateType';
+// import AddBU from '@/components/market-master/bu';
+import AddUserGroup from '@/components/market-master/userGroup';
+// import AddAssesorGroup from '@/components/market-master/assesorGroup';
+// import AddUser from '@/components/market-master/user';
 
-const Tabs = ['Brands', 'Countries', 'Region'];
+const Tabs = ['Year', 'Evaluation Period', 'Review Type', "Template Type", "Region", 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group'];
 
 const MasterTower = () => {
-    const [activeTab, setActiveTab] = useState('Brands');
+    const [activeTab, setActiveTab] = useState('Year');
+    const tabsContainerRef = useRef(null);
+
+    const scrollToCenter = (element: any) => {
+        if (tabsContainerRef.current && element) {
+            const container: any = tabsContainerRef.current;
+            const elementRect: any = element.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const elementCenter = elementRect.left + elementRect.width / 2;
+            const containerCenter = containerRect.left + containerRect.width / 2;
+            const scrollOffset = elementCenter - containerCenter;
+
+            container.scrollBy({
+                left: scrollOffset,
+                behavior: 'smooth'
+            });
+        }
+    };
+
+    const handleTabClick = (tabName: any, event: any) => {
+        setActiveTab(tabName);
+
+        setTimeout(() => {
+            scrollToCenter(event.currentTarget);
+        }, 50);
+    };
 
     const renderHeader = () => {
         return (
             <div className="flex justify-content-between">
                 <span className="p-input-icon-left flex align-items-center">
-                    <h3 className="mb-0">Market Master </h3>
+                    <h3 className="mb-0">Marketing Master</h3>
                 </span>
             </div>
         );
@@ -23,14 +55,18 @@ const MasterTower = () => {
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'Brands':
+            case 'Brand':
                 return <AddBrandsControl />;
-            case 'Countries':
+            case 'Country':
                 return <AddCountriesControl />;
             case 'Region':
                 return <AddRegionControl />;
+            case 'Review Type':
+                return <AddReviewType />;
+            case 'Templete Type':
+                return <AddTemplateType />;
             default:
-                return <></>;
+                return <div className="p-4 text-center text-500">Content for {activeTab} will be implemented here</div>;
         }
     };
 
@@ -41,27 +77,63 @@ const MasterTower = () => {
             <div className="col-12">
                 <div className="header">{header}</div>
 
-                <div className="card mt-4">
-                    <div className="">
-                        <div className="flex flex-wrap justify-center sm:justify-start space-x-2 sm:space-x-4">
-                            {Tabs?.map((item: any) => (
+                <div className="card mt-4 p-0">
+                    <div
+                        style={{
+                            position: 'relative',
+                            borderBottom: '1px solid #e5e7eb'
+                        }}
+                    >
+                        <div
+                            ref={tabsContainerRef}
+                            className="flex py-3 px-3"
+                            style={{
+                                overflowX: 'auto',
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none',
+                                // WebkitScrollbar: { display: 'none' }
+
+                            }}
+                        >
+                          
+                            {Tabs.map((item) => (
                                 <div
                                     key={item}
-                                    className={`px-4 py-2 font-bold transition-all duration-300 cursor-pointer ${activeTab === item ? 'text-primary-main border border-primary-main rounded-lg' : 'text-gray-500 border-none'}`}
+                                    className={`cursor-pointer  transition-all transition-duration-200 py-2 ${activeTab === item
+                                            ? 'text-pink-500'
+                                            : 'text-600'
+                                        }`}
+                                    onClick={(event) => handleTabClick(item, event)}
                                     style={{
+                                        position: 'relative',
+                                        padding: '5px 15px',  //tab text padding
+                                        whiteSpace: 'nowrap',
+                                        flexShrink: 0,
+                                        minWidth: 'fit-content',
                                         border: activeTab === item ? '1px solid #ec4899' : 'none',
-                                        borderRadius: activeTab === item ? '12px' : '0'
+                                        borderRadius: activeTab === item ? '15px' : '0'
                                     }}
-                                    onClick={() => setActiveTab(item)}
                                 >
                                     {item}
+                                    {activeTab === item && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: '-15px',
+                                                left: 0,
+                                                right: 0,
+                                                height: '2px',
+                                                backgroundColor: '#ec4899',
+                                                borderRadius: '1px'
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
                     </div>
-                </div>
 
-                <div className="card mt-4 px-5">{tabContent}</div>
+                 <div className='p-4'>{tabContent}</div></div>
             </div>
         </div>
     );
