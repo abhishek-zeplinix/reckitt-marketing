@@ -36,7 +36,7 @@ const AddTemplateType = () => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
-    const { reviewTypesList, loading, refetchReviewTypes } = useMarketingMaster();
+    const { reviewTypesList, loading } = useMarketingMaster();
     const { error: reviewTypeError, validate: validateTemplateType, resetError } = useZodValidation(reviewTypeSchema);
     
     useEffect(() => {

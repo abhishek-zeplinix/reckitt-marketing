@@ -146,7 +146,7 @@ const BUControls = () => {
         <>
             <div className="flex flex-column justify-center items-center gap-2">
                 <label htmlFor="bu">Add BU (Business Unit) <span style={{ color: 'red' }}>*</span></label>
-                <InputText aria-label="Add BU" value={bu} onChange={(e) => setBU(e.target.value)} style={{ width: '50%' }} />
+                <InputText aria-label="Add BU" value={bu} onChange={(e) => setBU(e.target.value)} className='w-full sm:w-30rem' />
                 {buError ? (
                     <small className="p-error">{buError}</small>
                 ) : <small>
