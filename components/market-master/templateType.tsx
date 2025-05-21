@@ -262,6 +262,7 @@ const AddTemplateType = () => {
                         onEdit={(item: any) => onRowSelect(item, 'edit')}
                     />
                 )}
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Template Type' : 'Add Template Type'} />
             </div>
 
             <Dialog
