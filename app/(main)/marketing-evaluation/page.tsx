@@ -215,7 +215,7 @@ const EvaluationPage = () => {
                 </div>
 
                 <div className="col-12 flex justify-content-end">
-                    <Button label="Submit" icon="pi pi-check" onClick={handleSubmit} disabled={!yearOptions.length || !timeframeOptions.length || !reviewTypes.length || !countries.length} />
+                    <Button label="Submit" icon="pi pi-check" onClick={handleSubmit}  />
                 </div>
             </div>
 

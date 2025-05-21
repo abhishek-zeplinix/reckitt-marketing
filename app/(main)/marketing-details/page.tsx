@@ -105,7 +105,6 @@ const MarketingDetails = () => {
 
         // Load saved combos
         const savedCombos = JSON.parse(localStorage.getItem(STORAGE_KEYS.FINAL_REVIEW_DATA) || '[]');
-        console.log(savedCombos);
 
         setComboList(savedCombos);
     }, []);
@@ -290,7 +289,6 @@ const MarketingDetails = () => {
     const handleViewSaved = () => {
         try {
             const savedData = localStorage.getItem(STORAGE_KEYS.FINAL_REVIEW_DATA);
-            console.log('Saved data:', savedData);
 
             const parsedData = savedData ? JSON.parse(savedData) : [];
             setSavedCombos(Array.isArray(parsedData) ? parsedData : []);
