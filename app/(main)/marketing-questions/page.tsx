@@ -180,7 +180,7 @@ const TEMPLATE_DATA: AllQuestion[] = [
 const STORAGE_KEYS = {
     MARKETING_TEMPLATE_QUESTIONS: 'marketingTemplateQuestions',
     UPLOADED_TEMPLATE_DATA: 'uploadedTemplateData',
-    TEMPLATE_DATA: 'data'
+    TEMPLATE_DATA: 'Template Type'
 };
  
 const TEMPLATE_TYPE_OPTIONS = [
@@ -198,6 +198,7 @@ const MarketingQuestionsTable = () => {
     const [uploadedTemplateData, setUploadedTemplateData] = useState<AllQuestion[]>([]);
     const [isUploadDialogVisible, setIsUploadDialogVisible] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [allTemplateTypes, setAllTemplateTypes] = useState<{label: string, value: string}[]>([])
     const [isUploading, setIsUploading] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedTemplateType, setSelectedTemplateType] = useState('Agency to Reckitt');
@@ -214,14 +215,27 @@ const MarketingQuestionsTable = () => {
 
         const tempsaved = localStorage.getItem(STORAGE_KEYS.TEMPLATE_DATA);
         if (tempsaved) {
-            console.log(JSON.parse(tempsaved));
-        }
- 
-        // Check if there's previously uploaded template data
-        const savedTemplateData = localStorage.getItem(STORAGE_KEYS.UPLOADED_TEMPLATE_DATA);
-        if (savedTemplateData) {
-            setUploadedTemplateData(JSON.parse(savedTemplateData));
-            setShowUploadedData(false); // Changed from true to false
+           try {
+                const parsedData = JSON.parse(tempsaved);
+                const templateTypes = new Set<string>();
+                
+                Object.values(parsedData).forEach((category: any) => {
+                    if (Array.isArray(category)) {
+                        category.forEach((type: string) => {
+                            templateTypes.add(type);
+                        });
+                    }
+                });
+                
+                const options = Array.from(templateTypes).map(type => ({
+                    label: type,
+                    value: type
+                }));
+                
+                setAllTemplateTypes(options);
+            } catch (error) {
+                console.error('Error parsing template types:', error);
+            }
         }
     }, []);
  
@@ -457,7 +471,7 @@ const handleEditQuestion = (questionToEdit: { id: string }) => {
                     <div className="flex justify-content-between align-items-center mb-4 mt-2">
                         <Dropdown
                             value={selectedTemplateType}
-                            options={TEMPLATE_TYPE_OPTIONS}
+                            options={allTemplateTypes}
                             onChange={(e) => setSelectedTemplateType(e.value)}
                             placeholder="Select Template Type"
                             className="w-full md:w-14rem"
