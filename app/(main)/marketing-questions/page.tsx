@@ -382,20 +382,22 @@ const MarketingQuestionsTable = () => {
                 <div className="flex gap-2">
                     <Button
                         label="Add Questions"
-                        className=""
+                        icon="pi pi-plus"
+                        className="bg-white border-primary-main text-red-600"
                         onClick={() => {
                             setShowUploadedData(false);
                             handleCreateNavigation();
                         }}
                     />
-                    <Button label="Upload Template" className="" onClick={openUploadDialog} />
+                    <Button label="Upload Template" icon="pi pi-upload" className="" onClick={openUploadDialog} />
                 </div>
             </div>
+            <hr className="my-4" /> 
  
             {/* Regular Questions Table - Only shown when uploaded table is not visible */}
             {!showUploadedData && (
                 <>
-                    <div className="flex justify-content-end gap-3 mb-4">
+                    <div className="flex justify-content-start gap-3 mb-4">
                         <Dropdown value={templateTypeFilter} options={templateTypeOptions} onChange={(e) => setTemplateTypeFilter(e.value)} placeholder="Filter by Template Type" showClear />
                         <Dropdown value={userGroupFilter} options={userGroupOptions} onChange={(e) => setUserGroupFilter(e.value)} placeholder="Filter by User Group" showClear />
                         <Dropdown value={reviewTypeFilter} options={reviewTypeOptions} onChange={(e) => setReviewTypeFilter(e.value)} placeholder="Filter by Review Type" showClear />

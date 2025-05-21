@@ -157,6 +157,7 @@ const EvaluationPage = () => {
                 <h2 className="text-xl font-semibold">Evaluation Name</h2>
                 <Button label="View Saved Evaluations" icon="pi pi-eye" onClick={handleViewSaved} />
             </div>
+            <hr className="my-3" /> 
 
             <div className="grid formgrid gap-3 mb-4">
                 <div className="flex row col-12">
