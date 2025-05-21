@@ -10,6 +10,8 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
+import { useZodValidation } from '@/hooks/useZodValidation';
+import { reviewTypeSchema } from '@/utils/validationSchemas';
 
 const ACTIONS = {
     ADD: 'add',
@@ -30,6 +32,8 @@ const AddBrandsControl = () => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
+    const { error: brandError, validate: validateBrand, resetError } = useZodValidation(reviewTypeSchema);
+
 
     useEffect(() => {
         fetchData();
@@ -50,6 +54,7 @@ const AddBrandsControl = () => {
     };
 
     const handleSubmit = async () => {
+        if (!validateBrand(brand)) return;
         setLoading(true);
 
         if (isEditMode) {
@@ -111,6 +116,7 @@ const AddBrandsControl = () => {
     const resetInput = () => {
         setBrand('');
         setIsEditMode(false);
+        resetError();
     };
 
     const openDeleteDialog = (items: any) => {
@@ -139,62 +145,64 @@ const AddBrandsControl = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="brand">Add Brands</label>
+                <label htmlFor="brand">Add Brands <span style={{ color: 'red' }}>*</span></label>
                 <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
-                <small>
-                    <i>Enter a brand you want to add.</i>
-                </small>
-                <SubmitResetButtons onSubmit={handleSubmit}  label={isEditMode ? 'Update Brand' : 'Add Brands'} />
+                {brandError ? (
+                    <small className="p-error">{brandError}</small>
+                ) : <small>
+                    <i>Enter a country you want to add.</i>
+                </small>}
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
             </div>
 
             <div className="mt-4">
-            {isLoading ?(
-                <TableSkeletonSimple columns={2} rows={limit} />
-            ) : (
-                <CustomDataTable
-                    ref={brandList}
-                    page={page}
-                    limit={limit} // no of items per page
-                    totalRecords={totalRecords} // total records from api response
-                    isView={false}
-                    isEdit={true} // show edit button
-                    isDelete={true} // show delete button
-                    data={brandList?.map((item: any) => ({
-                        brandId: item?.brandId,
-                        brandName: item?.brandName
-                    }))}
-                    columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
-                        {
-                            header: 'Sr. No.',
-                            body: (data: any, options: any) => {
-                                const normalizedRowIndex = options.rowIndex % limit;
-                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                {isLoading ? (
+                    <TableSkeletonSimple columns={2} rows={5} />
+                ) : (
+                    <CustomDataTable
+                        ref={brandList}
+                        page={page}
+                        limit={limit} // no of items per page
+                        totalRecords={totalRecords} // total records from api response
+                        isView={false}
+                        isEdit={true} // show edit button
+                        isDelete={true} // show delete button
+                        data={brandList?.map((item: any) => ({
+                            brandId: item?.brandId,
+                            brandName: item?.brandName
+                        }))}
+                        columns={[
+                            // {
+                            //     header: 'Role ID',
+                            //     field: 'roleId',
+                            //     filter: true,
+                            //     sortable: true,
+                            //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                            //     filterPlaceholder: 'Role ID'
+                            // },
+                            {
+                                header: 'Sr. No.',
+                                body: (data: any, options: any) => {
+                                    const normalizedRowIndex = options.rowIndex % limit;
+                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                return <span>{srNo}</span>;
+                                    return <span>{srNo}</span>;
+                                },
+                                bodyStyle: { minWidth: 50, maxWidth: 50 }
                             },
-                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                        },
-                        {
-                            header: 'Brand Name',
-                            field: 'brandName',
-                            filter: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Role'
-                        }
-                    ]}
-                    onLoad={(params: any) => fetchData(params)}
-                    onDelete={(item: any) => onRowSelect(item, 'delete')}
-                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                />
-            )}
+                            {
+                                header: 'Brand Name',
+                                field: 'brandName',
+                                filter: true,
+                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                filterPlaceholder: 'Role'
+                            }
+                        ]}
+                        onLoad={(params: any) => fetchData(params)}
+                        onDelete={(item: any) => onRowSelect(item, 'delete')}
+                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                    />
+                )}
             </div>
 
             <Dialog
@@ -210,11 +218,7 @@ const AddBrandsControl = () => {
                 }
                 onHide={closeDeleteDialog}
             >
-                {isLoading && (
-                    <div className="center-pos">
-                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                    </div>
-                )}
+            
                 <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 

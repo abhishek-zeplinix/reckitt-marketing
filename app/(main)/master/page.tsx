@@ -3,14 +3,12 @@ import React, { useState, useRef } from 'react';
 import AddBrandsControl from '@/components/market-master/brands';
 import AddCountriesControl from '@/components/market-master/countries';
 import AddRegionControl from '@/components/market-master/region';
+import { Button } from 'primereact/button';
 import AddReviewType from '@/components/market-master/reviewType';
 import AddTemplateType from '@/components/market-master/templateType';
-// import AddBU from '@/components/market-master/bu';
-import AddUserGroup from '@/components/market-master/userGroup';
-// import AddAssesorGroup from '@/components/market-master/assesorGroup';
-// import AddUser from '@/components/market-master/user';
+import BUControls from '@/components/market-master/bu';
 
-const Tabs = ['Year', 'Evaluation Period', 'Review Type', "Template Type", "Region", 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group'];
+const Tabs = ['Review Type', "Template Type", "Region", 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'User'];
 
 const MasterTower = () => {
     const [activeTab, setActiveTab] = useState('Year');
@@ -63,8 +61,10 @@ const MasterTower = () => {
                 return <AddRegionControl />;
             case 'Review Type':
                 return <AddReviewType />;
-            case 'Templete Type':
+            case 'Template Type':
                 return <AddTemplateType />;
+            case 'BU':
+                return <BUControls />;
             default:
                 return <div className="p-4 text-center text-500">Content for {activeTab} will be implemented here</div>;
         }
@@ -75,7 +75,10 @@ const MasterTower = () => {
     return (
         <div className="grid">
             <div className="col-12">
-                <div className="header">{header}</div>
+                <div className='flex justify-content-between align-items-center'>
+                    <div className="header">{header}</div>
+                    <Button className='text-gray-500 font-small' icon="pi pi-file" label='Bulk Upload' outlined />
+                </div>
 
                 <div className="card mt-4 p-0">
                     <div
@@ -95,13 +98,13 @@ const MasterTower = () => {
 
                             }}
                         >
-                          
+
                             {Tabs.map((item) => (
                                 <div
                                     key={item}
                                     className={`cursor-pointer  transition-all transition-duration-200 py-2 ${activeTab === item
-                                            ? 'text-pink-500'
-                                            : 'text-600'
+                                        ? 'text-pink-500'
+                                        : 'text-600'
                                         }`}
                                     onClick={(event) => handleTabClick(item, event)}
                                     style={{
@@ -133,7 +136,7 @@ const MasterTower = () => {
                         </div>
                     </div>
 
-                 <div className='p-4'>{tabContent}</div></div>
+                    <div className='p-4'>{tabContent}</div></div>
             </div>
         </div>
     );

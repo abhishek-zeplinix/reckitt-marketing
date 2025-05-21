@@ -10,6 +10,8 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
+import { useZodValidation } from '@/hooks/useZodValidation';
+import { reviewTypeSchema } from '@/utils/validationSchemas';
 
 const ACTIONS = {
     ADD: 'add',
@@ -29,6 +31,8 @@ const AddCountriesControl = () => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
+    const { error: countryError, validate: validateCountry, resetError } = useZodValidation(reviewTypeSchema);
+
 
     useEffect(() => {
         fetchData();
@@ -48,6 +52,7 @@ const AddCountriesControl = () => {
         }
     };
     const handleSubmit = async () => {
+        if (!validateCountry(country)) return;
         setLoading(true);
 
         if (isEditMode) {
@@ -109,6 +114,7 @@ const AddCountriesControl = () => {
     const resetInput = () => {
         setCountry('');
         setIsEditMode(false);
+        resetError();
     };
 
     const openDeleteDialog = (items: any) => {
@@ -136,61 +142,63 @@ const AddCountriesControl = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="country">Add Countries</label>
-                <InputText aria-label="Add Countries" value={country} onChange={(e) => setCountry(e.target.value)} style={{ width: '50%' }} />
-                <small>
-                    <i>Enter a countries you want to add.</i>
-                </small>
-                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Country' : 'Add Country'} />
+                <label htmlFor="country">Add Country <span style={{ color: 'red' }}>*</span></label>
+                <InputText aria-label="Add Countries" value={country} onChange={(e) => setCountry(e.target.value)} className='w-full sm:w-30rem' />
+                {countryError ? (
+                    <small className="p-error">{countryError}</small>
+                ) : <small>
+                    <i>Enter a country you want to add.</i>
+                </small>}
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Country' : 'Add Country'} loading={isLoading} />
             </div>
 
             <div className="mt-4">
-            {isLoading ?(
-                    <TableSkeletonSimple columns={2} rows={limit} />
+                {isLoading ? (
+                    <TableSkeletonSimple columns={2} rows={5} />
                 ) : (
-                <CustomDataTable
-                    ref={countryList}
-                    page={page}
-                    limit={limit} // no of items per page
-                    totalRecords={totalRecords} // total records from api response
-                    isView={false}
-                    isEdit={true} // show edit button
-                    isDelete={true} // show delete button
-                    data={countryList?.map((item: any) => ({
-                        masterCountryId: item?.masterCountryId,
-                        countryName: item?.countryName
-                    }))}
-                    columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
-                        {
-                            header: 'Sr. No.',
-                            body: (data: any, options: any) => {
-                                const normalizedRowIndex = options.rowIndex % limit;
-                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                    <CustomDataTable
+                        ref={countryList}
+                        page={page}
+                        limit={limit} // no of items per page
+                        totalRecords={totalRecords} // total records from api response
+                        isView={false}
+                        isEdit={true} // show edit button
+                        isDelete={true} // show delete button
+                        data={countryList?.map((item: any) => ({
+                            masterCountryId: item?.masterCountryId,
+                            countryName: item?.countryName
+                        }))}
+                        columns={[
+                            // {
+                            //     header: 'Role ID',
+                            //     field: 'roleId',
+                            //     filter: true,
+                            //     sortable: true,
+                            //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                            //     filterPlaceholder: 'Role ID'
+                            // },
+                            {
+                                header: 'Sr. No.',
+                                body: (data: any, options: any) => {
+                                    const normalizedRowIndex = options.rowIndex % limit;
+                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                return <span>{srNo}</span>;
+                                    return <span>{srNo}</span>;
+                                },
+                                bodyStyle: { minWidth: 50, maxWidth: 50 }
                             },
-                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                        },
-                        {
-                            header: 'Country Name',
-                            field: 'countryName',
-                            filter: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Country Name'
-                        }
-                    ]}
-                    onLoad={(params: any) => fetchData(params)}
-                    onDelete={(item: any) => onRowSelect(item, 'delete')}
-                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                />
+                            {
+                                header: 'Country Name',
+                                field: 'countryName',
+                                filter: true,
+                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                filterPlaceholder: 'Country Name'
+                            }
+                        ]}
+                        onLoad={(params: any) => fetchData(params)}
+                        onDelete={(item: any) => onRowSelect(item, 'delete')}
+                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                    />
                 )}
             </div>
 
@@ -202,16 +210,12 @@ const AddCountriesControl = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} loading={isLoading}/>
                     </div>
                 }
                 onHide={closeDeleteDialog}
             >
-                {isLoading && (
-                    <div className="center-pos">
-                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                    </div>
-                )}
+               
                 <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 

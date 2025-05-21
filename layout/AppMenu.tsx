@@ -66,7 +66,7 @@ const AppMenu = () => {
                     items: [
                         {
                             label: 'Master',
-                            url: '/master',
+                            url: '/marketing-master',
                             check: (user: any) => {
                                 if (get(user, 'isSuperAdmin')) {
                                     return true;
