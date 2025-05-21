@@ -10,6 +10,9 @@ import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
+import { useMarketingMaster } from '@/layout/context/marketingMasterContext';
+import { useZodValidation } from '@/hooks/useZodValidation';
+import { reviewTypeSchema } from '@/utils/validationSchemas';
 
 const ACTIONS = {
     ADD: 'add',
@@ -30,6 +33,8 @@ const AddReviewType = () => {
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
+    const { refetchReviewTypes } = useMarketingMaster();
+    const { error: reviewTypeError, validate: validateReviewType, resetError } = useZodValidation(reviewTypeSchema);
 
     useEffect(() => {
         fetchData();
@@ -51,6 +56,7 @@ const AddReviewType = () => {
     };
 
     const handleSubmit = async () => {
+        if (!validateReviewType(reviewTypes)) return;
         setLoading(true);
 
         if (isEditMode) {
@@ -62,6 +68,7 @@ const AddReviewType = () => {
                     setAlert('success', 'Review Types successfully updated!');
                     resetInput();
                     fetchData();
+                    refetchReviewTypes();
                 }
             } catch (err) {
                 setAlert('error', 'Something went wrong!');
@@ -77,6 +84,7 @@ const AddReviewType = () => {
                     setAlert('success', 'Review Types successfully added!');
                     resetInput();
                     fetchData();
+                    refetchReviewTypes();
                 }
             } catch (err) {
                 setAlert('error', 'Something went wrong!');
@@ -96,6 +104,7 @@ const AddReviewType = () => {
             if (response.code.toLowerCase() === 'success') {
                 setRolesList((prevRoles: any) => prevRoles.filter((reviewTypes: any) => reviewTypes.reviewTypeId !== selectedReviewTypesId));
                 fetchData();
+                refetchReviewTypes();
                 closeDeleteDialog();
                 setAlert('success', 'Review Types successfully deleted!');
             } else {
@@ -112,6 +121,8 @@ const AddReviewType = () => {
     const resetInput = () => {
         setReviewTypes('');
         setIsEditMode(false);
+        resetError();
+
     };
 
     const openDeleteDialog = (items: any) => {
@@ -140,63 +151,68 @@ const AddReviewType = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="reviewTypes">Review Type</label>
-                <InputText aria-label="Add Review Type" value={reviewTypes} onChange={(e) => setReviewTypes(e.target.value)} style={{ width: '50%' }} />
-                <small>
-                    <i>Enter a Review Type you want to add.</i>
-                </small>
-                {/* <SubmitResetButtons onSubmit={handleSubmit} onReset={resetInput} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} /> */}
+                <div className="flex flex-column gap-2">
+                    <label htmlFor="reviewTypes">Review Type <span style={{ color: 'red' }}>*</span></label>
+
+                    <InputText aria-label="Add Review Type" value={reviewTypes} onChange={(e) => setReviewTypes(e.target.value)} className='w-full sm:w-30rem' />
+                    {reviewTypeError ? (
+                        <small className="p-error">{reviewTypeError}</small>
+                    ) : <small>
+                        <i>Enter a Review Type you want to add.</i>
+                    </small>}
+
+                </div>
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} loading={isLoading} />
             </div>
 
             <div className="mt-4">
-            {isLoading ?(
-                    <TableSkeletonSimple columns={2} rows={limit} />
+                {isLoading ? (
+                    <TableSkeletonSimple columns={2} rows={5} />
                 ) : (
-                <CustomDataTable
-                    ref={reviewTypesList}
-                    page={page}
-                    limit={limit} // no of items per page
-                    totalRecords={totalRecords} // total records from api response
-                    isView={false}
-                    isEdit={true} // show edit button
-                    isDelete={true} // show delete button
-                    data={reviewTypesList?.map((item: any) => ({
-                        reviewTypeId: item?.reviewTypeId,
-                        reviewTypeName: item?.reviewTypeName
-                    }))}
-                    columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
-                        {
-                            header: 'Sr. No.',
-                            body: (data: any, options: any) => {
-                                const normalizedRowIndex = options.rowIndex % limit;
-                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                    <CustomDataTable
+                        ref={reviewTypesList}
+                        page={page}
+                        limit={limit} // no of items per page
+                        totalRecords={totalRecords} // total records from api response
+                        isView={false}
+                        isEdit={true} // show edit button
+                        isDelete={true} // show delete button
+                        data={reviewTypesList?.map((item: any) => ({
+                            reviewTypeId: item?.reviewTypeId,
+                            reviewTypeName: item?.reviewTypeName
+                        }))}
+                        columns={[
+                            // {
+                            //     header: 'Role ID',
+                            //     field: 'roleId',
+                            //     filter: true,
+                            //     sortable: true,
+                            //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                            //     filterPlaceholder: 'Role ID'
+                            // },
+                            {
+                                header: 'Sr. No.',
+                                body: (data: any, options: any) => {
+                                    const normalizedRowIndex = options.rowIndex % limit;
+                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                return <span>{srNo}</span>;
+                                    return <span>{srNo}</span>;
+                                },
+                                bodyStyle: { minWidth: 50, maxWidth: 50 }
                             },
-                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                        },
-                        {
-                            header: 'Review Type Name',
-                            field: 'reviewTypeName',
-                            filter: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Role'
-                        }
-                    ]}
-                    onLoad={(params: any) => fetchData(params)}
-                    onDelete={(item: any) => onRowSelect(item, 'delete')}
-                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                />
+                            {
+                                header: 'Review Type Name',
+                                field: 'reviewTypeName',
+                                filter: true,
+                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                filterPlaceholder: 'Role'
+                            }
+                        ]}
+                        onLoad={(params: any) => fetchData(params)}
+                        onDelete={(item: any) => onRowSelect(item, 'delete')}
+                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                    />
                 )}
-                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Review Type' : 'Add Review Type'} />
             </div>
 
             <Dialog
@@ -207,16 +223,12 @@ const AddReviewType = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} loading={isLoading} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
             >
-                {isLoading && (
-                    <div className="center-pos">
-                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                    </div>
-                )}
+
                 <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
