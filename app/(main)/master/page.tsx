@@ -7,11 +7,14 @@ import { Button } from 'primereact/button';
 import AddReviewType from '@/components/market-master/reviewType';
 import AddTemplateType from '@/components/market-master/templateType';
 import BUControls from '@/components/market-master/bu';
+import AddUserGroup from '@/components/market-master/userGroup';
+import AddAssessorGroup from '@/components/market-master/assessorGroup';
+import AddAssessorRole from '@/components/market-master/assesorRole';
 
-const Tabs = ['Review Type', "Template Type", "Region", 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'User'];
+const Tabs = ['Review Type', "Template Type", "Region", 'Country', 'Brand', 'BU', 'User Group', 'Assessor Group', 'Assessor Role', 'User'];
 
 const MasterTower = () => {
-    const [activeTab, setActiveTab] = useState('Year');
+    const [activeTab, setActiveTab] = useState('Review Type');
     const tabsContainerRef = useRef(null);
 
     const scrollToCenter = (element: any) => {
@@ -65,6 +68,13 @@ const MasterTower = () => {
                 return <AddTemplateType />;
             case 'BU':
                 return <BUControls />;
+            case 'User Group':
+                return <AddUserGroup />;
+            case 'Assessor Group':
+                return <AddAssessorGroup />;
+            case 'Assessor Role':
+                return <AddAssessorRole />;
+                
             default:
                 return <div className="p-4 text-center text-500">Content for {activeTab} will be implemented here</div>;
         }

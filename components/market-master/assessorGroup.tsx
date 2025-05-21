@@ -22,33 +22,33 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const AddUserGroup = () => {
+const AddAssessorGroup = () => {
     const [templateTypesList, setTemplateTypesList] = useState<any>([]);
-    const [userGroup, setUserGroup] = useState<any>('');
+    const [userGroupsList, setUserGroupsList] = useState<any>([]);
+    const [assessorGroup, setAssessorGroup] = useState<any>('');
     const [reviewTypeId, setReviewTypeId] = useState<any>('');
     const [templateTypeId, setTemplateTypeId] = useState<any>('');
-    const [userGroupList, setUserGroupList] = useState<any>([]);
+    const [userGroupId, setUserGroupId] = useState<any>('');
+    const [assessorGroupList, setAssessorGroupList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedUserGroupId, setSelectedUserGroupId] = useState<any>();
-    const [selectedReviewTypeIdForDelete, setSelectedReviewTypeIdForDelete] = useState<any>();
-    const [selectedTemplateTypeIdForDelete, setSelectedTemplateTypeIdForDelete] = useState<any>();
+    const [selectedAssessorGroupId, setSelectedAssessorGroupId] = useState<any>();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
     const { reviewTypesList, loading } = useMarketingMaster();
-    const { error: reviewTypeError, validate: validateTemplateType, resetError } = useZodValidation(reviewTypeSchema);
+    const { error: assessorGroupError, validate: validateAssessorGroup, resetError } = useZodValidation(reviewTypeSchema);
 
     useEffect(() => {
         if (reviewTypeId) {
-            fetchUserGroups();
+            fetchAssessorGroups();
         } else {
-            setUserGroupList([]);
+            setAssessorGroupList([]);
             setTotalRecords(0);
         }
-    }, [reviewTypeId, templateTypeId]);
+    }, [reviewTypeId, templateTypeId, userGroupId]);
 
     // Fetch template types when review type is selected
     const fetchTemplateTypes = async (reviewTypeId: any) => {
@@ -72,28 +72,50 @@ const AddUserGroup = () => {
         }
     };
 
-    // Fetch user groups for selected template type
-    const fetchUserGroups = async (params?: any) => {
+    // Fetch user groups when template type is selected
+    const fetchUserGroups = async (templateTypeId: any) => {
+        if (!templateTypeId || !reviewTypeId) {
+            setUserGroupsList([]);
+            return;
+        }
+
+        setLoading(true);
+
+        const params = { filters: { reviewTypeId, templateTypeId }, pagination: false};
+        const queryString = buildQueryParams(params);
+        try {
+            const response = await GetCall(`/mrkt/api/mrkt/user-group?${queryString}`);
+            setUserGroupsList(response.data || []);
+        } catch (err) {
+            setAlert('error', 'Failed to fetch user groups!');
+            setUserGroupsList([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch assessor groups for selected filters
+    const fetchAssessorGroups = async (params?: any) => {
         if (!reviewTypeId) return;
 
         setLoading(true);
         if (!params) {
-         params = {limit: limit, page: page, filters: { reviewTypeId, templateTypeId }, sortOrder: "desc", sortBy: "userGroupId" };
+         params = {limit: limit, page: page, filters: { reviewTypeId, templateTypeId, userGroupId }, sortOrder: "desc", sortBy: "assessorGroupId" };
         }else{
-            params.filters = { reviewTypeId, templateTypeId };
+            params.filters = { reviewTypeId, templateTypeId, userGroupId };
             params.sortOrder = "desc";
-            params.sortBy = "userGroupId";
+            params.sortBy = "assessorGroupId";
         }
         setPage(params.page);
         const queryString = buildQueryParams(params);
 
         try {
-            const response = await GetCall(`/mrkt/api/mrkt/user-group?${queryString}`);
-            setUserGroupList(response.data || []);
+            const response = await GetCall(`/mrkt/api/mrkt/marketingAssessorGroup?${queryString}`);
+            setAssessorGroupList(response.data || []);
             setTotalRecords(response.total || 0);
         } catch (err) {
-            setAlert('error', 'Failed to fetch user groups!');
-            setUserGroupList([]);
+            setAlert('error', 'Failed to fetch assessor groups!');
+            setAssessorGroupList([]);
             setTotalRecords(0);
         } finally {
             setLoading(false);
@@ -101,7 +123,7 @@ const AddUserGroup = () => {
     };
 
     const handleSubmit = async () => {
-        if (!validateTemplateType(userGroup)) return;
+        if (!validateAssessorGroup(assessorGroup)) return;
 
         if (!reviewTypeId) {
             setAlert('error', 'Please select a Review Type!');
@@ -113,8 +135,13 @@ const AddUserGroup = () => {
             return;
         }
 
-        if (!userGroup.trim()) {
-            setAlert('error', 'Please enter a User Group!');
+        if (!userGroupId) {
+            setAlert('error', 'Please select a User Group!');
+            return;
+        }
+
+        if (!assessorGroup.trim()) {
+            setAlert('error', 'Please enter an Assessor Group!');
             return;
         }
 
@@ -123,14 +150,14 @@ const AddUserGroup = () => {
         if (isEditMode) {
             try {
                 const payload = {
-                    userGroupName: userGroup,
+                    assessorGroupName: assessorGroup,
                 };
-                const response = await PutCall(`/mrkt/api/mrkt/user-group/${selectedUserGroupId}/review-type/${reviewTypeId}/template-type/${templateTypeId}`, payload);
+                const response = await PutCall(`/mrkt/api/mrkt/marketingAssessorGroup/${selectedAssessorGroupId}/templateType/${templateTypeId}/reviewType/${reviewTypeId}/userGroup/${userGroupId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'User Group successfully updated!');
+                    setAlert('success', 'Assessor Group successfully updated!');
                     resetInput();
-                    fetchUserGroups();
+                    fetchAssessorGroups();
                 }else{
                      setAlert('error', response.error || 'Something went wrong!');
                 }
@@ -141,13 +168,13 @@ const AddUserGroup = () => {
             }
         } else {
             try {
-                const payload = { userGroupName: userGroup };
-                const response = await PostCall(`/mrkt/api/mrkt/user-group/review-type/${reviewTypeId}/template-type/${templateTypeId}`, payload);
+                const payload = { assessorGroupName: assessorGroup };
+                const response = await PostCall(`/mrkt/api/mrkt/marketingAssessorGroup/templateType/${templateTypeId}/reviewType/${reviewTypeId}/userGroup/${userGroupId}`, payload);
 
                 if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'User Group successfully added!');
+                    setAlert('success', 'Assessor Group successfully added!');
                     resetInput();
-                    fetchUserGroups();
+                    fetchAssessorGroups();
                 }else{
                     setAlert('error', response.error || 'Something went wrong!');
                 }
@@ -163,12 +190,12 @@ const AddUserGroup = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/mrkt/api/mrkt/user-group/${selectedUserGroupId}/review-type/${selectedReviewTypeIdForDelete}/template-type/${selectedTemplateTypeIdForDelete}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/marketingAssessorGroup/${selectedAssessorGroupId}`);
 
             if (response.code.toLowerCase() === 'success') {
-                fetchUserGroups();
+                fetchAssessorGroups();
                 closeDeleteDialog();
-                setAlert('success', 'User Group successfully deleted!');
+                setAlert('success', 'Assessor Group successfully deleted!');
             } else {
                  setAlert('error', response.error || 'Something went wrong!');
                 closeDeleteDialog();
@@ -181,7 +208,7 @@ const AddUserGroup = () => {
     };
 
     const resetInput = () => {
-        setUserGroup('');
+        setAssessorGroup('');
         setIsEditMode(false);
         resetError();
     };
@@ -197,19 +224,19 @@ const AddUserGroup = () => {
     const onRowSelect = async (item: any, action: any) => {
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(item);
-            setSelectedUserGroupId(item.userGroupId);
-            setSelectedReviewTypeIdForDelete(item.reviewTypeId);
-            setSelectedTemplateTypeIdForDelete(item.templateTypeId);
+            setSelectedAssessorGroupId(item.assessorGroupId);
         }
 
         if (action === ACTIONS.EDIT) {
-            setUserGroup(item.userGroupName);
+            setAssessorGroup(item.assessorGroupName);
             setReviewTypeId(item.reviewTypeId);
             setTemplateTypeId(item.templateTypeId);
-            setSelectedUserGroupId(item.userGroupId);
+            setUserGroupId(item.userGroupId);
+            setSelectedAssessorGroupId(item.assessorGroupId);
 
-            // Fetch template types for the selected review type
+            // Fetch dependent dropdowns for the selected review type
             await fetchTemplateTypes(item.reviewTypeId);
+            await fetchUserGroups(item.templateTypeId);
             setIsEditMode(true);
         }
     };
@@ -217,17 +244,39 @@ const AddUserGroup = () => {
     const handleReviewTypeChange = async (value: any) => {
         setReviewTypeId(value);
         setTemplateTypeId('');
-        setUserGroupList([]);
+        setUserGroupId('');
+        setAssessorGroupList([]);
         setTotalRecords(0);
 
         if (value) {
-            // await fetchUserGroups();
             await fetchTemplateTypes(value);
         } else {
             setTemplateTypesList([]);
-            setUserGroupList([]);
+            setUserGroupsList([]);
+            setAssessorGroupList([]);
             setTotalRecords(0);
         }
+    };
+
+    const handleTemplateTypeChange = async (value: any) => {
+        setTemplateTypeId(value);
+        setUserGroupId('');
+        setAssessorGroupList([]);
+        setTotalRecords(0);
+
+        if (value && reviewTypeId) {
+            await fetchUserGroups(value);
+        } else {
+            setUserGroupsList([]);
+            setAssessorGroupList([]);
+            setTotalRecords(0);
+        }
+    };
+
+    const handleUserGroupChange = (value: any) => {
+        setUserGroupId(value);
+        setAssessorGroupList([]);
+        setTotalRecords(0);
     };
 
     const reviewTypeOptions = reviewTypesList?.map((reviewType: any) => ({
@@ -238,6 +287,11 @@ const AddUserGroup = () => {
     const templateTypeOptions = templateTypesList?.map((templateType: any) => ({
         label: templateType.templateTypeName || '',
         value: templateType.templateTypeId || ''
+    })) || [];
+
+    const userGroupOptions = userGroupsList?.map((userGroup: any) => ({
+        label: userGroup.userGroupName || '',
+        value: userGroup.userGroupId || ''
     })) || [];
 
     return (
@@ -257,7 +311,7 @@ const AddUserGroup = () => {
                         disabled={loading}
                     />
                     <small>
-                        <i>Select a Review Type for the user group.</i>
+                        <i>Select a Review Type for the assessor group.</i>
                     </small>
                 </div>
 
@@ -268,7 +322,7 @@ const AddUserGroup = () => {
                             id="templateType"
                             value={templateTypeId}
                             options={templateTypeOptions}
-                            onChange={(e) => setTemplateTypeId(e.value)}
+                            onChange={(e) => handleTemplateTypeChange(e.value)}
                             placeholder="Select Template Type"
                             className="w-full sm:w-30rem"
                             filter
@@ -276,7 +330,7 @@ const AddUserGroup = () => {
                             disabled={loading || !reviewTypeId}
                         />
                         <small>
-                            <i>Select a Template Type for the user group.</i>
+                            <i>Select a Template Type for the assessor group.</i>
                         </small>
                     </div>
                 )}
@@ -284,27 +338,47 @@ const AddUserGroup = () => {
                 {templateTypeId && (
                     <div className="flex flex-column gap-2">
                         <label htmlFor="userGroup">User Group <span style={{ color: 'red' }}>*</span></label>
-                        <InputText
+                        <Dropdown
                             id="userGroup"
-                            aria-label="Add User Group"
-                            value={userGroup}
-                            onChange={(e) => setUserGroup(e.target.value)}
+                            value={userGroupId}
+                            options={userGroupOptions}
+                            onChange={(e) => handleUserGroupChange(e.value)}
+                            placeholder="Select User Group"
                             className="w-full sm:w-30rem"
-                            placeholder="Enter User Group"
+                            filter
+                            showClear
+                            disabled={loading || !templateTypeId}
                         />
-                        {reviewTypeError ? (
-                            <small className="p-error">{reviewTypeError}</small>
+                        <small>
+                            <i>Select a User Group for the assessor group.</i>
+                        </small>
+                    </div>
+                )}
+
+                {userGroupId && (
+                    <div className="flex flex-column gap-2">
+                        <label htmlFor="assessorGroup">Assessor Group <span style={{ color: 'red' }}>*</span></label>
+                        <InputText
+                            id="assessorGroup"
+                            aria-label="Add Assessor Group"
+                            value={assessorGroup}
+                            onChange={(e) => setAssessorGroup(e.target.value)}
+                            className="w-full sm:w-30rem"
+                            placeholder="Enter Assessor Group"
+                        />
+                        {assessorGroupError ? (
+                            <small className="p-error">{assessorGroupError}</small>
                         ) : <small>
-                            <i>Enter a User Group you want to add.</i>
+                            <i>Enter an Assessor Group you want to add.</i>
                         </small>}
                     </div>
                 )}
             </div>
 
-            {templateTypeId && (
+            {userGroupId && (
                 <SubmitResetButtons
                     onSubmit={handleSubmit}
-                    label={isEditMode ? 'Update User Group' : 'Add User Group'}
+                    label={isEditMode ? 'Update Assessor Group' : 'Add Assessor Group'}
                     loading={isLoading}
                 />
             )}
@@ -312,25 +386,25 @@ const AddUserGroup = () => {
             {reviewTypeId && (
                 <div className="mt-4">
                     {isLoading ? (
-                        <TableSkeletonSimple columns={4} rows={5} />
+                        <TableSkeletonSimple columns={5} rows={5} />
                     ) : (
                         <CustomDataTable
-                            ref={userGroupList}
+                            ref={assessorGroupList}
                             page={page}
                             limit={limit}
                             totalRecords={totalRecords}
                             isView={false}
                             isEdit={true}
                             isDelete={true}
-                            data={userGroupList?.map((item: any) => ({
-                                userGroupId: item?.userGroupId,
-                                userGroupName: item?.userGroupName,
+                            data={assessorGroupList?.map((item: any) => ({
+                                assessorGroupId: item?.assessorGroupId,
+                                assessorGroupName: item?.assessorGroupName,
                                 reviewTypeId: item?.reviewTypeId,
                                 templateTypeId: item?.templateTypeId,
-                                // reviewTypeName: reviewTypesList?.find((rt: any) => rt.reviewTypeId === item?.reviewTypeId)?.reviewTypeName || 'N/A',
+                                userGroupId: item?.userGroupId,
                                 reviewTypeName: item?.reviewType?.reviewTypeName || 'N/A',
-                                // templateTypeName: templateTypesList?.find((tt: any) => tt.templateTypeId === item?.templateTypeId)?.templateTypeName || 'N/A'
-                                templateTypeName: item?.templateType?.templateTypeName|| 'N/A'
+                                templateTypeName: item?.templateType?.templateTypeName || 'N/A',
+                                userGroupName: item?.userGroup?.userGroupName || 'N/A'
                             }))}
                             columns={[
                                 {
@@ -362,9 +436,16 @@ const AddUserGroup = () => {
                                     filter: true,
                                     bodyStyle: { minWidth: 150, maxWidth: 200 },
                                     filterPlaceholder: 'User Group'
+                                },
+                                {
+                                    header: 'Assessor Group',
+                                    field: 'assessorGroupName',
+                                    filter: true,
+                                    bodyStyle: { minWidth: 150, maxWidth: 200 },
+                                    filterPlaceholder: 'Assessor Group'
                                 }
                             ]}
-                            onLoad={(params: any) => fetchUserGroups(params)}
+                            onLoad={(params: any) => fetchAssessorGroups(params)}
                             onDelete={(item: any) => onRowSelect(item, 'delete')}
                             onEdit={(item: any) => onRowSelect(item, 'edit')}
                         />
@@ -388,7 +469,7 @@ const AddUserGroup = () => {
                 <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
                     <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to delete this User Group? </span>
+                        <span>Are you sure you want to delete this Assessor Group? </span>
                         <span>This action cannot be undone. </span>
                     </div>
                 </div>
@@ -397,4 +478,4 @@ const AddUserGroup = () => {
     );
 };
 
-export default AddUserGroup;
+export default AddAssessorGroup;

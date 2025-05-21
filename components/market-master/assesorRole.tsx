@@ -4,12 +4,14 @@ import SubmitResetButtons from '../control-tower/submit-reset-buttons';
 import { DeleteCall, GetCall, PostCall, PutCall } from '@/app/api-config/ApiKit';
 import { useAppContext } from '@/layout/AppWrapper';
 import CustomDataTable from '../CustomDataTable';
-import { getRowLimitWithScreenHeight } from '@/utils/utils';
+import { buildQueryParams, getRowLimitWithScreenHeight } from '@/utils/utils';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
-import { ProgressSpinner } from 'primereact/progressspinner';
 import { LayoutContext } from '@/layout/context/layoutcontext';
 import TableSkeletonSimple from '../skeleton/TableSkeletonSimple';
+import { useZodValidation } from '@/hooks/useZodValidation';
+import { reviewTypeSchema } from '@/utils/validationSchemas';
+import build from 'next/dist/build';
 
 const ACTIONS = {
     ADD: 'add',
@@ -18,18 +20,20 @@ const ACTIONS = {
     DELETE: 'delete'
 };
 
-const AddAssesorRole = () => {
+const AddAssessorRole = () => {
     const [rolesList, setRolesList] = useState<any>([]);
-    const [addAssesorrole, setAddAssesorrole] = useState<any>('');
-    const [assesorrole, setAssesorrole] = useState<any>([]);
+    const [assessorRole, setAssessorRole] = useState<any>('');
+    const [assessorRoleList, setAssessorRoleList] = useState<any>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(getRowLimitWithScreenHeight());
     const [totalRecords, setTotalRecords] = useState<any>();
     const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState<any>(false);
-    const [selectedAssesorroleId, setSelectedAssesorroleId] = useState<any>();
+    const [selectedAssessorRoleId, setSelectedAssessorRoleId] = useState<any>();
     const [isEditMode, setIsEditMode] = useState<boolean>(false);
     const { layoutState } = useContext(LayoutContext);
     const { setAlert, setLoading, isLoading } = useAppContext();
+    const { error: roleError, validate: validateRole, resetError } = useZodValidation(reviewTypeSchema);
+
 
     useEffect(() => {
         fetchData();
@@ -38,9 +42,18 @@ const AddAssesorRole = () => {
     const fetchData = async (params?: any) => {
         setLoading(true);
 
+        if(!params) {
+            params = {limit: limit, page: page, sortOrder: "desc", sortBy: "assesorRoleId" };
+        }else{
+            params.sortOrder = "desc";
+            params.sortBy = "assesorRoleId";
+        }
+        
+        setPage(params.page);
+        const queryString = buildQueryParams(params);
         try {
-            const response = await GetCall('/company/assesorrole');
-            setAssesorrole(response.data);
+            const response = await GetCall(`/mrkt/api/mrkt/assesorrole?${queryString}`);
+            setAssessorRoleList(response.data);
             setTotalRecords(response.total);
         } catch (err) {
             setAlert('error', 'Something went wrong!');
@@ -50,16 +63,20 @@ const AddAssesorRole = () => {
     };
 
     const handleSubmit = async () => {
+        if (!validateRole(assessorRole)) return;
         setLoading(true);
 
         if (isEditMode) {
             try {
-                const payload = { assesorRoleName: addAssesorrole };
-                const response = await PutCall(`/company/assesorrole/${selectedAssesorroleId}`, payload);
-                if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Assesor Role successfully updated!');
+                const payload = { assesorRoleName: assessorRole };
+                const response = await PutCall(`/mrkt/api/mrkt/assesorrole/${selectedAssessorRoleId}`, payload);
+
+                if (response.code?.toLowerCase() === 'success') {
+                    setAlert('success', 'Assessor role successfully updated!');
                     resetInput();
                     fetchData();
+                }else{
+                    setAlert('error', response.error || 'Something went wrong!');
                 }
             } catch (err) {
                 setAlert('error', 'Something went wrong!');
@@ -68,11 +85,11 @@ const AddAssesorRole = () => {
             }
         } else {
             try {
-                const payload = { assesorRoleName: addAssesorrole };
-                const response = await PostCall('/company/assesorrole', payload);
+                const payload = { assesorRoleName: assessorRole };
+                const response = await PostCall('/mrkt/api/mrkt/assesorrole', payload);
 
-                if (response.code.toLowerCase() === 'success') {
-                    setAlert('success', 'Assesor Role successfully added!');
+                if (response.code?.toLowerCase() === 'success') {
+                    setAlert('success', 'Assessor role successfully added!');
                     resetInput();
                     fetchData();
                 }
@@ -89,13 +106,13 @@ const AddAssesorRole = () => {
         setLoading(true);
 
         try {
-            const response = await DeleteCall(`/company/assesorrole/${selectedAssesorroleId}`);
+            const response = await DeleteCall(`/mrkt/api/mrkt/assesorrole/${selectedAssessorRoleId}`);
 
-            if (response.code.toLowerCase() === 'success') {
-                setRolesList((prevRoles: any) => prevRoles.filter((addAssesorrole: any) => addAssesorrole.assesorRoleId !== selectedAssesorroleId));
+            if (response.code?.toLowerCase() === 'success') {
+                setRolesList((prevRoles: any) => prevRoles.filter((assesorRole: any) => assesorRole.assesorRoleId !== selectedAssessorRoleId));
                 fetchData();
                 closeDeleteDialog();
-                setAlert('success', 'Assesor Role successfully deleted!');
+                setAlert('success', 'Assesor role successfully deleted!');
             } else {
                 setAlert('error', 'Something went wrong!');
                 closeDeleteDialog();
@@ -108,8 +125,9 @@ const AddAssesorRole = () => {
     };
 
     const resetInput = () => {
-        setAddAssesorrole('');
+        setAssessorRole('');
         setIsEditMode(false);
+        resetError();
     };
 
     const openDeleteDialog = (items: any) => {
@@ -125,12 +143,12 @@ const AddAssesorRole = () => {
 
         if (action === ACTIONS.DELETE) {
             openDeleteDialog(perm);
-            setSelectedAssesorroleId(perm.assesorRoleId);
+            setSelectedAssessorRoleId(perm.assesorRoleId);
         }
 
         if (action === ACTIONS.EDIT) {
-            setAddAssesorrole(perm.assesorRoleName);
-            setSelectedAssesorroleId(perm.assesorRoleId);
+            setAssessorRole(perm.assesorRoleName);
+            setSelectedAssessorRoleId(perm.assesorRoleId);
             setIsEditMode(true);
         }
     };
@@ -138,61 +156,63 @@ const AddAssesorRole = () => {
     return (
         <>
             <div className="flex flex-column justify-center items-center gap-2">
-                <label htmlFor="addAssesorrole">Assesor Role</label>
-                <InputText aria-label="Add Assesor Role" value={addAssesorrole} onChange={(e) => setAddAssesorrole(e.target.value)} style={{ width: '50%' }} />
-                <small>
-                    <i>Enter a Assesor Role you want to add.</i>
-                </small>
-                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Assesor Role' : 'Add Assesor Role'} />
+                <label htmlFor="assessorRole">Add Assessor Role <span style={{ color: 'red' }}>*</span></label>
+                <InputText aria-label="Add Assessor Role" value={assessorRole} onChange={(e) => setAssessorRole(e.target.value)} className='w-full sm:w-30rem' />
+                {roleError ? (
+                    <small className="p-error">{roleError}</small>
+                ) : <small>
+                    <i>Enter a country you want to add.</i>
+                </small>}
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Assessor Role' : 'Add Assessor Role'} loading={isLoading}/>
             </div>
 
             <div className="mt-4">
-            {isLoading ?(
-                    <TableSkeletonSimple columns={2} rows={limit} />
+                {isLoading ? (
+                    <TableSkeletonSimple columns={2} rows={5} />
                 ) : (
-                <CustomDataTable
-                    ref={assesorrole}
-                    page={page}
-                    limit={limit} // no of items per page
-                    totalRecords={totalRecords} // total records from api response
-                    isView={false}
-                    isEdit={true} // show edit button
-                    isDelete={true} // show delete button
-                    data={assesorrole?.map((item: any) => ({
-                        assesorRoleId: item?.assesorRoleId,
-                        assesorRoleName: item?.assesorRoleName
-                    }))}
-                    columns={[
-                        // {
-                        //     header: 'Role ID',
-                        //     field: 'roleId',
-                        //     filter: true,
-                        //     sortable: true,
-                        //     bodyStyle: { minWidth: 150, maxWidth: 150 },
-                        //     filterPlaceholder: 'Role ID'
-                        // },
-                        {
-                            header: 'Sr. No.',
-                            body: (data: any, options: any) => {
-                                const normalizedRowIndex = options.rowIndex % limit;
-                                const srNo = (page - 1) * limit + normalizedRowIndex + 1;
+                    <CustomDataTable
+                        ref={assessorRoleList}
+                        page={page}
+                        limit={limit} // no of items per page
+                        totalRecords={totalRecords} // total records from api response
+                        isView={false}
+                        isEdit={true} // show edit button
+                        isDelete={true} // show delete button
+                        data={assessorRoleList?.map((item: any) => ({
+                            assesorRoleId: item?.assesorRoleId,
+                            assesorRoleName: item?.assesorRoleName
+                        }))}
+                        columns={[
+                            // {
+                            //     header: 'Role ID',
+                            //     field: 'roleId',
+                            //     filter: true,
+                            //     sortable: true,
+                            //     bodyStyle: { minWidth: 150, maxWidth: 150 },
+                            //     filterPlaceholder: 'Role ID'
+                            // },
+                            {
+                                header: 'Sr. No.',
+                                body: (data: any, options: any) => {
+                                    const normalizedRowIndex = options.rowIndex % limit;
+                                    const srNo = (page - 1) * limit + normalizedRowIndex + 1;
 
-                                return <span>{srNo}</span>;
+                                    return <span>{srNo}</span>;
+                                },
+                                bodyStyle: { minWidth: 50, maxWidth: 50 }
                             },
-                            bodyStyle: { minWidth: 50, maxWidth: 50 }
-                        },
-                        {
-                            header: 'Assesor Role Name',
-                            field: 'assesorRoleName',
-                            filter: true,
-                            bodyStyle: { minWidth: 150, maxWidth: 150 },
-                            filterPlaceholder: 'Role'
-                        }
-                    ]}
-                    onLoad={(params: any) => fetchData(params)}
-                    onDelete={(item: any) => onRowSelect(item, 'delete')}
-                    onEdit={(item: any) => onRowSelect(item, 'edit')}
-                />
+                            {
+                                header: 'Assessor Role',
+                                field: 'assesorRoleName',
+                                filter: true,
+                                bodyStyle: { minWidth: 150, maxWidth: 150 },
+                                filterPlaceholder: 'Role'
+                            }
+                        ]}
+                        onLoad={(params: any) => fetchData(params)}
+                        onDelete={(item: any) => onRowSelect(item, 'delete')}
+                        onEdit={(item: any) => onRowSelect(item, 'edit')}
+                    />
                 )}
             </div>
 
@@ -204,21 +224,17 @@ const AddAssesorRole = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete}  loading={isLoading}/>
                     </div>
                 }
                 onHide={closeDeleteDialog}
             >
-                {isLoading && (
-                    <div className="center-pos">
-                        <ProgressSpinner style={{ width: '50px', height: '50px' }} />
-                    </div>
-                )}
+            
                 <div className="flex flex-column w-full surface-border p-2 text-center gap-4">
                     <i className="pi pi-info-circle text-6xl" style={{ marginRight: 10, color: '#DF1740' }}></i>
 
                     <div className="flex flex-column align-items-center gap-1">
-                        <span>Are you sure you want to delete this Assesor Role? </span>
+                        <span>Are you sure you want to delete this assesor role? </span>
                         <span>This action cannot be undone. </span>
                     </div>
                 </div>
@@ -227,4 +243,4 @@ const AddAssesorRole = () => {
     );
 };
 
-export default AddAssesorRole;
+export default AddAssessorRole;

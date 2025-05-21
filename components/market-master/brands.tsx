@@ -146,13 +146,13 @@ const AddBrandsControl = () => {
         <>
             <div className="flex flex-column justify-center items-center gap-2">
                 <label htmlFor="brand">Add Brands <span style={{ color: 'red' }}>*</span></label>
-                <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} style={{ width: '50%' }} />
+                <InputText aria-label="Add Brands" value={brand} onChange={(e) => setBrand(e.target.value)} className='w-full sm:w-30rem' />
                 {brandError ? (
                     <small className="p-error">{brandError}</small>
                 ) : <small>
                     <i>Enter a country you want to add.</i>
                 </small>}
-                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Brand' : 'Add Brands'} />
+                <SubmitResetButtons onSubmit={handleSubmit} label={isEditMode ? 'Update Brand' : 'Add Brands'} loading={isLoading}/>
             </div>
 
             <div className="mt-4">
@@ -213,7 +213,7 @@ const AddBrandsControl = () => {
                 footer={
                     <div className="flex justify-content-center p-2">
                         <Button label="Cancel" style={{ color: '#DF1740' }} className="px-7" text onClick={closeDeleteDialog} />
-                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} />
+                        <Button label="Delete" style={{ backgroundColor: '#DF1740', border: 'none' }} className="px-7 hover:text-white" onClick={onDelete} loading={isLoading} />
                     </div>
                 }
                 onHide={closeDeleteDialog}
