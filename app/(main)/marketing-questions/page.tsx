@@ -179,7 +179,8 @@ const TEMPLATE_DATA: AllQuestion[] = [
 ];
 const STORAGE_KEYS = {
     MARKETING_TEMPLATE_QUESTIONS: 'marketingTemplateQuestions',
-    UPLOADED_TEMPLATE_DATA: 'uploadedTemplateData'
+    UPLOADED_TEMPLATE_DATA: 'uploadedTemplateData',
+    TEMPLATE_DATA: 'data'
 };
  
 const TEMPLATE_TYPE_OPTIONS = [
@@ -209,6 +210,11 @@ const MarketingQuestionsTable = () => {
         const saved = localStorage.getItem(STORAGE_KEYS.MARKETING_TEMPLATE_QUESTIONS);
         if (saved) {
             setQuestions(JSON.parse(saved));
+        }
+
+        const tempsaved = localStorage.getItem(STORAGE_KEYS.TEMPLATE_DATA);
+        if (tempsaved) {
+            console.log(JSON.parse(tempsaved));
         }
  
         // Check if there's previously uploaded template data
