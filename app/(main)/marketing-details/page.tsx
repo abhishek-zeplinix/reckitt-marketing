@@ -10,6 +10,7 @@ import { Dialog } from 'primereact/dialog';
 import { MultiSelect } from 'primereact/multiselect';
 import { DataTableExpandedRows } from 'primereact/datatable';
 import { Panel } from 'primereact/panel';
+import { FilterMatchMode } from 'primereact/api';
 
 const STORAGE_KEYS = {
     MARKETING_TEMPLATE_QUESTIONS: 'marketingTemplateQuestions',
@@ -65,6 +66,21 @@ const MarketingDetails = () => {
     const [savedCombos, setSavedCombos] = useState<any[]>([]);
 
     const [questionsByTemplateType, setQuestionsByTemplateType] = useState<Record<string, any[]>>({});
+
+
+    const [filters, setFilters] = useState<any>({
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        accountName: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        evaluation: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        vendor: { value: null, matchMode: FilterMatchMode.CONTAINS },
+        country: { value: null, matchMode: FilterMatchMode.IN },
+        brand: { value: null, matchMode: FilterMatchMode.IN },
+        status: { value: null, matchMode: FilterMatchMode.IN }
+    });
+
+    const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+    const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+    const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
     useEffect(() => {
         // Flatten all questions from all template types
@@ -441,11 +457,90 @@ const MarketingDetails = () => {
         });
     };
 
+    const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        let _filters = { ...filters };
+        _filters['global'].value = value;
+        setFilters(_filters);
+    };
+
+    const onCountryFilterChange = (e: { value: string[] }) => {
+        const value = e.value;
+        let _filters = { ...filters };
+        _filters['country'].value = value.length ? value : null;
+        setSelectedCountries(value);
+        setFilters(_filters);
+    };
+
+    const onBrandFilterChange = (e: { value: string[] }) => {
+        const value = e.value;
+        let _filters = { ...filters };
+        _filters['brand'].value = value.length ? value : null;
+        setSelectedBrands(value);
+        setFilters(_filters);
+    };
+
+    const onStatusFilterChange = (e: { value: string[] }) => {
+        const value = e.value;
+        let _filters = { ...filters };
+        _filters['status'].value = value.length ? value : null;
+        setSelectedStatuses(value);
+        setFilters(_filters);
+    };
+
+
+    const renderHeader = () => {
+    return (
+        <div className="flex flex-column md:flex-row  md:justify-content-between md:align-items-center gap-2">
+            <div className="flex flex-column md:flex-row gap-2">
+                <span className="p-input-icon-left">
+                    <i className="pi pi-search" />
+                    <InputText 
+                        type="search" 
+                        onChange={onGlobalFilterChange} 
+                        placeholder="Global Search" 
+                        className="w-full" 
+                    />
+                </span>
+                <MultiSelect
+                    value={selectedCountries}
+                    options={countryOptions}
+                    onChange={onCountryFilterChange}
+                    placeholder="Filter by Country"
+                    maxSelectedLabels={3}
+                    className="w-full md:w-20rem"
+                    showClear
+                />
+                <MultiSelect
+                    value={selectedBrands}
+                    options={brandOptions}
+                    onChange={onBrandFilterChange}
+                    placeholder="Filter by Brand"
+                    maxSelectedLabels={3}
+                    className="w-full md:w-20rem"
+                    showClear
+                />
+                <MultiSelect
+                    value={selectedStatuses}
+                    options={statusOptions}
+                    onChange={onStatusFilterChange}
+                    placeholder="Filter by Status"
+                    maxSelectedLabels={3}
+                    className="w-full md:w-20rem"
+                    showClear
+                />
+            </div>
+        </div>
+    );
+};
+
+const header = renderHeader();
+
     return (
         <div className="p-4 card">
             <Toast ref={toast} />
 
-            <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '70vw' }} onHide={() => setShowDialog(false)}>
+            {/* <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '70vw' }} onHide={() => setShowDialog(false)}>
                 {savedCombos.length > 0 ? (
                     <DataTable value={savedCombos} expandedRows={expandedRows} onRowToggle={(e: any) => setExpandedRows(e.data)} rowExpansionTemplate={rowExpansionTemplate} paginator dataKey="accountName" rows={10}>
                         <Column expander style={{ width: '3em' }} />
@@ -456,6 +551,82 @@ const MarketingDetails = () => {
                         <Column field="country" header="Country" />
                         <Column field="brand" header="Brand" />
                         <Column field="status" header="Status" />
+                    </DataTable>
+                ) : (
+                    <p>No saved reviews found.</p>
+                )}
+            </Dialog> */}
+
+
+            <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '90vw' }} onHide={() => setShowDialog(false)}>
+                {savedCombos.length > 0 ? (
+                    <DataTable
+                        value={savedCombos}
+                        expandedRows={expandedRows}
+                        onRowToggle={(e: any) => setExpandedRows(e.data)}
+                        rowExpansionTemplate={rowExpansionTemplate}
+                        paginator
+                        dataKey="accountName"
+                        rows={10}
+                        filters={filters}
+                        filterDisplay="menu"
+                        globalFilterFields={['accountName', 'evaluation', 'vendor', 'country', 'brand', 'status']}
+                        header={header}
+                        emptyMessage="No reviews found matching criteria"
+                    >
+                        <Column expander style={{ width: '3em' }} />
+                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
+                        <Column field="accountName" header="Account Name" sortable filter filterField="accountName" />
+                        <Column field="evaluation" header="Evaluation" sortable filter filterField="evaluation" />
+                        <Column field="vendor" header="Vendor" sortable filter filterField="vendor" />
+                        <Column
+                            field="country"
+                            header="Country"
+                            sortable
+                            filter
+                            filterField="country"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={countryOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
+                        <Column
+                            field="brand"
+                            header="Brand"
+                            sortable
+                            filter
+                            filterField="brand"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={brandOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
+                        <Column
+                            field="status"
+                            header="Status"
+                            sortable
+                            filter
+                            filterField="status"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={statusOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
                     </DataTable>
                 ) : (
                     <p>No saved reviews found.</p>
@@ -530,77 +701,6 @@ const MarketingDetails = () => {
                     </div>
                 )}
             </div>
-
-            {/* {selectedTemplateTypes.length > 0 && filteredQuestions.length > 0 && (
-                <div className="mt-4">
-                    <h3 className="mb-3">Available Questions</h3>
-                    <DataTable 
-                        value={groupedQuestions}
-                        rowClassName={(rowData) => rowData.isGroupHeader ? 'font-bold bg-gray-100' : ''}
-                        className="p-datatable-striped"
-                    >
-                        <Column
-                            header="Select"
-                            body={(rowData) => {
-                                if (rowData.isGroupHeader) {
-                                    const segmentQuestions = filteredQuestions.filter(q => q.segment === rowData.segment);
-                                    const allSelected = segmentQuestions.every(q =>
-                                        selectedQuestions.some(sq => sq.id === q.id)
-                                    );
-                                    return (
-                                        <div className="flex items-center">
-                                            <input
-                                                type="checkbox"
-                                                checked={allSelected}
-                                                onChange={() => handleSegmentToggle(rowData.segment)}
-                                                className="mr-2"
-                                            />
-                                            {rowData.segment}
-                                        </div>
-                                    );
-                                }
-                                return (
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedQuestions.some(q => q.id === rowData.id)}
-                                        onChange={() => handleQuestionToggle(rowData)}
-                                        className="mr-2"
-                                    />
-                                );
-                            }}
-                            style={{ width: '50px' }}
-                        />
-                        <Column
-                            field="questionTitle"
-                            header="Question Title"
-                            body={(rowData) => rowData.isGroupHeader ? null : rowData.questionTitle}
-                        />
-                        <Column
-                            field="questionDescription"
-                            header="Description"
-                            body={(rowData) => rowData.isGroupHeader ? null : rowData.questionDescription}
-                        />
-                        <Column
-                            field="templateType.templateTypeName"
-                            header="Template Type"
-                            body={(rowData) => rowData.isGroupHeader ? null : rowData.templateType?.templateTypeName}
-                        />
-                        <Column
-                            field="reviewType.reviewTypeName"
-                            header="Review Type"
-                            body={(rowData) => rowData.isGroupHeader ? null : rowData.reviewType?.reviewTypeName}
-                        />
-                    </DataTable>
-
-                    <Button
-                        label="Save Final Review"
-                        icon="pi pi-save"
-                        className="mt-4"
-                        onClick={handleFinalSave}
-                        disabled={selectedQuestions.length === 0}
-                    />
-                </div>
-            )} */}
 
             {selectedReviewType && selectedTemplateTypes.length > 0 && (
                 <div className="mt-4">
