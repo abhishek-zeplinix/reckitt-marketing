@@ -354,9 +354,12 @@ export default function VendorTable() {
                         Evaluation Name: <span className="font-normal">{selectedEvaluation?.name}</span> &nbsp;
                         Type: <span className="font-normal">{selectedEvaluation?.type}</span> &nbsp;
                         Year: <span className="font-normal">{selectedEvaluation?.year}</span> &nbsp;
-                        Month: <span className="font-normal">{selectedEvaluation?.month}</span>
+                        Month: <span className="font-normal">{selectedEvaluation?.month}</span>&nbsp;
+                        Set-up: <span className="font-normal text-xs ">
+                        (1: Reckitt to Agency, 2: Agency to Reckitt, 3: Reckitt self to Agency, 4: Agency self to Reckitt)
+                        </span>
                     </div>
-
+                <Button icon="pi pi-copy" label="Duplicate" onClick={handleDuplicate} />
                 </div>
                 <div className="flex justify-content-end gap-3">
                     <MultiSelect
