@@ -45,6 +45,7 @@ const MarketingMaster = () => {
     //     storedData['User'] = localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User')!) : [];
     //     setData(storedData);
     // }, []);
+    console.log(data);
     useEffect(() => {
     const storedData: Record<string, any> = {};
     

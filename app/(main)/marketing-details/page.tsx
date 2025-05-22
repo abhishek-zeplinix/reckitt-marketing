@@ -165,6 +165,7 @@ const MarketingDetails = () => {
     // Update template types when evaluation name changes
     useEffect(() => {
         if (!selectedEval) {
+            handleViewSaved();
             setSelectedReviewType(null);
             setTemplateTypeOptions([]);
             setSelectedTemplateTypes([]);
@@ -310,7 +311,7 @@ const MarketingDetails = () => {
             setSavedCombos(Array.isArray(parsedData) ? parsedData : []);
             // Reset expanded rows state completely
             // setExpandedRows(null);
-            setShowDialog(true);
+            // setShowDialog(true);
         } catch (error) {
             console.error('Error loading saved reviews:', error);
             toast.current?.show({
@@ -320,7 +321,7 @@ const MarketingDetails = () => {
                 life: 3000
             });
             setSavedCombos([]);
-            setShowDialog(true);
+            // setShowDialog(true);
         }
     };
     const rowExpansionTemplate = (data: any) => {
@@ -558,7 +559,7 @@ const header = renderHeader();
             </Dialog> */}
 
 
-            <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '90vw' }} onHide={() => setShowDialog(false)}>
+            {/* <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '90vw' }} onHide={() => setShowDialog(false)}>
                 {savedCombos.length > 0 ? (
                     <DataTable
                         value={savedCombos}
@@ -631,11 +632,11 @@ const header = renderHeader();
                 ) : (
                     <p>No saved reviews found.</p>
                 )}
-            </Dialog>
+            </Dialog> */}
 
             <div className="flex justify-content-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Final Review Configuration</h2>
-                <Button label="View Saved Reviews" icon="pi pi-eye" onClick={handleViewSaved} className="" />
+                {/* <Button label="View Saved Reviews" icon="pi pi-eye" onClick={handleViewSaved} className="" /> */}
             </div>
 
             <div className="grid formgrid gap-3 mb-4">
@@ -714,6 +715,79 @@ const header = renderHeader();
                     <Button label="Save Final Review" icon="pi pi-save" className="mt-4" onClick={handleFinalSave} disabled={selectedQuestions.length === 0} />
                 </div>
             )}
+            <hr className="my-4" />
+            {savedCombos.length > 0 ? (
+                    <DataTable
+                        value={savedCombos}
+                        expandedRows={expandedRows}
+                        onRowToggle={(e: any) => setExpandedRows(e.data)}
+                        rowExpansionTemplate={rowExpansionTemplate}
+                        paginator
+                        dataKey="accountName"
+                        rows={10}
+                        filters={filters}
+                        filterDisplay="menu"
+                        globalFilterFields={['accountName', 'evaluation', 'vendor', 'country', 'brand', 'status']}
+                        header={header}
+                        emptyMessage="No reviews found matching criteria"
+                    >
+                        <Column expander style={{ width: '3em' }} />
+                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
+                        <Column field="accountName" header="Account Name" sortable filter filterField="accountName" />
+                        <Column field="evaluation" header="Evaluation" sortable filter filterField="evaluation" />
+                        <Column field="vendor" header="Vendor" sortable filter filterField="vendor" />
+                        <Column
+                            field="country"
+                            header="Country"
+                            sortable
+                            filter
+                            filterField="country"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={countryOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
+                        <Column
+                            field="brand"
+                            header="Brand"
+                            sortable
+                            filter
+                            filterField="brand"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={brandOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
+                        <Column
+                            field="status"
+                            header="Status"
+                            sortable
+                            filter
+                            filterField="status"
+                            filterElement={(options) => (
+                                <MultiSelect
+                                    value={options.value}
+                                    options={statusOptions}
+                                    onChange={(e) => options.filterCallback(e.value)}
+                                    placeholder="Any"
+                                    className="p-column-filter"
+                                />
+                            )}
+                        />
+                    </DataTable>
+                ) : (
+                    <p>No saved reviews found.</p>
+                )}
         </div>
     );
 };
