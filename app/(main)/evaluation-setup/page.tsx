@@ -42,6 +42,15 @@ export default function VendorTable() {
     const [selectedDupEvalId, setSelectedDupEvalId] = useState<number | null>(null);
     const [newMonthDate, setNewMonthDate] = useState<Date | null>(null);
 
+    const [editingRow, setEditingRow] = useState<number | null>(null);
+    const [editingField, setEditingField] = useState<string | null>(null);
+
+    const [selectedEvalRows, setSelectedEvalRows] = useState<any[]>([]);
+    const [showMonthDialog, setShowMonthDialog] = useState(false);
+    const [previewEvalName, setPreviewEvalName] = useState('');
+
+
+
     // Filters for Evaluations table
     const [evaluationFilters, setEvaluationFilters] = useState({
         global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -63,6 +72,13 @@ export default function VendorTable() {
 
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [globalVendorFilterValue, setGlobalVendorFilterValue] = useState('');
+
+    useEffect(() => {
+    if (duplicateDialogVisible && selectedEvaluation) {
+        const vendors = getVendorsForEvaluation(selectedEvaluation.id);
+        setSelectedEvalRows(vendors);
+    }
+}, [duplicateDialogVisible, selectedEvaluation]);
 
     useEffect(() => {
         const storedEvaluations = JSON.parse(localStorage.getItem('evaluations') || '[]');
@@ -137,13 +153,26 @@ export default function VendorTable() {
         }
     }, []);
 
+    // const getVendorsForEvaluation = (evaluationId: number): Vendor[] => {
+    //     return evaluationVendors[evaluationId] || [];
+    // };
+
     const getVendorsForEvaluation = (evaluationId: number): Vendor[] => {
-        return evaluationVendors[evaluationId] || [];
+        const vendors = evaluationVendors[evaluationId] || [];
+        return vendors.map((v, index) => ({ ...v, id: index }));
     };
 
+    // const handleDuplicate = () => {
+    //     setDuplicateDialogVisible(true);
+    // };
+
     const handleDuplicate = () => {
-        setDuplicateDialogVisible(true);
-    };
+    if (!selectedEvaluation) return;
+ 
+    const vendors = getVendorsForEvaluation(selectedEvaluation.id);
+    setSelectedEvalRows(vendors);
+    setDuplicateDialogVisible(true);
+};
 
     const handleCreateEvaluation = () => {
         if (!newMonthDate || !selectedEvaluation) return;
@@ -190,7 +219,7 @@ export default function VendorTable() {
     };
 
     const setupTemplate = (rowData: Vendor) => (
-        <div className="flex flex-wrap gap-3 align-items-center">
+        <div className="flex flex-wrap gap-1 align-items-center">
             {[1, 2, 3, 4].map((i, index) => (
                 <div key={i} className="flex align-items-center gap-3">
                     <div className="flex flex-column align-items-center gap-1">
@@ -206,18 +235,136 @@ export default function VendorTable() {
             ))}
         </div>
     );
-    const questionSetTemplate = (rowData: Vendor) => (
-        <div>{rowData.questionSet.map((q, i) => <div key={i}>{q}</div>)}</div>
-    );
+    // const questionSetTemplate = (rowData: Vendor) => (
+    //     <div>{rowData.questionSet.map((q, i) => <div key={i}>{q}</div>)}</div>
+    // );
 
-    const participantsTemplate = (data: string[]) => (
-        <div>{data.map((entry, i) => <div key={i}>{entry}</div>)}</div>
-    );
 
-    const actionBodyTemplate = () => (
+    // Add this to your component file
+    const editModeStyles = {
+        border: '1px solid #6366F1', // purple border
+        backgroundColor: '#EEF2FF', // light purple background
+        borderRadius: '4px',
+        padding: '4px 8px',
+        cursor: 'pointer'
+    };
+
+    const normalModeStyles = {
+        border: '1px solid transparent',
+        borderRadius: '4px',
+        padding: '4px 8px',
+        cursor: 'pointer'
+    };
+
+    const questionSetTemplate = (rowData: Vendor, { rowIndex }: { rowIndex: number }) => {
+        if (editingRow === rowIndex && editingField === 'questionSet') {
+            return (
+                <InputText
+                    value={rowData.questionSet.join(', ')}
+                    onChange={(e) => {
+                        if (selectedEvaluation) {
+                            const updatedVendors = [...getVendorsForEvaluation(selectedEvaluation.id)];
+                            updatedVendors[rowIndex].questionSet = e.target.value.split(',').map(item => item.trim());
+                            setEvaluationVendors({
+                                ...evaluationVendors,
+                                [selectedEvaluation.id]: updatedVendors
+                            });
+                        }
+                    }}
+                    autoFocus
+                    onBlur={() => setEditingField(null)}
+                    style={editModeStyles}
+                />
+            );
+        }
+        return (
+            <div
+                onClick={() => {
+                    setEditingRow(rowIndex);
+                    setEditingField('questionSet');
+                }}
+                style={normalModeStyles}
+                className={editingRow === rowIndex ? 'p-highlight' : ''}
+            >
+                {rowData.questionSet.map((q, i) => <div key={i}>{q}</div>)}
+            </div>
+        );
+    };
+
+    // const participantsTemplate = (data: string[]) => (
+    //     <div>{data.map((entry, i) => <div key={i}>{entry}</div>)}</div>
+    // );
+
+    const participantsTemplate = (data: string[], { rowIndex }: { rowIndex: number }, field: string) => {
+        if (editingRow === rowIndex && editingField === field) {
+            return (
+                <InputText
+                    value={data.join(', ')}
+                    onChange={(e) => {
+                        if (selectedEvaluation) {
+                            const updatedVendors: any = [...getVendorsForEvaluation(selectedEvaluation.id)];
+                            updatedVendors[rowIndex][field] = e.target.value.split(',').map(item => item.trim());
+                            setEvaluationVendors({
+                                ...evaluationVendors,
+                                [selectedEvaluation.id]: updatedVendors
+                            });
+                        }
+                    }}
+                    autoFocus
+                    onBlur={() => setEditingField(null)}
+                    style={editModeStyles}
+                />
+            );
+        }
+        return (
+            <div
+                onClick={() => {
+                    setEditingRow(rowIndex);
+                    setEditingField(field);
+                }}
+                style={normalModeStyles}
+                className={editingRow === rowIndex ? 'p-highlight' : ''}
+            >
+                {data.map((entry, i) => <div key={i}>{entry}</div>)}
+            </div>
+        );
+    };
+    // const actionBodyTemplate = () => (
+    //     <div className="flex gap-2">
+    //         <Button icon="pi pi-pencil" className="p-button-text p-button-sm" />
+    //         <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" />
+    //     </div>
+    // );
+
+    const actionBodyTemplate = (rowData: Vendor, { rowIndex }: { rowIndex: number }) => (
         <div className="flex gap-2">
-            <Button icon="pi pi-pencil" className="p-button-text p-button-sm" />
-            <Button icon="pi pi-trash" className="p-button-text p-button-sm p-button-danger" />
+            {editingRow === rowIndex ? (
+                <Button
+                    icon="pi pi-check"
+                    className="p-button-text p-button-sm p-button-success"
+                    onClick={() => setEditingRow(null)}
+                />
+            ) : (
+                <Button
+                    icon="pi pi-pencil"
+                    className="p-button-text p-button-sm"
+                    onClick={() => setEditingRow(rowIndex)}
+                />
+            )}
+            <Button
+                icon="pi pi-trash"
+                className="p-button-text p-button-sm p-button-danger"
+                onClick={() => {
+                    if (selectedEvaluation) {
+                        const updatedVendors = [...getVendorsForEvaluation(selectedEvaluation.id)];
+                        updatedVendors.splice(rowIndex, 1);
+                        setEvaluationVendors({
+                            ...evaluationVendors,
+                            [selectedEvaluation.id]: updatedVendors
+                        });
+                    }
+                }}
+            />
         </div>
     );
 
@@ -355,12 +502,30 @@ export default function VendorTable() {
                         Type: <span className="font-normal">{selectedEvaluation?.type}</span> &nbsp;
                         Year: <span className="font-normal">{selectedEvaluation?.year}</span> &nbsp;
                         Month: <span className="font-normal">{selectedEvaluation?.month}</span>&nbsp;
-                        Set-up: <span className="font-normal text-xs ">
-                        (1: Reckitt to Agency, 2: Agency to Reckitt, 3: Reckitt self to Agency, 4: Agency self to Reckitt)
-                        </span>
+
                     </div>
-                <Button icon="pi pi-copy" label="Duplicate" onClick={handleDuplicate} />
+                    <Button icon="pi pi-copy" label="Duplicate" onClick={handleDuplicate} />
                 </div>
+
+                <div className="flex gap-6 flex-wrap bg-gray-100 border-round p-3 mt-2 shadow-sm align-items-center">
+                    <div className="flex align-items-center gap-2">
+                        <span className="px-2 py-1 text-sm bg-gray-200 border-round font-semibold">1</span>
+                        <span className="text-sm">Reckitt to Agency</span>
+                    </div>
+                    <div className="flex align-items-center gap-2">
+                        <span className="px-2 py-1 text-sm bg-gray-200 border-round font-semibold">2</span>
+                        <span className="text-sm">Agency to Reckitt</span>
+                    </div>
+                    <div className="flex align-items-center gap-2">
+                        <span className="px-2 py-1 text-sm bg-gray-200 border-round font-semibold">3</span>
+                        <span className="text-sm">Reckitt self to Agency</span>
+                    </div>
+                    <div className="flex align-items-center gap-2">
+                        <span className="px-2 py-1 text-sm bg-gray-200 border-round font-semibold">4</span>
+                        <span className="text-sm">Agency Self to Reckitt</span>
+                    </div>
+                </div>
+
                 <div className="flex justify-content-end gap-3">
                     <MultiSelect
                         value={vendorFilters.agency.value}
@@ -416,38 +581,7 @@ export default function VendorTable() {
                     <Column field="name" header="Evaluation Name" filter filterPlaceholder="Search by name" />
                     <Column field="type" header="Type" filter filterPlaceholder="Filter by type" />
                     <Column field="year" header="Year" filter filterPlaceholder="Filter by year" />
-                    {/* <Column field="month" header="Month" filter filterPlaceholder="Filter by month" /> */}
-                    {/* <Column
-                        header="Month"
-                        body={(rowData) => {
-                            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                            return monthNames[parseInt(rowData.month, 10) - 1] || rowData.month;
-                        }}
-                    /> */}
 
-                    {/* <Column
-                        field="month"
-                        header="Month"
-                        body={(rowData) => {
-                            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                            return monthNames[parseInt(rowData.month, 10) - 1] || rowData.month;
-                        }}
-                        filter
-                        filterPlaceholder="Filter by month"
-                        filterField="month"
-                        filterElement={(options) => (
-                            <MultiSelect
-                                value={options.value}
-                                options={Array.from({ length: 12 }, (_, i) => ({
-                                    label: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i],
-                                    value: (i + 1).toString()
-                                }))}
-                                onChange={(e) => options.filterCallback(e.value)}
-                                placeholder="Select Months"
-                                className="p-column-filter"
-                            />
-                        )}
-                    /> */}
 
                     <Column
                         field="month"
@@ -511,11 +645,16 @@ export default function VendorTable() {
                 filterDisplay="menu"
                 globalFilterFields={['agency', 'account', 'questionSet', 'clientParticipants', 'agencyParticipants']}
                 header={renderVendorHeader}
+                rowClassName={(data: Vendor, { rowIndex }: any) =>
+                    editingRow === rowIndex ? 'bg-blue-50' : undefined
+                }
+
+
             >
                 <Column field="agency" header="AGENCY" filter filterPlaceholder="Search by agency" />
                 <Column field="account" header="ACCOUNT" filter filterPlaceholder="Search by account" />
                 <Column body={setupTemplate} header="SET-UP" style={{ width: '200px' }} />
-                <Column body={questionSetTemplate} header="QUESTION SET" filter filterField="questionSet" filterPlaceholder="Search question sets" />
+                {/* <Column body={questionSetTemplate} header="QUESTION SET" filter filterField="questionSet" filterPlaceholder="Search question sets" />
                 <Column
                     body={(rowData) => participantsTemplate(rowData.clientParticipants)}
                     header="CLIENT PARTICIPANTS"
@@ -529,10 +668,37 @@ export default function VendorTable() {
                     filter
                     filterField="agencyParticipants"
                     filterPlaceholder="Search participants"
-                />
-                <Column body={actionBodyTemplate} header="ACTIONS" style={{ width: '120px' }} />
-            </DataTable>
+                /> */}
+                {/* <Column body={actionBodyTemplate} header="ACTIONS" style={{ width: '120px' }} /> */}
 
+                <Column
+                    body={(rowData, options) => participantsTemplate(rowData.clientParticipants, options, 'clientParticipants')}
+                    header="CLIENT PARTICIPANTS"
+                    filter
+                    filterField="clientParticipants"
+                    filterPlaceholder="Search participants"
+                />
+                <Column
+                    body={(rowData, options) => participantsTemplate(rowData.agencyParticipants, options, 'agencyParticipants')}
+                    header="AGENCY PARTICIPANTS"
+                    filter
+                    filterField="agencyParticipants"
+                    filterPlaceholder="Search participants"
+                />
+                <Column
+                    body={questionSetTemplate}
+                    header="QUESTION SET"
+                    filter
+                    filterField="questionSet"
+                    filterPlaceholder="Search question sets"
+                />
+                <Column
+                    body={actionBodyTemplate}
+                    header="ACTIONS"
+                    style={{ width: '120px' }}
+                />
+            </DataTable>
+            {/* 
             <Dialog header="Duplicate Evaluation" visible={duplicateDialogVisible} onHide={() => setDuplicateDialogVisible(false)}>
                 <div className="flex flex-column gap-3">
                     <Dropdown
@@ -562,7 +728,157 @@ export default function VendorTable() {
                         <Button label="Create New Evaluation" onClick={() => setNewEvalDialogVisible(true)} />
                     </div>
                 </div>
+            </Dialog> */}
+
+
+            <Dialog header="Duplicate Evaluation" visible={duplicateDialogVisible} onHide={() => setDuplicateDialogVisible(false)} style={{ width: '50vw' }}>
+                <div className="flex flex-column gap-3">
+                    <DataTable
+                        value={getVendorsForEvaluation(selectedEvaluation.id)}
+                        selection={selectedEvalRows}
+                        onSelectionChange={(e) => setSelectedEvalRows(e.value)}
+                        selectionMode="checkbox"
+                        dataKey="id"
+                        className="w-full"
+                    >
+                        <Column selectionMode="multiple" headerStyle={{ width: '3rem' }} />
+                        <Column field="agency" header="AGENCY" filter filterPlaceholder="Search by agency" />
+                        <Column field="account" header="ACCOUNT" filter filterPlaceholder="Search by account" />
+                        <Column body={setupTemplate} header="SET-UP" style={{ width: '200px' }} />
+                        <Column body={questionSetTemplate} header="QUESTION SET" />
+                    </DataTable>
+
+
+                    <Button
+                        label="Save"
+                        onClick={() => {
+                            if (selectedEvalRows.length === 0) return;
+                            setShowMonthDialog(true);
+                        }}
+                        className="mt-2"
+                        disabled={selectedEvalRows.length === 0}
+                    />
+                </div>
             </Dialog>
+
+            <Dialog header="Select Month" visible={showMonthDialog} onHide={() => setShowMonthDialog(false)} style={{ width: '30vw' }}>
+                <div className="flex flex-column gap-3">
+                    <label>Select Month</label>
+                    <Calendar
+                        value={newMonthDate}
+                        onChange={(e) => {
+                            const newDate = e.value || new Date();
+                            setNewMonthDate(newDate);
+
+                            const baseEval = selectedEvalRows[0];
+
+                            if (!baseEval || !baseEval.name) {
+                                // setPreviewEvalName('');
+                                return;
+                            }
+
+                            const nameParts = baseEval.name.split(', ');
+                            const nameSuffix = nameParts.length > 1 ? nameParts[1] : baseEval.name;
+
+                            const newMonth = `${newDate.getMonth() + 1}`.padStart(2, '0');
+                            const newEvalName = `${baseEval.year}-${newMonth}, ${nameSuffix}`;
+                            // setPreviewEvalName(newEvalName);
+                        }}
+                        view="month"
+                        dateFormat="mm"
+                        showIcon
+                        className="w-full"
+                    />
+
+
+                    {previewEvalName && (
+                        <div className="p-3 border-round bg-gray-100">
+                            <strong>Preview Name: </strong>{previewEvalName}
+                        </div>
+                    )}
+
+                    <Button label="Cancel" className="p-button-text" onClick={() => {
+                        setShowMonthDialog(false);
+                        setPreviewEvalName('');
+                        setNewMonthDate(null);
+                    }} />
+                    {!previewEvalName && (
+                        <Button
+                            label="Save"
+                            onClick={() => {
+                                if (!newMonthDate || !selectedEvaluation || selectedEvalRows.length === 0) return;
+
+                                const newMonth = `${newMonthDate.getMonth() + 1}`.padStart(2, '0');
+
+                                const nameParts = selectedEvaluation.name.split(', ');
+                                const nameSuffix = nameParts.length > 1 ? nameParts[1] : selectedEvaluation.name;
+
+                                const newEvalName = previewEvalName || `${selectedEvaluation.year}-${newMonth}, ${nameSuffix}`;
+
+                                const newId = Math.max(...evaluations.map(e => e.id)) + 1;
+
+                                const newEval = {
+                                    id: newId,
+                                    name: newEvalName,
+                                    type: selectedEvaluation.type,
+                                    year: selectedEvaluation.year,
+                                    month: newMonth,
+                                };
+                                const newEva = `${newEval.name}`
+                                setPreviewEvalName(newEva)
+
+                            }}
+                            disabled={!newMonthDate}
+                        />
+                    )}
+                    {previewEvalName && (
+                        <Button
+                            label="Final Save"
+                            onClick={() => {
+                                if (!newMonthDate || !selectedEvaluation || selectedEvalRows.length === 0) return;
+
+                                const newMonth = `${newMonthDate.getMonth() + 1}`.padStart(2, '0');
+
+                                const nameParts = selectedEvaluation.name.split(', ');
+                                const nameSuffix = nameParts.length > 1 ? nameParts[1] : selectedEvaluation.name;
+
+                                const newEvalName = previewEvalName || `${selectedEvaluation.year}-${newMonth}, ${nameSuffix}`;
+
+                                const newId = Math.max(...evaluations.map(e => e.id)) + 1;
+
+                                const newEval = {
+                                    id: newId,
+                                    name: newEvalName,
+                                    type: selectedEvaluation.type,
+                                    year: selectedEvaluation.year,
+                                    month: newMonth,
+                                };
+
+                                const vendorsToCopy = selectedEvalRows.map(({ id, ...vendor }) => vendor);
+
+                                const updatedEvals = [...evaluations, newEval];
+                                const updatedVendors = {
+                                    ...evaluationVendors,
+                                    [newId]: vendorsToCopy
+                                };
+
+                                localStorage.setItem('evaluations', JSON.stringify(updatedEvals));
+                                localStorage.setItem('evaluationVendors', JSON.stringify(updatedVendors));
+
+                                setEvaluations(updatedEvals);
+                                setEvaluationVendors(updatedVendors);
+                                setDuplicateDialogVisible(false);
+                                setShowMonthDialog(false);
+                                setSelectedEvalRows([]);
+                                setPreviewEvalName('');
+                            }}
+                            disabled={!newMonthDate}
+                        />
+                    )}
+
+                </div>
+            </Dialog>
+
 
             <Dialog header="Create Evaluation" visible={newEvalDialogVisible} onHide={() => setNewEvalDialogVisible(false)}>
                 <div className="flex flex-column gap-3">

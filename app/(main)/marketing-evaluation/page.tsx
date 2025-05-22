@@ -11,8 +11,7 @@ import { InputText } from 'primereact/inputtext';
 
 const EvaluationPage = () => {
     const toast = useRef<Toast>(null);
-    const [showDialog, setShowDialog] = useState(false);
-    const [savedData, setSavedData] = useState<string[]>([]);
+    const [savedData, setSavedData] = useState<{ id: number; name: string }[]>([]);
     const [isClient, setIsClient] = useState(false);
 
     // State for dropdown options
@@ -103,10 +102,33 @@ const EvaluationPage = () => {
         });
     };
 
+    // const handleSave = () => {
+    //     const existingEvaluations = JSON.parse(localStorage.getItem('evaluationData') || '[]');
+    //     const updatedEvaluations = [...existingEvaluations, ...combinations];
+    //     localStorage.setItem('evaluationData', JSON.stringify(updatedEvaluations));
+
+    //     toast.current?.show({
+    //         severity: 'success',
+    //         summary: 'Success',
+    //         detail: 'Saved successfully ✅',
+    //         life: 3000
+    //     });
+
+    //     setCombinations([]);
+    //     setEditableCombinations([]);
+    // };
+
     const handleSave = () => {
         const existingEvaluations = JSON.parse(localStorage.getItem('evaluationData') || '[]');
-        const updatedEvaluations = [...existingEvaluations, ...combinations];
-        localStorage.setItem('evaluationData', JSON.stringify(updatedEvaluations));
+        const newEvaluations = [...existingEvaluations, ...combinations];
+        localStorage.setItem('evaluationData', JSON.stringify(newEvaluations));
+
+        // Update savedData state with the new entries
+        const newSavedItems = combinations.map((val, idx) => ({
+            id: existingEvaluations.length + idx + 1,
+            name: val
+        }));
+        setSavedData(prev => [...prev, ...newSavedItems]);
 
         toast.current?.show({
             severity: 'success',
@@ -119,11 +141,30 @@ const EvaluationPage = () => {
         setEditableCombinations([]);
     };
 
+    // const handleViewSaved = () => {
+    //     const data = JSON.parse(localStorage.getItem('evaluationData') || '[]');
+    //     setSavedData(data);
+    // };
+
     const handleViewSaved = () => {
         const data = JSON.parse(localStorage.getItem('evaluationData') || '[]');
-        setSavedData(data);
-        setShowDialog(true);
+        setSavedData(data.map((val: string, idx: number) => ({ id: idx + 1, name: val })));
     };
+
+    const handleDeleteSaved = (id: number) => {
+        const updated = savedData.filter(item => item.id !== id);
+        localStorage.setItem('evaluationData', JSON.stringify(updated.map(item => item.name)));
+        setSavedData(updated);
+    };
+
+    const handleEditSaved = (id: number, value: string) => {
+        const updated = savedData.map(item =>
+            item.id === id ? { ...item, name: value } : item
+        );
+        localStorage.setItem('evaluationData', JSON.stringify(updated.map(item => item.name)));
+        setSavedData(updated);
+    };
+
 
     const handleDelete = (id: number) => {
         const updated = editableCombinations.filter((item) => item.id !== id);
@@ -158,7 +199,7 @@ const EvaluationPage = () => {
                 <h2 className="text-xl font-semibold">Evaluation Name</h2>
                 {/* <Button label="View Saved Evaluations" icon="pi pi-eye" onClick={handleViewSaved} /> */}
             </div>
-            <hr className="my-3" /> 
+            <hr className="my-3" />
 
             <div className="grid formgrid gap-3 mb-4">
                 <div className="flex row col-12">
@@ -216,7 +257,7 @@ const EvaluationPage = () => {
                 </div>
 
                 <div className="col-12 flex justify-content-end">
-                    <Button label="Submit" icon="pi pi-check" onClick={handleSubmit}  />
+                    <Button label="Submit" icon="pi pi-check" onClick={handleSubmit} />
                 </div>
             </div>
 
@@ -255,14 +296,80 @@ const EvaluationPage = () => {
                     </div>
                 </>
             )}
+            {/* {savedData.length > 0 ? (
+                <DataTable value={savedData.map((val, i) => ({ id: i + 1, name: val }))}>
+                    <Column field="id" header="#" style={{ width: '50px' }} />
+                    <Column field="name" header="Evaluation Name" />
+                </DataTable>
+            ) : (
+                <p>No saved evaluations found.</p>
+            )} */}
+
             {savedData.length > 0 ? (
-                    <DataTable value={savedData.map((val, i) => ({ id: i + 1, name: val }))}>
+                <div className="mt-5">
+                    <h3 className="text-lg font-medium mb-3">Saved Evaluations</h3>
+                    <div className="flex justify-content-end mb-3">
+                        <InputText
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search saved evaluations..."
+                            className="w-48 p-2 text-sm border rounded"
+                        />
+                    </div>
+                    <DataTable
+                        value={savedData.filter(item =>
+                            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+                        )}
+                        className="mb-4"
+                    >
                         <Column field="id" header="#" style={{ width: '50px' }} />
-                        <Column field="name" header="Evaluation Name" />
+                        <Column
+                            header="Evaluation Name"
+                            body={(rowData) => (
+                                editId === rowData.id ?
+                                    <input
+                                        value={rowData.name}
+                                        onChange={(e) => handleEditSaved(rowData.id, e.target.value)}
+                                        className="w-full p-1 border"
+                                    /> :
+                                    <span>{rowData.name}</span>
+                            )}
+                        />
+                        <Column
+                            header="Actions"
+                            body={(rowData) => (
+                                <div className="flex gap-2">
+                                    {editId === rowData.id ? (
+                                        <Button
+                                            icon="pi pi-check"
+                                            className="p-button-success p-button-sm"
+                                            onClick={() => setEditId(null)}
+                                            tooltip="Save"
+                                        />
+                                    ) : (
+                                        <Button
+                                            icon="pi pi-pencil"
+                                            className="p-button-text p-button-sm"
+                                            onClick={() => setEditId(rowData.id)}
+                                            tooltip="Edit"
+                                        />
+                                    )}
+                                    <Button
+                                        icon="pi pi-trash"
+                                        className="p-button-danger p-button-sm"
+                                        onClick={() => handleDeleteSaved(rowData.id)}
+                                        tooltip="Delete"
+                                    />
+                                </div>
+                            )}
+                            style={{ width: '120px' }}
+                        />
                     </DataTable>
-                ) : (
-                    <p>No saved evaluations found.</p>
-                )}
+                </div>
+            ) : (
+                <p className="mt-5">No saved evaluations found.</p>
+            )}
         </div>
     );
 };

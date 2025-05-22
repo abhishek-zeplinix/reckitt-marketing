@@ -861,3 +861,21 @@ $spacing-sizes: (
 // div::-webkit-scrollbar-thumb:hover {
 //   background: #94a3b8;
 // }
+
+/* Add highlight effect for editable fields */
+.p-highlight {
+    transition: all 0.2s;
+    box-shadow: 0 0 0 1px #6366F1;
+}
+
+/* Add hover effect for non-editable fields */
+div[style*="cursor: pointer"]:hover {
+    background-color: #f5f5f5;
+}
+
+/* Style for the input field in edit mode */
+.p-inputtext:focus {
+    box-shadow: 0 0 0 1px #6366F1;
+    border-color: #6366F1;
+}
+

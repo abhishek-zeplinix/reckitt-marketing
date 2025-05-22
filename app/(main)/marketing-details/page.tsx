@@ -65,6 +65,9 @@ const MarketingDetails = () => {
     const [comboList, setComboList] = useState<any[]>([]);
     const [savedCombos, setSavedCombos] = useState<any[]>([]);
 
+    const [editingCombo, setEditingCombo] = useState<any>(null);
+    const [isEditing, setIsEditing] = useState(false);
+
     const [questionsByTemplateType, setQuestionsByTemplateType] = useState<Record<string, any[]>>({});
 
 
@@ -489,150 +492,134 @@ const MarketingDetails = () => {
         setFilters(_filters);
     };
 
+    const handleEdit = (combo: any) => {
+        setEditingCombo(combo);
+        setSelectedEval(combo.evaluation);
+        setSelectedVendor(combo.vendor);
+        setSelectedChildVendor(combo.childVendor);
+        setAdministrator(combo.administrator);
+        setSelectedCountry(combo.country);
+        setSelectedBU(combo.bu);
+        setSelectedStatus(combo.status);
+        setSelectedBrand(combo.brand);
+        setSelectedReviewType(combo.reviewType);
+        setSelectedTemplateTypes(combo.templateTypes);
+        setSelectedQuestions(combo.questions);
+        setIsEditing(true);
+
+        // Scroll to form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+
+    const handleDelete = (accountName: string) => {
+        const updatedCombos = comboList.filter(combo => combo.accountName !== accountName);
+        setComboList(updatedCombos);
+        setSavedCombos(updatedCombos);
+        localStorage.setItem(STORAGE_KEYS.FINAL_REVIEW_DATA, JSON.stringify(updatedCombos));
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Success!',
+            detail: 'Review deleted successfully',
+            life: 3000
+        });
+    };
+
+    const handleUpdate = () => {
+        if (!editingCombo) return;
+
+        const updatedCombo = {
+            ...editingCombo,
+            evaluation: selectedEval,
+            vendor: selectedVendor,
+            childVendor: selectedChildVendor,
+            administrator,
+            country: selectedCountry,
+            bu: selectedBU,
+            status: selectedStatus,
+            brand: selectedBrand,
+            reviewType: selectedReviewType,
+            templateTypes: selectedTemplateTypes,
+            questions: selectedQuestions
+        };
+
+        const updatedCombos = comboList.map(combo =>
+            combo.accountName === editingCombo.accountName ? updatedCombo : combo
+        );
+
+        setComboList(updatedCombos);
+        setSavedCombos(updatedCombos);
+        localStorage.setItem(STORAGE_KEYS.FINAL_REVIEW_DATA, JSON.stringify(updatedCombos));
+        setIsEditing(false);
+        setEditingCombo(null);
+
+        toast.current?.show({
+            severity: 'success',
+            summary: 'Success!',
+            detail: 'Review updated successfully',
+            life: 3000
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditingCombo(null);
+        // Reset form fields if needed
+    };
+
 
     const renderHeader = () => {
-    return (
-        <div className="flex flex-column md:flex-row  md:justify-content-between md:align-items-center gap-2">
-            <div className="flex flex-column md:flex-row gap-2">
+        return (
+            <div className="flex flex-column md:flex-row  md:justify-content-end md:align-items-center gap-2">
+                <div className="flex flex-column md:flex-row gap-2">
+
+                    <MultiSelect
+                        value={selectedCountries}
+                        options={countryOptions}
+                        onChange={onCountryFilterChange}
+                        placeholder="Filter by Country"
+                        maxSelectedLabels={3}
+                        className="w-full md:w-20rem"
+                        showClear
+                    />
+                    <MultiSelect
+                        value={selectedBrands}
+                        options={brandOptions}
+                        onChange={onBrandFilterChange}
+                        placeholder="Filter by Brand"
+                        maxSelectedLabels={3}
+                        className="w-full md:w-20rem"
+                        showClear
+                    />
+                    <MultiSelect
+                        value={selectedStatuses}
+                        options={statusOptions}
+                        onChange={onStatusFilterChange}
+                        placeholder="Filter by Status"
+                        maxSelectedLabels={3}
+                        className="w-full md:w-20rem"
+                        showClear
+                    />
+                </div>
                 <span className="p-input-icon-left">
                     <i className="pi pi-search" />
-                    <InputText 
-                        type="search" 
-                        onChange={onGlobalFilterChange} 
-                        placeholder="Global Search" 
-                        className="w-full" 
+                    <InputText
+                        type="search"
+                        onChange={onGlobalFilterChange}
+                        placeholder="Global Search"
+                        className="w-full"
                     />
                 </span>
-                <MultiSelect
-                    value={selectedCountries}
-                    options={countryOptions}
-                    onChange={onCountryFilterChange}
-                    placeholder="Filter by Country"
-                    maxSelectedLabels={3}
-                    className="w-full md:w-20rem"
-                    showClear
-                />
-                <MultiSelect
-                    value={selectedBrands}
-                    options={brandOptions}
-                    onChange={onBrandFilterChange}
-                    placeholder="Filter by Brand"
-                    maxSelectedLabels={3}
-                    className="w-full md:w-20rem"
-                    showClear
-                />
-                <MultiSelect
-                    value={selectedStatuses}
-                    options={statusOptions}
-                    onChange={onStatusFilterChange}
-                    placeholder="Filter by Status"
-                    maxSelectedLabels={3}
-                    className="w-full md:w-20rem"
-                    showClear
-                />
             </div>
-        </div>
-    );
-};
+        );
+    };
 
-const header = renderHeader();
+    const header = renderHeader();
 
     return (
         <div className="p-4 card">
             <Toast ref={toast} />
-
-            {/* <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '70vw' }} onHide={() => setShowDialog(false)}>
-                {savedCombos.length > 0 ? (
-                    <DataTable value={savedCombos} expandedRows={expandedRows} onRowToggle={(e: any) => setExpandedRows(e.data)} rowExpansionTemplate={rowExpansionTemplate} paginator dataKey="accountName" rows={10}>
-                        <Column expander style={{ width: '3em' }} />
-                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
-                        <Column field="accountName" header="Account Name" />
-                        <Column field="evaluation" header="Evaluation" />
-                        <Column field="vendor" header="Vendor" />
-                        <Column field="country" header="Country" />
-                        <Column field="brand" header="Brand" />
-                        <Column field="status" header="Status" />
-                    </DataTable>
-                ) : (
-                    <p>No saved reviews found.</p>
-                )}
-            </Dialog> */}
-
-
-            {/* <Dialog header="Saved Final Reviews" visible={showDialog} style={{ width: '90vw' }} onHide={() => setShowDialog(false)}>
-                {savedCombos.length > 0 ? (
-                    <DataTable
-                        value={savedCombos}
-                        expandedRows={expandedRows}
-                        onRowToggle={(e: any) => setExpandedRows(e.data)}
-                        rowExpansionTemplate={rowExpansionTemplate}
-                        paginator
-                        dataKey="accountName"
-                        rows={10}
-                        filters={filters}
-                        filterDisplay="menu"
-                        globalFilterFields={['accountName', 'evaluation', 'vendor', 'country', 'brand', 'status']}
-                        header={header}
-                        emptyMessage="No reviews found matching criteria"
-                    >
-                        <Column expander style={{ width: '3em' }} />
-                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
-                        <Column field="accountName" header="Account Name" sortable filter filterField="accountName" />
-                        <Column field="evaluation" header="Evaluation" sortable filter filterField="evaluation" />
-                        <Column field="vendor" header="Vendor" sortable filter filterField="vendor" />
-                        <Column
-                            field="country"
-                            header="Country"
-                            sortable
-                            filter
-                            filterField="country"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={countryOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
-                                />
-                            )}
-                        />
-                        <Column
-                            field="brand"
-                            header="Brand"
-                            sortable
-                            filter
-                            filterField="brand"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={brandOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
-                                />
-                            )}
-                        />
-                        <Column
-                            field="status"
-                            header="Status"
-                            sortable
-                            filter
-                            filterField="status"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={statusOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
-                                />
-                            )}
-                        />
-                    </DataTable>
-                ) : (
-                    <p>No saved reviews found.</p>
-                )}
-            </Dialog> */}
 
             <div className="flex justify-content-between items-center mb-4">
                 <h2 className="text-xl font-semibold">Final Review Configuration</h2>
@@ -712,82 +699,120 @@ const header = renderHeader();
 
                     {Object.keys(questionsByTemplateType).length > 0 ? renderQuestionsTables() : <p>No questions found for the selected criteria.</p>}
 
-                    <Button label="Save Final Review" icon="pi pi-save" className="mt-4" onClick={handleFinalSave} disabled={selectedQuestions.length === 0} />
+                    <Button
+                        label={isEditing ? "Update Review" : "Save Final Review"}
+                        icon={isEditing ? "pi pi-check" : "pi pi-save"}
+                        className="mt-4"
+                        onClick={isEditing ? handleUpdate : handleFinalSave}
+                        disabled={selectedQuestions.length === 0}
+                    />
+                    {isEditing && (
+                        <Button
+                            label="Cancel"
+                            icon="pi pi-times"
+                            className="mt-4 ml-2"
+                            onClick={handleCancelEdit}
+                        />
+                        
+                    )}
+                    {/* <Button label="Save Final Review" icon="pi pi-save" className="mt-4" onClick={handleFinalSave} disabled={selectedQuestions.length === 0} /> */}
                 </div>
             )}
             <hr className="my-4" />
             {savedCombos.length > 0 ? (
-                    <DataTable
-                        value={savedCombos}
-                        expandedRows={expandedRows}
-                        onRowToggle={(e: any) => setExpandedRows(e.data)}
-                        rowExpansionTemplate={rowExpansionTemplate}
-                        paginator
-                        dataKey="accountName"
-                        rows={10}
-                        filters={filters}
-                        filterDisplay="menu"
-                        globalFilterFields={['accountName', 'evaluation', 'vendor', 'country', 'brand', 'status']}
-                        header={header}
-                        emptyMessage="No reviews found matching criteria"
-                    >
-                        <Column expander style={{ width: '3em' }} />
-                        <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
-                        <Column field="accountName" header="Account Name" sortable filter filterField="accountName" />
-                        <Column field="evaluation" header="Evaluation" sortable filter filterField="evaluation" />
-                        <Column field="vendor" header="Vendor" sortable filter filterField="vendor" />
-                        <Column
-                            field="country"
-                            header="Country"
-                            sortable
-                            filter
-                            filterField="country"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={countryOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
+                <DataTable
+                    value={savedCombos}
+                    expandedRows={expandedRows}
+                    onRowToggle={(e: any) => setExpandedRows(e.data)}
+                    rowExpansionTemplate={rowExpansionTemplate}
+                    paginator
+                    dataKey="accountName"
+                    rows={10}
+                    filters={filters}
+                    filterDisplay="menu"
+                    globalFilterFields={['accountName', 'evaluation', 'vendor', 'country', 'brand', 'status']}
+                    header={header}
+                    emptyMessage="No reviews found matching criteria"
+                >
+                    <Column
+                        header="Actions"
+                        body={(rowData) => (
+                            <div className="flex gap-2">
+                                <Button
+                                    icon="pi pi-pencil"
+                                    className="p-button-rounded p-button-success p-button-text"
+                                    onClick={() => handleEdit(rowData)}
+                                    tooltip="Edit"
+                                    tooltipOptions={{ position: 'top' }}
                                 />
-                            )}
-                        />
-                        <Column
-                            field="brand"
-                            header="Brand"
-                            sortable
-                            filter
-                            filterField="brand"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={brandOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
+                                <Button
+                                    icon="pi pi-trash"
+                                    className="p-button-rounded p-button-danger p-button-text"
+                                    onClick={() => handleDelete(rowData.accountName)}
+                                    tooltip="Delete"
+                                    tooltipOptions={{ position: 'top' }}
                                 />
-                            )}
-                        />
-                        <Column
-                            field="status"
-                            header="Status"
-                            sortable
-                            filter
-                            filterField="status"
-                            filterElement={(options) => (
-                                <MultiSelect
-                                    value={options.value}
-                                    options={statusOptions}
-                                    onChange={(e) => options.filterCallback(e.value)}
-                                    placeholder="Any"
-                                    className="p-column-filter"
-                                />
-                            )}
-                        />
-                    </DataTable>
-                ) : (
-                    <p>No saved reviews found.</p>
-                )}
+                            </div>
+                        )}
+                        style={{ width: '8rem' }}
+                    />
+                    <Column expander style={{ width: '3em' }} />
+                    <Column header="#" body={(_, { rowIndex }) => rowIndex + 1} />
+                    <Column field="accountName" header="Account Name" sortable filter filterField="accountName" />
+                    <Column field="evaluation" header="Evaluation" sortable filter filterField="evaluation" />
+                    <Column field="vendor" header="Vendor" sortable filter filterField="vendor" />
+                    <Column
+                        field="country"
+                        header="Country"
+                        sortable
+                        filter
+                        filterField="country"
+                        filterElement={(options) => (
+                            <MultiSelect
+                                value={options.value}
+                                options={countryOptions}
+                                onChange={(e) => options.filterCallback(e.value)}
+                                placeholder="Any"
+                                className="p-column-filter"
+                            />
+                        )}
+                    />
+                    <Column
+                        field="brand"
+                        header="Brand"
+                        sortable
+                        filter
+                        filterField="brand"
+                        filterElement={(options) => (
+                            <MultiSelect
+                                value={options.value}
+                                options={brandOptions}
+                                onChange={(e) => options.filterCallback(e.value)}
+                                placeholder="Any"
+                                className="p-column-filter"
+                            />
+                        )}
+                    />
+                    <Column
+                        field="status"
+                        header="Status"
+                        sortable
+                        filter
+                        filterField="status"
+                        filterElement={(options) => (
+                            <MultiSelect
+                                value={options.value}
+                                options={statusOptions}
+                                onChange={(e) => options.filterCallback(e.value)}
+                                placeholder="Any"
+                                className="p-column-filter"
+                            />
+                        )}
+                    />
+                </DataTable>
+            ) : (
+                <p>No saved reviews found.</p>
+            )}
         </div>
     );
 };
