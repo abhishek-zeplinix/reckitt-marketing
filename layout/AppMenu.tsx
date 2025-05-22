@@ -86,17 +86,17 @@ const AppMenu = () => {
                             },
                             command: handleMenuClick
                         },
-                        {
-                            label: 'Manage Vendor',
-                            url: '/vendors-marketing',
-                            check: (user: any) => {
-                                if (get(user, 'isSuperAdmin')) {
-                                    return true;
-                                }
-                                return hasPermission('manage_faq');
-                            },
-                            command: handleMenuClick
-                        },
+                        // {
+                        //     label: 'Manage Vendor',
+                        //     url: '/vendors-marketing',
+                        //     check: (user: any) => {
+                        //         if (get(user, 'isSuperAdmin')) {
+                        //             return true;
+                        //         }
+                        //         return hasPermission('manage_faq');
+                        //     },
+                        //     command: handleMenuClick
+                        // },
                         {
                             label: 'Evaluation Name',
                             url: '/marketing-evaluation',
