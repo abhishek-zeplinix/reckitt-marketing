@@ -37,6 +37,7 @@ const EvaluationPage = () => {
 
     useEffect(() => {
         setIsClient(true);
+        handleViewSaved();
 
         const storedYears = JSON.parse(localStorage.getItem('Year') || '[]');
         setYearOptions(storedYears.map((year: string) => ({ label: year, value: year })));
@@ -142,7 +143,7 @@ const EvaluationPage = () => {
         <div className="p-4 card">
             <Toast ref={toast} />
 
-            <Dialog header="Saved Evaluations" visible={showDialog} style={{ width: '50vw' }} onHide={() => setShowDialog(false)}>
+            {/* <Dialog header="Saved Evaluations" visible={showDialog} style={{ width: '50vw' }} onHide={() => setShowDialog(false)}>
                 {savedData.length > 0 ? (
                     <DataTable value={savedData.map((val, i) => ({ id: i + 1, name: val }))}>
                         <Column field="id" header="#" style={{ width: '50px' }} />
@@ -151,11 +152,11 @@ const EvaluationPage = () => {
                 ) : (
                     <p>No saved evaluations found.</p>
                 )}
-            </Dialog>
+            </Dialog> */}
 
             <div className="flex justify-content-between mb-3">
                 <h2 className="text-xl font-semibold">Evaluation Name</h2>
-                <Button label="View Saved Evaluations" icon="pi pi-eye" onClick={handleViewSaved} />
+                {/* <Button label="View Saved Evaluations" icon="pi pi-eye" onClick={handleViewSaved} /> */}
             </div>
             <hr className="my-3" /> 
 
@@ -254,6 +255,14 @@ const EvaluationPage = () => {
                     </div>
                 </>
             )}
+            {savedData.length > 0 ? (
+                    <DataTable value={savedData.map((val, i) => ({ id: i + 1, name: val }))}>
+                        <Column field="id" header="#" style={{ width: '50px' }} />
+                        <Column field="name" header="Evaluation Name" />
+                    </DataTable>
+                ) : (
+                    <p>No saved evaluations found.</p>
+                )}
         </div>
     );
 };

@@ -55,7 +55,7 @@ const TEMPLATE_DATA: AllQuestion[] = [
         userGroupId: "agency-1"
     },
     reviewType: {
-        reviewTypeName: "creative",
+        reviewTypeName: "Creative",
         reviewTypeId: "6"
     },
     minRating: "1",
