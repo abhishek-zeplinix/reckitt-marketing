@@ -655,10 +655,10 @@ const MarketingDetails = () => {
                         <label>Administrator</label>
                         <InputText value={administrator} onChange={(e) => setAdministrator(e.target.value)} placeholder="Enter Administrator" className="w-full mt-2" />
                     </div>
-                    <div className="col-4">
+                    {/* <div className="col-4">
                         <label>Country</label>
                         <Dropdown value={selectedCountry} options={countryOptions} onChange={(e) => setSelectedCountry(e.value)} placeholder="Select Country" className="w-full mt-2" filter />
-                    </div>
+                    </div> */}
                     <div className="col-4">
                         <label>BU</label>
                         <Dropdown value={selectedBU} options={buOptions} onChange={(e) => setSelectedBU(e.value)} placeholder="Select BU" className="w-full mt-2" filter />
